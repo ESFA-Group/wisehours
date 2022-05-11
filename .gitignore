@@ -1,0 +1,15 @@
+__pycache__/
+venv/
+.vscode/
+media/
+tempChartHodler/*
+log/
+sample_pdf.pdf
+
+local.py
+
+*.pyc
+*.sql
+*.json
+*.zip
+*.hex
