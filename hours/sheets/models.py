@@ -10,7 +10,7 @@ def current_month():
     return jdt.date.today().month
 
 class Sheet(models.Model):
-    user = models.ForeignKey(User, verbose_name="user", related_name="sheets", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name="user", related_name="sheets", on_delete=models.CASCADE, null=True)
     year = models.PositiveIntegerField('year', default=current_year)
     month = models.PositiveIntegerField('month', default=current_month)
     data = models.JSONField(default=dict)
