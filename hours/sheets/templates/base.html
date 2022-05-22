@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{request.resolver_match.url_name}}</title>
+    <link rel="icon" href="{% static 'sheets/picture/favicon.ico' %}">
+    {% block main_css %}
+        <link rel="stylesheet" href="{% static 'sheets/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'sheets/css/jsuites.css' %}">
+        <!-- <link rel="stylesheet" href="{% static 'sheets/css/font-awesome-all.min.css' %}"> -->
+    {% endblock main_css %}
+
+    {% block extra_css %}
+    {% endblock extra_css %}
+    
+    <style>
+        @font-face {
+            font-family: 'lato';
+            src: local('Lato'),
+                 url('{% static "sheets/fonts/Lato-Italic.ttf" %}');
+        }
+        body{
+            font-family: 'Lato', sans-serif;
+        }
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+
+    <script src="{% static 'sheets/js/JQuery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'sheets/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'sheets/js/jdate.min.js' %}"></script>
+    <script src="{% static 'sheets/js/jsuites.js' %}"></script>
+    <script src="{% static 'sheets/js/utils.js' %}"></script>
+</head>
+
+<body style="letter-spacing: 0.5px;">
+
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">E<span style="color: red;">S</span>FA Hours</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="{% url 'sheets:home_page' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'sheets:hours' as temp_url %}
+                        <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:hours' %}">Hours</a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'sheets:info' as temp_url %}
+                        <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:info' %}">Info</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Pricing</a>
+                    </li> -->
+                </ul>
+                <span class="navbar-text">
+                    <span id="nav-date" style="color: wheat;"></span>
+                </span>
+            </div>
+        </div>
+    </nav>
+    {% endblock navbar %}
+
+    {% block body %}
+    {% endblock %}
+
+    <script>
+        function writeDate(){
+            const today = new JDate();
+            const y = today.getFullYear();
+            const m = today.getMonth();
+            const d = today.getDate();
+            const weekday = new Date().toLocaleString('en-us', {weekday: 'short'});
+            $("#nav-date").text(`${weekday}.\u00A0\u00A0|\u00A0\u00A0${y}/${m}/${d}`);
+        }
+        writeDate();
+    </script>
+
+</body>
+</html>

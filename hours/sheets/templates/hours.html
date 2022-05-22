@@ -1,0 +1,449 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'sheets/css/jspreadsheet.css' %}">
+    <link rel="stylesheet" href="{% static 'sheets/css/jspreadsheet.datatables.css' %}">
+    <link rel="stylesheet" href="{% static 'sheets/css/jspreadsheet.theme.css' %}">
+    <style>
+        :root {
+            --jexcel_header_color: #000;
+            --jexcel_header_color_highlighted: #000;
+            --jexcel_header_background: #f3f3f3;
+            --jexcel_header_background_highlighted: #dcdcdc;
+            --jexcel_content_color: #000;
+            --jexcel_content_color_highlighted: #000;
+            --jexcel_content_background: #fff;
+            --jexcel_content_background_highlighted: rgba(0,0,0,0.05);
+            --jexcel_menu_background: #fff;
+            --jexcel_menu_background_highlighted: #ebebeb;
+            --jexcel_menu_color: #555;
+            --jexcel_menu_color_highlighted: #555;
+            --jexcel_menu_box_shadow: 2px 2px 2px 0px rgba(143, 144, 145, 1);
+            --jexcel_border_color: #ccc;
+            --jexcel_border_color_highlighted: #000;
+            --jexcel_cursor: #eee;
+            --active_color: #007aff;
+        }
+        /* .jexcel tbody tr td{
+            background-color: rgba(200, 0, 0, 0.2);
+        } */
+    </style>
+{% endblock extra_css %}
+{% block body %}
+
+<div class="px-4">
+    <div class="row">
+
+        <div class="col col-12 col-lg-4 mt-2">
+
+            <div style="position: sticky; top: 10px;">
+                <div class="row">
+                    <div class="col col-12 col-md-6">
+                        <strong>Year</strong>
+                        <div class="mt-1">
+                            <select name="year" id="year" style="min-width: 100px; border-radius: 5px; height: 35px;"></select>
+                        </div>
+                    </div>
+                    <div class="col col-12 col-md-6">
+                        <strong>Month</strong>
+                        <div class="mt-1">
+                            <select name="month" id="month" style="min-width: 100px; border-radius: 5px; height: 35px;">
+                                <option value="1">Farvardin</option>
+                                <option value="2">Ordibehesth</option>
+                                <option value="3">Khordad</option>
+                                <option value="4">Tir</option>
+                                <option value="5">Mordad</option>
+                                <option value="6">Shahrivar</option>
+                                <option value="7">Mehr</option>
+                                <option value="8">Aban</option>
+                                <option value="9">Azar</option>
+                                <option value="10">Dey</option>
+                                <option value="11">Bahman</option>
+                                <option value="12">Esfand</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <strong>Add Projects</strong>
+                <div class="mt-2 d-flex justify-content-between">
+                    <select name="projects" id="projects" style="min-width: 200px; border-radius: 5px;"></select>
+                    <button id="add-project" class="btn btn-primary" style="width: 75px;">Add</button>
+                </div>
+
+                <hr>
+
+                <div class="pb-1 pt-3 px-4" style="background-color: rgba(0,0,0,0.07); border-radius: 8px;">
+                    <p class="d-flex justify-content-between">
+                        <strong>Total working hours:</strong>
+                        <strong id="total-hours"></strong>
+                    </p>
+                    <p class="d-flex justify-content-between">
+                        <strong>Average working hours (per day):</strong>
+                        <strong id="mean-hours"></strong>
+                    </p>
+                </div>
+
+                <hr>
+
+                <div class="chart-container">
+                    <div id="projects-chart"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col col-12 col-lg-8" style="overflow-x: auto; border-left: 1px solid; padding-left: 10px;">
+            <div id="spreadsheet"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{% static 'sheets/js/plotly-basic.min.js' %}"></script>
+<script src="{% static 'sheets/js/jspreadsheet.min.js' %}"></script>
+<script>
+
+    const START_YEAR = 1401;
+
+    // JSuites toast settings:
+    // error: 1,
+    // icon: null,
+    // name: 'Notification',
+    // date: null,
+    // error: null,
+    // title: null,
+    // message: null,
+    // timeout: 4000,
+    // autoHide: true,
+    // closeable: true,
+
+    function addColumnToTable(config, data=[]){
+        // config format: [{width:200, title: 'hi'}]
+        // data format:  [[1,2,3]]
+        window.spreadTable.options.allowInsertColumn = true;
+        window.spreadTable.insertColumn(1, null, false, config, data);
+        window.spreadTable.options.allowInsertColumn = false;
+        window.spreadTable.setHeader()
+    }
+
+    function convertTableData(rawData){
+        /*  table's getJson method won't return table data correctly, some headers (mostly created ones in project adding) 
+            are wrong in each rows data. this function iterates each row and correct wrong keys to real keys in header.
+        */
+        const headers = window.spreadTable.getHeaders(true);
+        rawData.map(row => {
+            for(let [key, value] of Object.entries(row)){
+                if(!headers.includes(key)){
+                    row[headers[key]] = value;
+                    delete row[key];
+                }
+            }
+        })
+        return rawData
+    }
+
+    // function decodeTableData(data){
+    //     const projects = getTableProjects(tableData);
+    //     data.map(row => {
+    //         for(let [key, value] of Object.entries(row)){
+    //             if(projects.includes(key)){
+    //                 row[key] = parseProjectPorp(value);
+    //             }
+    //             if(key === "Hours"){
+    //                 row[key] = hhmm2minutes(value);
+    //             }
+    //         }
+    //     });
+    //     return data
+    // }
+
+    function saveSheet(data){
+        const year = $("#year").val();
+        const month = $("#month").val();
+        const url = `{% url "sheets:api_sheets" year='yearHolder' month='monthHolder' %}`
+            .replace("yearHolder", year)
+            .replace("monthHolder", month);
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{csrf_token}}',
+            },
+            body: JSON.stringify({"data": data}),
+        })
+        .then(res => res.json())
+        .catch(err => {
+            jSuites.notification({
+                error: 1,
+                name: 'Error',
+                title: "Updating Sheet",
+                message: err,
+            });
+        });
+    }
+
+    function hhmm2minutes(str){
+        if(typeof str !=='string' || !str.includes(":"))
+            return 0
+        const [h, m] = str.split(":");
+        return Number(h) * 60 + Number(m)
+    }
+
+    function parseProjectPorp(str){
+        if(typeof str !=='string')
+            return 0
+        return Number(str.replaceAll("%", "").trim())
+    }
+
+    function getTableProjects(tableData){
+        const defaultHeaders = new Set(['Day', 'WeekDay', 'Hours']);
+        const allHeaders = new Set(Object.keys(tableData[0]));
+        const tableProjects = new Set([...allHeaders].filter(x => !defaultHeaders.has(x)));
+        return [...tableProjects]
+    }
+
+    function getMinutesByProject(tableData){
+        const projects = getTableProjects(tableData);
+        const minutesByProject = new Object();
+        projects.forEach(prj => minutesByProject[prj] = 0);
+        let total = 0;
+        let daysCount = 0;
+        tableData.forEach(row => {
+            const mins = hhmm2minutes(row.Hours); 
+            for(const [prj, value] of Object.entries(row)){
+                if(!projects.includes(prj))
+                    continue
+                let percent = parseProjectPorp(row[prj]); 
+                const prjMinutes = mins * percent / 100;
+                minutesByProject[prj] += prjMinutes;
+            }
+            total += mins;
+            if(mins)
+                daysCount += 1;
+        });
+        minutesByProject.totalTime = total;
+        minutesByProject.meanTime = Math.floor(total / daysCount);
+        return minutesByProject
+    }
+
+    function updateHoursInfo(totalMinutes, minutesMean){
+        const totalH = Math.floor(totalMinutes / 60);
+        const totalM = totalMinutes % 60;
+        const meanH = Math.floor(minutesMean / 60);
+        const meanM = minutesMean % 60;
+        $("#total-hours").text(`${totalH < 10? 0: ''}${totalH}:${totalM < 10? 0: ''}${totalM}`); 
+        $("#mean-hours").text(`${meanH < 10? 0: ''}${meanH}:${meanM < 10? 0: ''}${meanM}`); 
+    }
+
+    function updateChart(minutesByProject){
+
+        const data = [{
+            type: 'pie',
+            values: Object.values(minutesByProject),
+            labels: Object.keys(minutesByProject),
+            textinfo: "label+percent",
+        }];
+
+        const layout = {
+            legend: {"orientation": "h"},
+            margin: {l: 5, r: 5, b: 10, t: 10, pad: 0},
+        };
+
+        const config = {responsive: true};
+
+        Plotly.newPlot('projects-chart', data, layout, config);
+    }
+
+    function validateSheet(tableData){
+        // validation function just indicates invalidity of row data
+        const projects = getTableProjects(tableData);
+        let valid = true;
+        tableData.forEach((row, idx) => {
+            let percent = 0;
+            for(const [prj, value] of Object.entries(row)){
+                if(!projects.includes(prj))
+                    continue
+                percent += parseProjectPorp(row[prj]); 
+            }
+            const err = percent != 100 && percent != 0;
+            valid = valid && !err;
+            const bgcolor = err? "rgba(255, 50, 75, 0.1)": "white";
+            const txtcolor = err? "rgba(255, 50, 75, 1)": "black";
+            $(`.jexcel tbody tr`).eq(idx).find("td").css({"background-color": bgcolor, "color": txtcolor});
+        });
+        return valid
+    }
+
+    function onChangeHandler(save=true){
+        const rawData = window.spreadTable.getJson();
+        const tableData = convertTableData(rawData);
+        const valid = validateSheet(tableData);
+        if(!valid){
+            jSuites.notification({
+                error: 1,
+                name: 'Error',
+                title: "Sheet Data",
+                message: "Data in highlighted rows is not valid.",
+                timeout: 6000,
+            });
+        }
+        const minutesInfo = getMinutesByProject(tableData);
+        let {totalTime, meanTime, ...minutesByProject} = minutesInfo;
+        console.log('minutes by prj:', minutesByProject);
+        updateHoursInfo(totalTime, meanTime);
+        updateChart(minutesByProject);
+        if(save)
+            saveSheet(tableData);
+    }
+
+    function onselectionHandler(worksheet, px, py, ux, uy, origin){
+        // scroll to element while working with arrow keys or sth when selected element is out of viewport
+        const td = $(worksheet).find('td.highlight-selected.highlight').get(0);
+        if(td === undefined)
+            return false
+        const box = td.getBoundingClientRect();
+        if(box.top > window.innerHeight || box.bottom <= 0)
+            td.scrollIntoView();
+    }
+
+    async function constructTable(data){
+        
+        const columns = [
+            {type: 'text', title: 'Day', width: 80, readOnly: true},
+            {type: 'text', title: 'WeekDay', width: 130, readOnly: true},
+            {type: 'numeric', title: 'Hours', mask: 'hh:mm', width: 120},
+        ];
+
+        for(const prj of getTableProjects(data)){
+            columns.push({type: 'numeric', title: prj, mask: '#,##0.00 %', width: 100});
+        }
+
+        window.spreadTable = jspreadsheet(document.getElementById('spreadsheet'), {
+            data: data,
+            columns: columns,
+            allowInsertColumn: false,
+            allowInsertRow: false,
+            allowDeleteRow: false,
+            allowRenameColumn: false,
+            // columnSorting:false,
+            onundo: onChangeHandler,
+            onredo: onChangeHandler,
+            onchange: onChangeHandler,
+            onselection: onselectionHandler,
+            // tableOverflow: true,
+            // tableWidth: "500px",
+            // tableHeight: "400px",
+            updateTable: function(el, cell, x, y, source, value, id) {
+                if(value == "Fri"){
+                    cell.style.color = 'red';
+                }
+            } 
+        });
+        window.spreadTable.hideIndex();
+    }
+
+    async function getProjects(){
+        const url = '{% url "sheets:api_projects"%}';
+        try{
+            let res = await fetch(url);
+            return await res.json();
+        }
+        catch (err){
+            jSuites.notification({
+                error: 1,
+                name: 'Error',
+                title: "Fetching Projects",
+                message: err,
+                timeout: 6000,
+            });
+        }
+    }
+
+    async function fillProjects(){
+        $("#projects option").remove();
+        let projects = await getProjects();
+        for(prj of projects){
+            $("#projects").append(
+                $("<option>").text(prj.name),
+            );
+        }
+    }
+
+    function fillYears(year){
+        for(let i=START_YEAR; i<=year; i++){
+            $("#year").append($("<option>").text(i));
+        }
+    }
+
+    async function getSheet(year, month){
+        const url = `{% url "sheets:api_sheets" year='yearHolder' month='monthHolder' %}`
+            .replace("yearHolder", year)
+            .replace("monthHolder", month);
+        try{
+            let res = await fetch(url);
+            return await res.json();
+        }
+        catch (err){
+            jSuites.notification({
+                error: 1,
+                name: 'Error',
+                title: "Fetching This month's Sheet",
+                message: err,
+            });
+        }
+    }
+
+    function addProjectToTable(project){
+        const config = {type: 'numeric', title: project, mask: '#,##0.00 %', width: 100};
+        addColumnToTable(config);
+    }
+
+    async function initTable(){
+        const year = $("#year").val();
+        const month = $("#month").val();
+        let sheet = await getSheet(year, month);
+
+        if(typeof window.spreadTable === 'object')
+            window.spreadTable.destroy();
+        
+        constructTable(sheet.data);
+        onChangeHandler(save=false);
+    }
+    
+    $("document").ready(async function() {
+
+        fillProjects();
+
+        const today = new JDate();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        fillYears(currentYear); 
+        $("#month").val(currentMonth);
+        $("#year").val(currentYear);
+
+        initTable();
+
+        $("#add-project").click(function(){
+            const project = $("#projects").val();
+            const headers = window.spreadTable.getHeaders(true);
+            if (headers.includes(project)){
+                jSuites.notification({
+                    name: "Adding Project",
+                    message: `Project "${project}" already exits in this sheet.`,
+                });
+                return false
+            }
+            addProjectToTable(project);
+        });
+
+        $("#year, #month").change(initTable);
+
+    });
+     
+</script>
+{% endblock body %}
