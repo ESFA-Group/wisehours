@@ -13,6 +13,7 @@ urlpatterns = [
 
     path('hours', views.HoursView.as_view(), name='hours'),
     path('info', views.InfoView.as_view(), name='info'),
+    path('reports', views.ReportsView.as_view(), name='reports'),
     path('api/projects', api_views.ProjectListApiView.as_view(), name='api_projects'),
     path('api/info', api_views.InfoApiView.as_view(), name='api_info'),
     path('api/sheets/<str:year>/<str:month>', api_views.SheetApiView.as_view(), name='api_sheets'),
