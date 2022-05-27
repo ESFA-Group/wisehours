@@ -25,7 +25,13 @@
         body{
             font-family: 'Lato', sans-serif;
         }
-        /* Chrome, Safari, Edge, Opera */
+        .logout{
+            color: rgba(255, 0, 0, 0.7);
+        }
+        .logout:hover{
+            color: red;
+        }
+        {% comment %} /* Chrome, Safari, Edge, Opera */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -34,7 +40,7 @@
         /* Firefox */
         input[type=number] {
             -moz-appearance: textfield;
-        }
+        } {% endcomment %}
     </style>
 
     <script src="{% static 'sheets/js/JQuery-3.6.0.min.js' %}"></script>
@@ -65,6 +71,9 @@
                     <li class="nav-item">
                         {% url 'sheets:info' as temp_url %}
                         <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:info' %}">Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link logout" href="{% url 'sheets:logout' %}">Logout</a>
                     </li>
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="#">Pricing</a>

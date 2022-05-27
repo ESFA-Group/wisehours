@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+
+import pandas as pd
 import jdatetime as jdt
 
 def current_year() -> int:
@@ -22,6 +24,8 @@ class Sheet(models.Model):
     year = models.PositiveIntegerField('year', default=current_year)
     month = models.PositiveIntegerField('month', default=current_month)
     data = models.JSONField(default=list)
+    mean = models.PositiveIntegerField('mean', default=0)       # in minutes
+    total = models.PositiveIntegerField('total', default=0)     # in minutes
 
     def __str__(self):
         return f"{self.user.username}_{self.year}_{self.month}"
@@ -29,10 +33,13 @@ class Sheet(models.Model):
     def save(self,  *args, **kwargs):
         if not len(self.data):
             self.data = Sheet.empty_sheet_data()
+        df = self.transform()
+        self.mean = self.get_mean(df)
+        self.total = self.get_total(df)
         super(Sheet, self).save( *args, **kwargs)
 
     @classmethod
-    def empty_sheet_data(cls):
+    def empty_sheet_data(cls) -> list:
         today = jdt.date.today()
         month, year = today.month, today.year
         days_num = current_mont_days(month, today.isleap())
@@ -42,10 +49,55 @@ class Sheet(models.Model):
         } for day in range(days_num)]
         return data
 
+    def hhmm2minutes(self, string: str) -> int:
+        """converter function
+           convert string with hh:mm fromat to minutes
+        """
+        try:
+            h, m = string.split(":")
+            return int(h) * 60 + int(m)
+        except:
+            return 0
+
+    def parse_project_porp(self, string: str) -> int:
+        try:
+            return int(string.replace("%", "").strip()) / 100
+        except:
+            return 0
+
+    def get_sheet_projects(self, df: pd.DataFrame) -> list:
+        defaults = ['Day', 'WeekDay', 'Hours']
+        projects = df.columns.difference(defaults)
+        return list(projects)
+
+    def transform(self) -> pd.DataFrame:
+        """transforms sheet data to a pandas DataFrame.
+           all project cols and "Hours" col will contain minutes instead of hh:mm and percentage format
+        """
+        df = pd.DataFrame(self.data)
+        projects = self.get_sheet_projects(df)
+        df["Hours"] = df["Hours"].apply(self.hhmm2minutes)
+        df[projects] = df[projects].applymap(self.parse_project_porp).apply(lambda col: col * df["Hours"])
+        return df
+
+    def get_mean(self, df: pd.DataFrame) -> int:
+        if "Hours" not in df.columns:
+            return 0
+        df = df.loc[df["Hours"] > 0]
+        return df["Hours"].sum() / len(df)
+
+    def get_total(self, df: pd.DataFrame) -> int:
+        if "Hours" not in df.columns:
+            return 0
+        return df["Hours"].sum()
+
 
 
 class ProjectFamily(models.Model):
     name = models.CharField('name', max_length=150)
+
+    class Meta:
+        verbose_name_plural = "Projec Families"
 
     def __str__(self):
         return self.name

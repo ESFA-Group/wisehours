@@ -65,13 +65,13 @@
                 {% csrf_token %}
                 <input type="hidden" name="signup_submit" value="true">
                 <input type="text" id="first_name" class="fadeIn second" name="first_name" placeholder="First Name *" value="{{first_name}}" required>
-                <input type="text" id="last_name" class="fadeIn third" name="last_name" placeholder="Last Name *" value="{{last_name}}" required>
+                <input type="text" id="last_name" class="fadeIn second" name="last_name" placeholder="Last Name *" value="{{last_name}}" required>
                 <input type="text" id="username" class="fadeIn fourth" name="username" placeholder="Username *" autocomplete="off" required>
                 <input type="password" id="password" class="fadeIn sixth" name="password" placeholder="Password *" autocomplete="off" required>
                 <input type="password" id="password_confirm" class="fadeIn sixth" name="password_confirm" placeholder="Confirm Password *" autocomplete="off" required>
                 <hr class="fadeIn eighth">
                 <div class="fadeIn eighth">
-                    <button class="btn btn-primary" id="signup">Signup</button>
+                    <button class="btn btn-primary" id="signup" style="width: 150px;">Signup</button>
                 </div>
                 <br>
             </form>
