@@ -75,6 +75,8 @@ class Sheet(models.Model):
            all project cols and "Hours" col will contain minutes instead of hh:mm and percentage format
         """
         df = pd.DataFrame(self.data)
+        if "Hours" not in df.columns:
+            return df
         projects = self.get_sheet_projects(df)
         df["Hours"] = df["Hours"].apply(self.hhmm2minutes)
         df[projects] = df[projects].applymap(self.parse_project_porp).apply(lambda col: col * df["Hours"])
