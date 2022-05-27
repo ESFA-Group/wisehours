@@ -67,7 +67,7 @@ body{
 
                 {% if request.user.is_staff %}
                 <div class="col col-12 col-lg-4 mb-2 card-container">   
-                    <a href="" class="card-link">
+                    <a href="{% url 'sheets:reports' %}" class="card-link">
                         <div class="card mx-3" style="width: 18rem;">
                             <div class="card-body">
                                 <h5 class="card-title">Reports</h5>

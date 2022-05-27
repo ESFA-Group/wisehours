@@ -3,6 +3,7 @@ from django.views.generic.base import TemplateView
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
 
 decorators = [login_required(login_url=reverse_lazy("sheets:login"))]
@@ -43,7 +44,6 @@ class BaseView(JSONResponseMixin, TemplateView):
             context.update(self.extra_context)
         return context
 
-
 class HomePageView(BaseView):
     template_name = 'home.html'
 
@@ -53,3 +53,7 @@ class HoursView(BaseView):
 
 class InfoView(BaseView):
     template_name = "info.html"
+
+@method_decorator([staff_member_required], name='dispatch')
+class ReportsView(BaseView):
+    template_name = "reports.html"
