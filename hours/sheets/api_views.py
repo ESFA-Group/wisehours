@@ -67,8 +67,8 @@ class InfoApiView(APIView):
         esfa_tot_info = esfa_tot_info.add(esfa_year_info, fill_value=0)
 
         last_month = month - 1 if month != 1 else 12
-        monthly_sheets = Sheet.objects.filter(year=year, user=request.user).values('total').order_by("month")
-        user_monthly_hours = [sheet['total'] // 60 for sheet in monthly_sheets]
+        monthly_sheets = Sheet.objects.filter(year=year, user=request.user).values('total', 'month').order_by("month")
+        user_monthly_hours = list(monthly_sheets)
         info = {
             'user_month_info': user_month_info.to_dict(),
             'user_year_info': user_year_info.to_dict(),

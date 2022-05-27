@@ -5,11 +5,11 @@
 
 <div class="container">
 
-    <div class="row p-3">
-        <h3 class="d-flex justify-content-center my-4">
-            <strong>What's going on with you</strong>
-        </h3>
-        <div id="user-chart"></div>
+    <h3 class="d-flex justify-content-center my-4">
+        <strong>What's going on with you</strong>
+    </h3>
+    <div class="row p-3" style="overflow-x: auto;">
+        <div id="user-chart" style="min-width: 800px;"></div>
     </div>
 
     <div class="row p-3">
@@ -46,18 +46,18 @@
         </div>
     </div>
 
-    <div class="row p-3">
-        <h3 class="d-flex justify-content-center my-4">
-            <strong>Your monthly status in this year</strong>
-        </h3>
-        <div id="monthly-chart"></div>
+    <h3 class="d-flex justify-content-center my-4">
+        <strong>Your monthly status in this year</strong>
+    </h3>
+    <div class="row p-3" style="overflow-x: auto;">
+        <div id="monthly-chart" style="min-width: 800px;"></div>
     </div>
 
-    <div class="row p-3">
-        <h3 class="d-flex justify-content-center my-4">
-            <strong>What's going on in E<span style="color: red;">S</span>FA</strong>
-        </h3>
-        <div id="ESFA-chart"></div>
+    <h3 class="d-flex justify-content-center my-4">
+        <strong>What's going on in E<span style="color: red;">S</span>FA</strong>
+    </h3>
+    <div class="row p-3" style="overflow-x: auto;">
+        <div id="ESFA-chart" style="min-width: 800px;"></div>
     </div>
 
 </div>
@@ -137,7 +137,7 @@
             },
         ];
 
-        const config = {responsive: true};
+        const config = {responsive: false};
         Plotly.newPlot(selector, data, layout, config);
 
     }
@@ -148,9 +148,9 @@
             "Mehr",  "Aban",  "Azar",  "Dey",  "Bahman",  "Esfand",
         ]
         const data = [{
-            x: months.slice(0, new JDate().getMonth()),
-            y: monthlyHours,
-            text: monthlyHours.map(String),
+            x: monthlyHours.map(x => months[x.month - 1]),
+            y: monthlyHours.map(x => Math.floor(x.total / 60)),
+            text: monthlyHours.map(x => Math.floor(x.total / 60)),
             type: "bar",
             marker: {
                 color: 'rgb(158, 202, 225)',
@@ -210,7 +210,7 @@
         $("#esfa-mean").text(`${Math.floor(info.last_esfa_mean / 60)}:${info.last_esfa_mean % 60}`);
         $("#user-mean").text(`${Math.floor(info.last_user_mean / 60)}:${info.last_user_mean % 60}`);
         const diff = Math.abs(info.last_esfa_mean - info.last_user_mean);
-        const color = info.last_esfa_mean < info.last_user_mean? "red": "green";
+        const color = info.last_esfa_mean < info.last_user_mean? "green": "red";
         const txt = info.last_esfa_mean <= info.last_user_mean? "above": "under";
         $("#mean-diff").text(`${Math.floor(diff / 60)}:${diff % 60} ${txt}`).css({color: color});
     }
