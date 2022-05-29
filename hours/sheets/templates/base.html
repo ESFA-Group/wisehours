@@ -44,7 +44,7 @@
     </style>
 
     <script src="{% static 'sheets/js/JQuery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'sheets/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'sheets/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'sheets/js/jdate.min.js' %}"></script>
     <script src="{% static 'sheets/js/jsuites.js' %}"></script>
     <script src="{% static 'sheets/js/utils.js' %}"></script>
@@ -72,12 +72,25 @@
                         {% url 'sheets:info' as temp_url %}
                         <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:info' %}">Info</a>
                     </li>
+                    {% if request.user.is_staff %}
+                    <li class="nav-item">
+                        {% url 'sheets:reports' as temp_url %}
+                        <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:reports' %}">Reports</a>
+                    </li>
+                    {% comment %} <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Dropdown link
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                          <li><a class="dropdown-item" href="#">Action</a></li>
+                          <li><a class="dropdown-item" href="#">Another action</a></li>
+                          <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li> {% endcomment %}
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link logout" href="{% url 'sheets:logout' %}">Logout</a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="#">Pricing</a>
-                    </li> -->
                 </ul>
                 <span class="navbar-text">
                     <span class="mx-3">{{request.user.username}}</span>
@@ -87,11 +100,9 @@
         </div>
     </nav>
     {% endblock navbar %}
-
-    {% block body %}
-    {% endblock %}
-
+    
     <script>
+        window.START_YEAR = 1401;
         function writeDate(){
             const today = new JDate();
             const y = today.getFullYear();
@@ -102,6 +113,10 @@
         }
         writeDate();
     </script>
+    
+    {% block body %}
+    {% endblock %}
+
 
 </body>
 </html>

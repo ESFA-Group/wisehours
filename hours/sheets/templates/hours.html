@@ -108,8 +108,6 @@
 <script src="{% static 'sheets/js/jspreadsheet.min.js' %}"></script>
 <script>
 
-    const START_YEAR = 1401;
-
     // JSuites toast settings:
     // error: 1,
     // icon: null,
@@ -279,19 +277,23 @@
         return valid
     }
 
+    var timer;
     function onChangeHandler(save=true){
         const rawData = window.spreadTable.getJson();
         const tableData = convertTableData(rawData);
-        const valid = validateSheet(tableData);
-        if(!valid){
-            jSuites.notification({
-                error: 1,
-                name: 'Error',
-                title: "Sheet Data",
-                message: "Data in highlighted rows is not valid.",
-                timeout: 6000,
-            });
-        }
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            const valid = validateSheet(tableData);
+            if(!valid){
+                jSuites.notification({
+                    error: 1,
+                    name: 'Error',
+                    title: "Sheet Data",
+                    message: "Data in highlighted rows is not valid.",
+                    timeout: 6000,
+                });
+            }
+        }, 3000);
         const minutesInfo = getMinutesByProject(tableData);
         let {totalTime, meanTime, ...minutesByProject} = minutesInfo;
         console.log('minutes by prj:', minutesByProject);
@@ -375,7 +377,7 @@
     }
 
     function fillYears(year){
-        for(let i=START_YEAR; i<=year; i++){
+        for(let i=window.START_YEAR; i<=year; i++){
             $("#year").append($("<option>").text(i));
         }
     }

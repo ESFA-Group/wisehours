@@ -112,3 +112,30 @@ class InfoApiView(APIView):
             df_all = df_all.add(df, fill_value=0)
         return df_all.sum()
 
+
+class MonthlyReportApiView(APIView):
+
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, year, month):
+
+        sheets = Sheet.objects.filter(year=year, month=month)
+        projects = [p['name'] for p in Project.objects.values('name')]
+        projects.append('Total')
+        projects_empty = pd.Series({p: 0 for p in projects})
+        projects_sum = pd.Series({p: 0 for p in projects})
+        res = {}
+        for sheet in sheets:
+            sheet_sum = self.get_sum(sheet)
+            sheet_sum = projects_empty.add(sheet_sum, fill_value=0)
+            projects_sum = projects_sum.add(sheet_sum, fill_value=0)
+            res[sheet.user.get_full_name()] = sheet_sum.to_dict()
+        res ["Total"] = projects_sum.to_dict()
+        return Response(res, status=status.HTTP_200_OK)
+
+
+    def get_sum(self, sheet: Sheet) -> pd.Series:
+        df = sheet.transform()
+        df.drop(["Day", "WeekDay"], axis=1, inplace=True)
+        df.rename(columns={"Hours": "Total"}, inplace=True)
+        return df.sum()
