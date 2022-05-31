@@ -270,9 +270,10 @@
             }
             const err = percent != 100 && percent != 0;
             valid = valid && !err;
-            const bgcolor = err? "rgba(255, 50, 75, 0.1)": "white";
+            const today = new JDate().getDate();
+            const bgcolor = err? "rgba(255, 50, 75, 0.1)": idx == today - 1? "rgba(20, 150, 255, 0.1)": "white";
             const txtcolor = err? "rgba(255, 50, 75, 1)": "black";
-            $(`.jexcel tbody tr`).eq(idx).find("td").css({"background-color": bgcolor, "color": txtcolor});
+            $(`.jexcel tbody tr`).eq(idx).find("td").css({"background-color": bgcolor});
         });
         return valid
     }
@@ -336,6 +337,7 @@
             onundo: onChangeHandler,
             onredo: onChangeHandler,
             onchange: onChangeHandler,
+            ondeletecolumn: onChangeHandler,
             onselection: onselectionHandler,
             tableOverflow: true,
             tableHeight: "100vh",

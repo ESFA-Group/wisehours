@@ -41,14 +41,15 @@ body{
         <h1 class="my-5 py-5" style="font-weight: bold; font-size: 5em; text-align: center;">
             E<span style="color: red">S</span>FA Hours
         </h1>
+
         <div class="row">
                 
                 <div class="col col-12 {% if request.user.is_staff %}col-lg-4{% else %}col-lg-6{% endif %} mb-2 card-container">
                     <a href="{% url 'sheets:hours' %}" class="card-link">
-                        <div class="card mx-3" style="width: 18rem;">
+                        <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
-                                <h5 class="card-title">This Month</h5>
-                                <p class="card-text">Edit this month's hours</p>
+                                <h5 class="card-title">My Hours</h5>
+                                <p class="card-text">Edit your hours</p>
                             </div>
                         </div>
                     </a>
@@ -59,7 +60,7 @@ body{
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
                                 <h5 class="card-title">Info</h5>
-                                <p class="card-text">Some Information about hours in E<span style="color: red;">S</span>FA</p>
+                                <p class="card-text">Information about hours in E<span style="color: red;">S</span>FA</p>
                             </div>
                         </div>
                     </a>
@@ -68,7 +69,7 @@ body{
                 {% if request.user.is_staff %}
                 <div class="col col-12 col-lg-4 mb-2 card-container">   
                     <a href="{% url 'sheets:reports' %}" class="card-link">
-                        <div class="card mx-3" style="width: 18rem;">
+                        <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
                                 <h5 class="card-title">Reports</h5>
                                 <p class="card-text">Reports from staff's working hours</p>
@@ -79,6 +80,13 @@ body{
                 {% endif %}
     
         </div>
+
+        {% if request.user.is_staff %}
+            <div class="mt-5">
+                <a class="btn btn-info" href="{% url 'admin:index' %}" style="width: 250px;">Admin Panel</a>
+            </div>
+        {% endif %}
+
     </div>
 </div>
 {% endblock body %}
