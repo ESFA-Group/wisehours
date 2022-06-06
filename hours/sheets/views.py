@@ -1,10 +1,13 @@
-from django.shortcuts import render
-from django.views.generic.base import TemplateView
-from django.http import JsonResponse
+from django.views.generic.base import TemplateView, View
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
+
+import pandas as pd
+
+from sheets.models import Sheet
 
 decorators = [login_required(login_url=reverse_lazy("sheets:login"))]
 
@@ -57,3 +60,25 @@ class InfoView(BaseView):
 @method_decorator([staff_member_required], name='dispatch')
 class ReportsView(BaseView):
     template_name = "reports.html"
+
+import io
+
+@method_decorator([staff_member_required], name='dispatch')
+class DetailedReportView(View):
+    
+    def get(self, request):
+        year = request.GET.get("year")
+        month = request.GET.get("month")
+        sheets = Sheet.objects.filter(year=year, month=month)
+        
+        buffer = io.BytesIO()
+        writer = pd.ExcelWriter(buffer, engine = 'xlsxwriter')
+        for sheet in sheets:
+            df = pd.DataFrame(sheet.data)
+            df.to_excel(writer, sheet_name=sheet.user.get_full_name())
+        writer.save()
+        writer.close()
+
+        response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=detailed_report_{year}_{month}.xlsx'
+        return response
