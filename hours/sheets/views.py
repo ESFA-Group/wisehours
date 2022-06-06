@@ -6,6 +6,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
 
 import pandas as pd
+import io
 
 from sheets.models import Sheet
 
@@ -61,8 +62,6 @@ class InfoView(BaseView):
 class ReportsView(BaseView):
     template_name = "reports.html"
 
-import io
-
 @method_decorator([staff_member_required], name='dispatch')
 class DetailedReportView(View):
     
@@ -70,9 +69,9 @@ class DetailedReportView(View):
         year = request.GET.get("year")
         month = request.GET.get("month")
         sheets = Sheet.objects.filter(year=year, month=month)
-        
+
         buffer = io.BytesIO()
-        writer = pd.ExcelWriter(buffer, engine = 'xlsxwriter')
+        writer = pd.ExcelWriter(buffer, engine='xlsxwriter')
         for sheet in sheets:
             df = pd.DataFrame(sheet.data)
             df.to_excel(writer, sheet_name=sheet.user.get_full_name())
