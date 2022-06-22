@@ -22,13 +22,11 @@ class SheetApiView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, year, month):
+    def get(self, request, year: str, month: str):
         try: 
             sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
         except Sheet.DoesNotExist:
-            empty_sheet_data = Sheet.empty_sheet_data()
-            today = jdt.date.today()
-            month, year = today.month, today.year
+            empty_sheet_data = Sheet.empty_sheet_data(int(year), int(month))
             res = {"data": empty_sheet_data, "month": month, "year": year}
             return Response(res, status=status.HTTP_200_OK)           
 

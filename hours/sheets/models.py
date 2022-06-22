@@ -32,17 +32,18 @@ class Sheet(models.Model):
 
     def save(self,  *args, **kwargs):
         if not len(self.data):
-            self.data = Sheet.empty_sheet_data()
+            today = jdt.date.today()
+            month, year = today.month, today.year
+            self.data = Sheet.empty_sheet_data(year, month)
         df = self.transform()
         self.mean = self.get_mean(df)
         self.total = self.get_total(df)
         super(Sheet, self).save( *args, **kwargs)
 
     @classmethod
-    def empty_sheet_data(cls) -> list:
-        today = jdt.date.today()
-        month, year = today.month, today.year
-        days_num = current_mont_days(month, today.isleap())
+    def empty_sheet_data(cls, year: int, month: int) -> list:
+        is_leap = jdt.date(year, month, 1).isleap()
+        days_num = current_mont_days(month, is_leap)
         data = [{
             "Day": day + 1,
             "WeekDay": jdt.date.j_weekdays_short_en[jdt.date(year, month, day + 1).weekday()],
