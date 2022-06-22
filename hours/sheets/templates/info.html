@@ -207,12 +207,12 @@
         drawMonthlyChart('monthly-chart', info.user_monthly_hours);
         $("#hero-name").text(info.last_hero);
         $("#cool-sentence").text(sentences[randInt(0, sentences.length)]);
-        $("#esfa-mean").text(`${Math.floor(info.last_esfa_mean / 60)}:${info.last_esfa_mean % 60}`);
-        $("#user-mean").text(`${Math.floor(info.last_user_mean / 60)}:${info.last_user_mean % 60}`);
+        $("#esfa-mean").text(`${Math.floor(info.last_esfa_mean / 60)}:${Math.floor(info.last_esfa_mean % 60)}`);
+        $("#user-mean").text(`${Math.floor(info.last_user_mean / 60)}:${Math.floor(info.last_user_mean % 60)}`);
         const diff = Math.abs(info.last_esfa_mean - info.last_user_mean);
         const color = info.last_esfa_mean < info.last_user_mean? "green": "red";
         const txt = info.last_esfa_mean <= info.last_user_mean? "above": "under";
-        $("#mean-diff").text(`${Math.floor(diff / 60)}:${diff % 60} ${txt}`).css({color: color});
+        $("#mean-diff").text(`${Math.floor(diff / 60)}:${Math.floor(diff % 60)} ${txt}`).css({color: color});
     }
 
     showInfo()
