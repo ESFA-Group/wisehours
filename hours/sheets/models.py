@@ -26,6 +26,7 @@ class Sheet(models.Model):
     data = models.JSONField(default=list)
     mean = models.PositiveIntegerField('mean', default=0)       # in minutes
     total = models.PositiveIntegerField('total', default=0)     # in minutes
+    submitted = models.BooleanField('submitted', default=False)
 
     def __str__(self):
         return f"{self.user.username}_{self.year}_{self.month}"

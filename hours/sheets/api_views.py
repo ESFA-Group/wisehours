@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.db.models import QuerySet, Sum
+from django.contrib.auth.models import User
 
 import jdatetime as jdt
 import pandas as pd
@@ -27,17 +28,26 @@ class SheetApiView(APIView):
             sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
         except Sheet.DoesNotExist:
             empty_sheet_data = Sheet.empty_sheet_data(int(year), int(month))
-            res = {"data": empty_sheet_data, "month": month, "year": year}
+            res = {"data": empty_sheet_data, "month": month, "year": year, "submitted": False}
             return Response(res, status=status.HTTP_200_OK)           
 
         serializer = SheetSerializer(sheet)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, year, month):
+    def post(self, request, year: str, month: str):
         sheet, created = Sheet.objects.get_or_create(user=self.request.user, year=year, month=month)
         data = request.data.get("data", [])
         data.sort(key=lambda row: int(row.get("Day", 0)))
         sheet.data = request.data['data']
+        sheet.save()
+        return Response({"success": True}, status=status.HTTP_200_OK)
+
+    def put(self, request, year: str, month: str):
+        try:
+            sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
+        except Sheet.DoesNotExist:
+            return Response({"notFound": True}, status=status.HTTP_404_NOT_FOUND)
+        sheet.submitted = True
         sheet.save()
         return Response({"success": True}, status=status.HTTP_200_OK)
 
@@ -118,17 +128,24 @@ class MonthlyReportApiView(APIView):
     def get(self, request, year, month):
 
         sheets = Sheet.objects.filter(year=year, month=month)
+        submitted_sheets = sheets.filter(submitted=True)
         projects = [p['name'] for p in Project.objects.values('name')]
         projects.append('Total')
         projects_empty = pd.Series({p: 0 for p in projects})
         projects_sum = pd.Series({p: 0 for p in projects})
-        res = {}
+        res = {
+            "hours": {},
+            "usersNum": User.objects.count(),
+            "sheetsNum": sheets.count(),
+            "submittedSheetsNum": submitted_sheets.count(),
+            "submittedUsers": [sheet.user.get_full_name() for sheet in submitted_sheets]
+        }
         for sheet in sheets:
             sheet_sum = self.get_sum(sheet)
             sheet_sum = projects_empty.add(sheet_sum, fill_value=0)
             projects_sum = projects_sum.add(sheet_sum, fill_value=0)
-            res[sheet.user.get_full_name()] = sheet_sum.to_dict()
-        res ["Total"] = projects_sum.to_dict()
+            res["hours"][sheet.user.get_full_name()] = sheet_sum.to_dict()
+        res["hours"]["Total"] = projects_sum.to_dict()
         return Response(res, status=status.HTTP_200_OK)
 
 

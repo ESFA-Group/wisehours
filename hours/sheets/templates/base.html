@@ -95,9 +95,9 @@
                         <a class="nav-link logout" href="{% url 'sheets:logout' %}">Logout</a>
                     </li>
                 </ul>
-                <span class="navbar-text">
+                <span class="navbar-text" style="color: cornsilk;">
                     <span class="mx-3">{{request.user.username}}</span>
-                    <span id="nav-date" style="color: wheat;"></span>
+                    <span id="nav-date" ></span>
                 </span>
             </div>
         </div>
@@ -106,11 +106,17 @@
     
     <script>
         window.START_YEAR = 1401;
-        function writeDate(){
+
+        function getToday(){
             const today = new JDate();
             const y = today.getFullYear();
             const m = today.getMonth();
             const d = today.getDate();
+            return [y, m, d]
+        }
+
+        function writeDate(){
+            const [y, m, d] = getToday();
             const weekday = new Date().toLocaleString('en-us', {weekday: 'short'});
             $("#nav-date").text(`${weekday}.\u00A0\u00A0|\u00A0\u00A0${y}/${m}/${d}`);
         }

@@ -1,6 +1,19 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block extra_css %}
+    <style>
+        #monthly-table tr td:last-of-type{
+            font-weight: bold;
+            background-color: rgba(50, 100, 250, 0.2);
+        }
+        #monthly-table tr:last-of-type td{
+            font-weight: bold;
+            background-color: rgba(50, 100, 250, 0.2);
+        }
+    </style>
+{% endblock extra_css %}
+
 {% block body %}
 
 <div class="container-fluid">
@@ -40,7 +53,21 @@
         </div>
     </form>
 
-    <hr>
+    <hr class="mb-0">
+
+    <div class="row mx-0 my-1" style="min-height: 60px; line-height: 60px; background-color: rgba(100, 200, 100, 0.3); border-radius: 5px;">
+        <div class="col col-12 col-md-4">
+            <span class="fw-bold">No. of total users: <span id="usersNum"></span></span>
+        </div>
+        <div class="col col-12 col-md-4">
+            <span class="fw-bold">No. of active users (in selected month): <span id="sheetsNum"></span></span>
+        </div>
+        <div class="col col-12 col-md-4">
+            <span class="fw-bold">No. of submitted sheets: <span id="submittedSheetsNum"></span></span>
+        </div>
+    </div>
+
+    <hr class="mt-0">
 
     <div class="table-responsive">
         <table id="monthly-table" class="table table-striped table-hover">
@@ -77,20 +104,25 @@
 
     async function showReport(year, month){
         const data = await getMonthlyData(year, month);
+        
+        $("#usersNum").text(data.usersNum);
+        $("#sheetsNum").text(data.sheetsNum);
+        $("#submittedSheetsNum").text(data.submittedSheetsNum);
+
         $("#monthly-table tbody tr").remove();
         $("#monthly-table thead tr").remove();
-        const ths = Object.keys(Object.values(data)[0]);
+        const ths = Object.keys(Object.values(data.hours)[0]);
         const table = $("#monthly-table");
         let tr = $("<tr>");
         ["Name", ...ths].forEach((val, idx) => {
             tr.append($("<th>").text(val));
         });
         table.find("thead").append(tr);
-        for(let [key, val] of Object.entries(data)){
+        for(let [name, val] of Object.entries(data.hours)){
             tr = $("<tr>");
-            $(tr).append($("<th>").text(key));
+            $(tr).append($("<th>").text(`${name}${data.submittedUsers.includes(name)? ' ☑️': ''}`));
             ths.forEach((prj, idx) => {
-                $(tr).append($("<td>").text(formatHour(data[key][prj])));
+                $(tr).append($("<td>").text(formatHour(data.hours[name][prj])));
             });
             table.find("tbody").append(tr);
         }
