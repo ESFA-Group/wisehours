@@ -11,6 +11,10 @@
             font-weight: bold;
             background-color: rgba(100, 200, 100, 0.3);
         }
+        thead tr th{
+            position: sticky;
+            top: 0;
+        }
     </style>
 {% endblock extra_css %}
 
@@ -79,7 +83,7 @@
 
     <hr class="mt-0">
 
-    <div class="table-responsive">
+    <div class="table-responsive-lg">
         <table id="monthly-table" class="table table-striped table-hover">
             <thead class="table-dark"></thead>
             <tbody class="table-group-divider"></tbody>
