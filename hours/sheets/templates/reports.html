@@ -17,7 +17,7 @@
 {% block body %}
 
 <div class="container-fluid">
-    <form id="detailed-report-form" action="{% url 'sheets:detailed_report' %}">
+    <form id="report-form" action="#">
         <div class="row">
             <div class="col col-6 col-md-4 col-lg-3">
                 <strong>Year</strong>
@@ -43,6 +43,12 @@
                         <option value="12">Esfand</option>
                     </select>
                 </div>
+            </div>
+            <div class="col col-12 col-md-4 col-lg-3 pt-4">
+                <span id="get-main-report" style="cursor: pointer;">
+                    <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px;">
+                    <span class="text-decoration-underline fw-bold" >Main Excel Report</a>
+                </span>
             </div>
             <div class="col col-12 col-md-4 col-lg-3 pt-4">
                 <span id="get-detailed-report" style="cursor: pointer;">
@@ -180,7 +186,13 @@
         });
 
         $("#get-detailed-report").click(function(){
-            $("#detailed-report-form").submit();
+            $("#report-form").prop({action: "{% url 'sheets:detailed_report' %}"});
+            $("#report-form").submit();
+        });
+
+        $("#get-main-report").click(function(){
+            $("#report-form").prop({action: "{% url 'sheets:main_report' %}"});
+            $("#report-form").submit();
         });
 
     });

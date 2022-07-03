@@ -1,3 +1,4 @@
+import imp
 from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -6,9 +7,11 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
 
 import pandas as pd
+import numpy as np
 import io
 
 from sheets.models import Sheet
+from sheets.api_views import MonthlyReportApiView
 
 decorators = [login_required(login_url=reverse_lazy("sheets:login"))]
 
@@ -66,6 +69,7 @@ class ReportsView(BaseView):
 class DetailedReportView(View):
     
     def get(self, request):
+        
         year = request.GET.get("year")
         month = request.GET.get("month")
         sheets = Sheet.objects.filter(year=year, month=month)
@@ -80,4 +84,27 @@ class DetailedReportView(View):
 
         response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = f'attachment; filename=detailed_report_{year}_{month}.xlsx'
+        return response
+
+@method_decorator([staff_member_required], name='dispatch')
+class MainReportView(View):
+    
+    def get(self, request):
+        
+        year = request.GET.get("year")
+        month = request.GET.get("month")
+        sheets = Sheet.objects.filter(year=year, month=month)
+        
+        res = MonthlyReportApiView.get_sheet_sums(sheets)
+        df = pd.DataFrame(res).transpose()
+        df = df.reindex(np.roll(df.index, 1))
+
+        buffer = io.BytesIO()
+        writer = pd.ExcelWriter(buffer, engine='xlsxwriter')
+        df.to_excel(writer)
+        writer.save()
+        writer.close()
+
+        response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=main_report_{year}_{month}.xlsx'
         return response

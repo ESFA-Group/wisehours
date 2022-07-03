@@ -133,17 +133,8 @@ class MonthlyReportApiView(APIView):
         sheetless_users = User.objects.select_related().exclude(sheets__year=year, sheets__month=month)
         sheetless_user_names = [user.get_full_name() for user in sheetless_users]
 
-        projects = [p['name'] for p in Project.objects.values('name')]
-        projects.append('Total')
-        # a pandas Series which contains all projects. 
-        # a user's sheet sum should be added to this Series in order to contain all projects even the value is 0
-        projects_empty = pd.Series({p: 0 for p in projects})
-
-        # a pandas Series which will be a summation of all desiered sheet sums
-        projects_sum = pd.Series({p: 0 for p in projects})
-
         res = {
-            "hours": {},
+            "hours": MonthlyReportApiView.get_sheet_sums(sheets),
             "usersNum": User.objects.count(),
             "sheetsNum": sheets.count(),
             "submittedSheetsNum": submitted_sheets.count(),
@@ -151,16 +142,30 @@ class MonthlyReportApiView(APIView):
             "submittedUsers": submitted_user_names,
         }
 
-        for sheet in sheets:
-            sheet_sum = self.get_sum(sheet)
-            sheet_sum = projects_empty.add(sheet_sum, fill_value=0)
-            projects_sum = projects_sum.add(sheet_sum, fill_value=0)
-            res["hours"][sheet.user.get_full_name()] = sheet_sum.to_dict()
-        res["hours"]["Total"] = projects_sum.to_dict()
-
         return Response(res, status=status.HTTP_200_OK)
 
+    @classmethod
+    def get_sheet_sums(cls, sheets: QuerySet) -> dict:
+        projects = [p['name'] for p in Project.objects.values('name')]
+        projects.append('Total')
 
+        # a pandas Series which contains all projects. 
+        # a user's sheet sum should be added to this Series in order to contain all projects even the value is 0
+        projects_empty = pd.Series({p: 0 for p in projects})
+        # a pandas Series which will be a summation of all desiered sheet sums
+        projects_sum = pd.Series({p: 0 for p in projects})
+
+        hours = {}
+        for sheet in sheets:
+            sheet_sum = cls.get_sum(sheet)
+            sheet_sum = projects_empty.add(sheet_sum, fill_value=0)
+            projects_sum = projects_sum.add(sheet_sum, fill_value=0)
+            hours[sheet.user.get_full_name()] = sheet_sum.to_dict()
+        hours["Total"] = projects_sum.to_dict()
+        return hours
+
+
+    @classmethod
     def get_sum(self, sheet: Sheet) -> pd.Series:
         """returns sheet column sums"""
         df = sheet.transform()
