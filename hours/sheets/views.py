@@ -1,6 +1,7 @@
 import imp
 from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse, JsonResponse
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
@@ -94,8 +95,9 @@ class MainReportView(View):
         year = request.GET.get("year")
         month = request.GET.get("month")
         sheets = Sheet.objects.filter(year=year, month=month)
+        sheetless_users = User.objects.select_related().exclude(sheets__year=year, sheets__month=month)
         
-        res = MonthlyReportApiView.get_sheet_sums(sheets)
+        res = MonthlyReportApiView.get_sheet_sums(sheets, sheetless_users)
         df = pd.DataFrame(res).transpose()
         df = df.reindex(np.roll(df.index, 1))
 

@@ -134,7 +134,7 @@ class MonthlyReportApiView(APIView):
         sheetless_user_names = [user.get_full_name() for user in sheetless_users]
 
         res = {
-            "hours": MonthlyReportApiView.get_sheet_sums(sheets),
+            "hours": MonthlyReportApiView.get_sheet_sums(sheets, sheetless_users),
             "usersNum": User.objects.count(),
             "sheetsNum": sheets.count(),
             "submittedSheetsNum": submitted_sheets.count(),
@@ -145,7 +145,7 @@ class MonthlyReportApiView(APIView):
         return Response(res, status=status.HTTP_200_OK)
 
     @classmethod
-    def get_sheet_sums(cls, sheets: QuerySet) -> dict:
+    def get_sheet_sums(cls, sheets: QuerySet, sheetless_users: QuerySet) -> dict:
         projects = [p['name'] for p in Project.objects.values('name')]
         projects.append('Total')
 
@@ -160,8 +160,10 @@ class MonthlyReportApiView(APIView):
             sheet_sum = cls.get_sum(sheet)
             sheet_sum = projects_empty.add(sheet_sum, fill_value=0)
             projects_sum = projects_sum.add(sheet_sum, fill_value=0)
-            hours[sheet.user.get_full_name()] = sheet_sum.to_dict()
-        hours["Total"] = projects_sum.to_dict()
+            hours[sheet.user.get_full_name()] = sheet_sum.apply(lambda x: f"{int(x // 60)}:{int(x % 60)}").to_dict()
+        for user in sheetless_users:
+            hours[user.get_full_name()] = projects_empty.to_dict()
+        hours["Total"] = projects_sum.apply(lambda x: f"{int(x // 60)}:{int(x % 60)}").to_dict()
         return hours
 
 

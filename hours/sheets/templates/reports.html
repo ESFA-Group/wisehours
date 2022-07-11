@@ -157,7 +157,7 @@
             tr = $("<tr>");
             $(tr).append($("<th>").text(`${name}${data.submittedUsers.includes(name)? ' ☑️': ''}`));
             ths.forEach((prj, idx) => {
-                $(tr).append($("<td>").text(formatHour(data.hours[name][prj])));
+                $(tr).append($("<td>").text(data.hours[name][prj]));
             });
             if(name.toLocaleLowerCase() === 'total')
                 table.find("tbody").prepend(tr);
