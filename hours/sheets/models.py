@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 import pandas as pd
 import jdatetime as jdt
@@ -18,6 +19,10 @@ def current_mont_days(month: int, isleap: bool) -> int:
     if month == 12 and isleap:
         days_num += 1
     return days_num
+
+class User(AbstractUser):
+    wage = models.IntegerField('wage', default=0)
+    
 
 class Sheet(models.Model):
     user = models.ForeignKey(User, verbose_name="user", related_name="sheets", on_delete=models.CASCADE)

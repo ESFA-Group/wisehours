@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.contrib.auth import (login as auth_login, logout as auth_logout, authenticate)
 import logging
+from sheets.models import User
 
 django_logger = logging.getLogger('django')
 

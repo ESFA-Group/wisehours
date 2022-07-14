@@ -4,12 +4,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.db.models import QuerySet, Sum
-from django.contrib.auth.models import User
 
 import jdatetime as jdt
 import pandas as pd
 
-from sheets.models import Project, Sheet
+from sheets.models import Project, Sheet, User
 from sheets.serializers import ProjectSerializer, SheetSerializer
 
 class ProjectListApiView(ListAPIView):

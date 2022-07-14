@@ -1,7 +1,6 @@
 import imp
 from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse, JsonResponse
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
@@ -11,7 +10,7 @@ import pandas as pd
 import numpy as np
 import io
 
-from sheets.models import Sheet
+from sheets.models import Sheet, User
 from sheets.api_views import MonthlyReportApiView
 
 decorators = [login_required(login_url=reverse_lazy("sheets:login"))]

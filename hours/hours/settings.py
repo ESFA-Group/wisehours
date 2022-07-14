@@ -29,6 +29,7 @@ AUTHENTICATION_BACKENDS = (
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 LOGIN_REDIRECT_URL = '/'
+AUTH_USER_MODEL = 'sheets.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
