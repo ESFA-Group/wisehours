@@ -131,9 +131,10 @@ class MonthlyReportApiView(APIView):
         submitted_user_names = [sheet.user.get_full_name() for sheet in submitted_sheets]
         sheetless_users = User.objects.select_related().exclude(sheets__year=year, sheets__month=month)
         sheetless_user_names = [user.get_full_name() for user in sheetless_users]
-
+        hours, payments = MonthlyReportApiView.get_sheet_sums(sheets, sheetless_users)
         res = {
-            "hours": MonthlyReportApiView.get_sheet_sums(sheets, sheetless_users),
+            "hours": hours,
+            # "payments": payments,
             "usersNum": User.objects.count(),
             "sheetsNum": sheets.count(),
             "submittedSheetsNum": submitted_sheets.count(),
@@ -154,16 +155,22 @@ class MonthlyReportApiView(APIView):
         # a pandas Series which will be a summation of all desiered sheet sums
         projects_sum = pd.Series({p: 0 for p in projects})
 
-        hours = {}
+        hours = dict()
+        payments = dict()
         for sheet in sheets:
             sheet_sum = cls.get_sum(sheet)
             sheet_sum = projects_empty.add(sheet_sum, fill_value=0)
             projects_sum = projects_sum.add(sheet_sum, fill_value=0)
-            hours[sheet.user.get_full_name()] = sheet_sum.apply(lambda x: f"{int(x // 60)}:{int(x % 60)}").to_dict()
+            full_name = sheet.user.get_full_name()
+            hours[full_name] = sheet_sum.apply(cls.minute_formatter).to_dict()
+            wage = sheet.user.wage
+            payments[full_name] = sheet_sum.apply(lambda x: int(x / 60 * wage)).to_dict()
         for user in sheetless_users:
-            hours[user.get_full_name()] = projects_empty.to_dict()
-        hours["Total"] = projects_sum.apply(lambda x: f"{int(x // 60)}:{int(x % 60)}").to_dict()
-        return hours
+            full_name = user.get_full_name()
+            hours[full_name] = projects_empty.to_dict()
+            payments[full_name] = 0
+        hours["Total"] = projects_sum.apply(cls.minute_formatter).to_dict()
+        return hours, payments
 
 
     @classmethod
@@ -173,3 +180,7 @@ class MonthlyReportApiView(APIView):
         df.drop(["Day", "WeekDay"], axis=1, inplace=True)
         df.rename(columns={"Hours": "Total"}, inplace=True)
         return df.sum()
+
+    @classmethod
+    def minute_formatter(cls, minutes: int) -> str:
+        return f"{int(minutes // 60)}:{int(minutes % 60)}"

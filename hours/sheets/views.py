@@ -96,13 +96,15 @@ class MainReportView(View):
         sheets = Sheet.objects.filter(year=year, month=month)
         sheetless_users = User.objects.select_related().exclude(sheets__year=year, sheets__month=month)
         
-        res = MonthlyReportApiView.get_sheet_sums(sheets, sheetless_users)
-        df = pd.DataFrame(res).transpose()
-        df = df.reindex(np.roll(df.index, 1))
+        hours, payments = MonthlyReportApiView.get_sheet_sums(sheets, sheetless_users)
+        hours_df = pd.DataFrame(hours).transpose()
+        hours_df = hours_df.reindex(np.roll(hours_df.index, 1))
+        payments_df = pd.DataFrame(payments).transpose()
 
         buffer = io.BytesIO()
         writer = pd.ExcelWriter(buffer, engine='xlsxwriter')
-        df.to_excel(writer)
+        hours_df.to_excel(writer, sheet_name="hours")
+        payments_df.to_excel(writer, sheet_name="payments")
         writer.save()
         writer.close()
 
