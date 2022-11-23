@@ -1,10 +1,16 @@
 from django.db import models
-# from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 
 import pandas as pd
 import jdatetime as jdt
 
+
+class User(AbstractUser):
+    wage = models.IntegerField('wage', default=0)
+
+    def __str__(self):
+        return self.get_full_name()
+    
 def current_year() -> int:
     return jdt.date.today().year
 
@@ -19,10 +25,6 @@ def current_mont_days(month: int, isleap: bool) -> int:
     if month == 12 and isleap:
         days_num += 1
     return days_num
-
-class User(AbstractUser):
-    wage = models.IntegerField('wage', default=0)
-    
 
 class Sheet(models.Model):
     user = models.ForeignKey(User, verbose_name="user", related_name="sheets", on_delete=models.CASCADE)
@@ -99,8 +101,6 @@ class Sheet(models.Model):
         if "Hours" not in df.columns:
             return 0
         return df["Hours"].sum()
-
-
 
 class ProjectFamily(models.Model):
     name = models.CharField('name', max_length=150)

@@ -72,6 +72,36 @@ DATABASES = {
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'django-file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR.joinpath('error.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '>> [%(levelname)s] %(asctime)s$ %(message)s',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['django-file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['django-file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {

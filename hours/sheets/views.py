@@ -1,4 +1,3 @@
-import imp
 from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
