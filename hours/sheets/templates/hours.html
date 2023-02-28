@@ -239,6 +239,15 @@
                 handleSubmit(true);
                 return
             }
+            else if(data.flaw){
+                jSuites.notification({
+                    error: 1,
+                    name: 'Error',
+                    title: "Submitting Sheet",
+                    message: "Please first complete your personal information.",
+                });
+                return
+            }
             jSuites.notification({
                 error: 1,
                 name: 'Error',
@@ -498,7 +507,7 @@
         const month = Number($("#month").val());
 
         $("#submit-month").toggle(
-            (year <= y && month < m) || (year === y && month === m && d > 28)
+            (year <= y && month < m) || (year === y && month === m && d > 28) || true
         );
     }
 

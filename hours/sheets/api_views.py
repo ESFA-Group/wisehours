@@ -46,9 +46,11 @@ class SheetApiView(APIView):
             sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
         except Sheet.DoesNotExist:
             return Response({"notFound": True}, status=status.HTTP_404_NOT_FOUND)
-        sheet.submitted = True
-        sheet.save()
-        return Response({"success": True}, status=status.HTTP_200_OK)
+        if request.user.check_info():
+            sheet.submitted = True
+            sheet.save()
+            return Response({"success": True}, status=status.HTTP_200_OK)
+        return Response({"flaw": True}, status=status.HTTP_200_OK)
 
 class InfoApiView(APIView):
 

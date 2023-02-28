@@ -4,12 +4,48 @@ from django.contrib.auth.models import AbstractUser
 import pandas as pd
 import jdatetime as jdt
 
+def user_directory_path(instance, filename) -> str:
+    # file will be uploaded to MEDIA_ROOT/personal/username/<filename>
+    return f'personal/{instance.username}/{filename}'
+
 
 class User(AbstractUser):
     wage = models.IntegerField('wage', default=0)
+    national_ID = models.CharField("national_ID", max_length=10, blank=True, default="")
+    mobile1 = models.CharField("mobile1", max_length=11, blank=True, default="")
+    mobile2 = models.CharField("mobile2", max_length=11, blank=True, default="")
+    emergency_phone = models.CharField("emergency_phone", max_length=11, blank=True, default="")
+    address = models.TextField("address", max_length=100, blank=True, default="")
+    laptop_info = models.CharField("laptop_info", max_length=100, blank=True, default="")
+    dob = models.CharField("date_of_birth", max_length=10, blank=True, default="")
+
+    # bank info
+    bank_name = models.CharField("bank_name", max_length=20, blank=True, default="")
+    card_number = models.CharField("card_number", max_length=16, blank=True, default="")
+    account_number = models.CharField("account_number", max_length=13, blank=True, default="")
+    SHEBA_number = models.CharField("SHEBA_number", max_length=26, blank=True, default="")
+
+    # document files
+    personal_image = models.ImageField("personal_image", upload_to=user_directory_path, blank=True)
+    national_ID_front_image = models.ImageField("national_ID_front", upload_to=user_directory_path, blank=True)
+    national_ID_back_image = models.ImageField("national_ID_back", upload_to=user_directory_path, blank=True)
+    birth_cert_first_page = models.ImageField("birth_cert_first_page", upload_to=user_directory_path, blank=True)
+    birth_cert_changes_page = models.ImageField("birth_cert_changes_page", upload_to=user_directory_path, blank=True)
+    student_card = models.ImageField("student_card", upload_to=user_directory_path, blank=True)
+    military_service_card = models.ImageField("military_service_card", upload_to=user_directory_path, blank=True)
 
     def __str__(self):
         return self.get_full_name()
+    
+    def check_info(self):
+        value_list = [
+            'first_name', 'last_name', 'national_ID', 'dob', 'email', 'mobile1', 'address', 'emergency_phone',
+            'bank_name', 'card_number', 'account_number', 'SHEBA_number', 'personal_image', 
+            'national_ID_front_image', 'national_ID_back_image', 'birth_cert_first_page', 'birth_cert_changes_page',
+        ]
+        values = User.objects.filter(pk=self.id).values(*value_list).first()
+        filled = all(list(values.values()))
+        return filled
     
 def current_year() -> int:
     return jdt.date.today().year

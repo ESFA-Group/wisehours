@@ -44,7 +44,7 @@ body{
 
         <div class="row">
                 
-                <div class="col col-12 {% if request.user.is_staff %}col-lg-4{% else %}col-lg-6{% endif %} mb-2 card-container">
+                <div class="col col-12 col-lg-4 mb-2 card-container">
                     <a href="{% url 'sheets:hours' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -55,8 +55,8 @@ body{
                     </a>
                 </div>
 
-                <div class="col col-12 {% if request.user.is_staff %}col-lg-4{% else %}col-lg-6{% endif %} mb-2 card-container">
-                    <a href="{% url 'sheets:info' %}" class="card-link">
+                <div class="col col-12 col-lg-4 mb-2 card-container">
+                    <a href="{% url 'sheets:hours_info' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
                                 <h5 class="card-title">Info</h5>
@@ -66,27 +66,29 @@ body{
                     </a>
                 </div>
 
-                {% if request.user.is_staff %}
-                <div class="col col-12 col-lg-4 mb-2 card-container">   
-                    <a href="{% url 'sheets:reports' %}" class="card-link">
+                <div class="col col-12 col-lg-4 mb-2 card-container">
+                    <a href="{% url 'sheets:personal_info' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
-                                <h5 class="card-title">Reports</h5>
-                                <p class="card-text">Reports from staff's working hours</p>
+                                <h5 class="card-title">Personal Info</h5>
+                                <p class="card-text">Your personal information</p>
                             </div>
                         </div>
                     </a>
                 </div>
-                {% endif %}
     
         </div>
 
+        <!-- <div class="mt-5">
+            <a class="btn btn-danger" href="{% url 'sheets:logout' %}" style="width: 250px;">Logout</a>
+        </div> -->
         {% if request.user.is_staff %}
             <div class="mt-5">
-                <a class="btn btn-info" href="{% url 'admin:index' %}" style="width: 250px;">Admin Panel</a>
+                <a class="btn btn-primary" href="{% url 'admin:index' %}" style="width: 250px;">Admin Panel</a>
+                <a class="btn btn-success" href="{% url 'sheets:reports' %}" style="width: 250px;">Reports</a>
             </div>
         {% endif %}
-
+        
     </div>
 </div>
 {% endblock body %}

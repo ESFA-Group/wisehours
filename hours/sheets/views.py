@@ -48,6 +48,15 @@ class BaseView(JSONResponseMixin, TemplateView):
         context = super(BaseView, self).get_context_data(*args, **kwargs)
         if self.extra_context:
             context.update(self.extra_context)
+        context.update(self.get_context())
+        return context
+    
+    def get_context(self) -> dict:
+        """
+        adds custom context to response
+        can be overridden in children classes
+        """
+        context = dict()
         return context
 
 class HomePageView(BaseView):
@@ -56,9 +65,56 @@ class HomePageView(BaseView):
 class HoursView(BaseView):
     template_name = "hours.html"
 
+class PersonalInfoView(BaseView):
+    template_name = "personal_info.html"
 
-class InfoView(BaseView):
-    template_name = "info.html"
+    def post(self, request):
+        context = {}
+        if request.POST.get("saveUserData"):
+            self.save_user_data(request)
+            context = {"submitted": True}
+            return super(TemplateView, self).render_to_response(context)
+    
+    def save_user_data(self, request):
+        request.user.first_name = request.POST.get("firstName", "")
+        request.user.last_name = request.POST.get("lastName", "")
+        request.user.national_ID = request.POST.get("nationalID", "")
+        request.user.dob = request.POST.get("dob", "")
+        request.user.email = request.POST.get("email", "")
+        request.user.mobile1 = request.POST.get("mobile1", "")
+        request.user.mobile2 = request.POST.get("mobile2", "")
+        request.user.emergency_phone = request.POST.get("emergencyPhone", "")
+        request.user.address = request.POST.get("address", "")
+        request.user.laptop_info = request.POST.get("laptopInfo", "")
+        request.user.bank_name = request.POST.get("bankName", "")
+        request.user.card_number = request.POST.get("cardNumber", "")
+        request.user.account_number = request.POST.get("accountNumber", "")
+        request.user.SHEBA_number = request.POST.get("SHEBANumber", "")
+        if request.FILES.get('personalImage'):
+            personal_image = request.FILES['personalImage']
+            request.user.personal_image.save(personal_image.name, personal_image)
+        if request.FILES.get('nationalIDFrontImage'):
+            national_ID_front_image = request.FILES['nationalIDFrontImage']
+            request.user.national_ID_front_image.save(national_ID_front_image.name, national_ID_front_image)
+        if request.FILES.get('nationalIDBackImage'):
+            national_ID_back_image = request.FILES['nationalIDBackImage']
+            request.user.national_ID_back_image.save(national_ID_back_image.name, national_ID_back_image)
+        if request.FILES.get('birthCertFirstPage'):
+            birth_cert_first_page = request.FILES['birthCertFirstPage']
+            request.user.birth_cert_first_page.save(birth_cert_first_page.name, birth_cert_first_page)
+        if request.FILES.get('birthCertChangesPage'):
+            birth_cert_changes_page = request.FILES['birthCertChangesPage']
+            request.user.birth_cert_changes_page.save(birth_cert_changes_page.name, birth_cert_changes_page)
+        if request.FILES.get('studentCard'):
+            student_card = request.FILES['studentCard']
+            request.user.student_card.save(student_card.name, student_card)
+        if request.FILES.get('militaryServiceCard'):
+            military_service_card = request.FILES['militaryServiceCard']
+            request.user.military_service_card.save(military_service_card.name, military_service_card)
+        request.user.save()
+
+class HoursInfoView(BaseView):
+    template_name = "hours_info.html"
 
 @method_decorator([staff_member_required], name='dispatch')
 class ReportsView(BaseView):

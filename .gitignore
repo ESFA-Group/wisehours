@@ -3,6 +3,7 @@ venv/
 .vscode/
 media/
 log/
+temp/
 hours/db.sqlite3
 sample_pdf.pdf
 

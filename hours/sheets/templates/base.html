@@ -69,8 +69,12 @@
                         <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:hours' %}">Hours</a>
                     </li>
                     <li class="nav-item">
-                        {% url 'sheets:info' as temp_url %}
-                        <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:info' %}">Info</a>
+                        {% url 'sheets:hours_info' as temp_url %}
+                        <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:hours_info' %}">Hours Info</a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'sheets:personal_info' as temp_url %}
+                        <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:personal_info' %}">Personal Info</a>
                     </li>
                     {% if request.user.is_staff %}
                     <li class="nav-item">
