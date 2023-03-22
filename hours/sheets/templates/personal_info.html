@@ -59,7 +59,7 @@
             <div class="col-12 col-md-4 col-xl-3">
                 <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="email" name="email" value="{{request.user.email}}" placeholder="e.g. example@gmail.com"
-                pattern="^([a-z\d\.-]+)@([a-z\d-]+)\.([a-z]{2,8})(\.[a-z]{2,8})?$" required>
+                pattern="^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" required>
                 <div class="invalid-feedback">
                     Email is required and should be in this format: me@gml.com
                 </div>
