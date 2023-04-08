@@ -48,17 +48,33 @@
                     </select>
                 </div>
             </div>
-            <div class="col col-12 col-md-4 col-lg-3 pt-4">
-                <span id="get-main-report" style="cursor: pointer;">
-                    <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px;">
-                    <span class="text-decoration-underline fw-bold" >Main Excel Report</a>
-                </span>
-            </div>
-            <div class="col col-12 col-md-4 col-lg-3 pt-4">
-                <span id="get-detailed-report" style="cursor: pointer;">
-                    <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px;">
-                    <span class="text-decoration-underline fw-bold" >Detailed Excel Report</a>
-                </span>
+            <div class="col col-12 col-lg-6">
+                <div class="row mt-2">
+                    <div class="col col-6">
+                        <span id="get-main-report" style="cursor: pointer;">
+                            <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px;">
+                            <span class="text-decoration-underline fw-bold" >Main Excel Report</a>
+                        </span>
+                    </div>
+                    <div class="col col-6">
+                        <span id="get-detailed-report" style="cursor: pointer;">
+                            <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px;">
+                            <span class="text-decoration-underline fw-bold" >Detailed Excel Report</a>
+                        </span>
+                    </div>
+                    <div class="col col-6">
+                        <span id="get-users-monthly-report" style="cursor: pointer;">
+                            <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px;">
+                            <span class="text-decoration-underline fw-bold" >Users Montly Reprot</a>
+                        </span>
+                    </div>
+                    <div class="col col-6">
+                        <span id="get-projects-yearly-report" style="cursor: pointer;">
+                            <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px;">
+                            <span class="text-decoration-underline fw-bold" >Projects Yearly Report</a>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
@@ -196,6 +212,16 @@
 
         $("#get-main-report").click(function(){
             $("#report-form").prop({action: "{% url 'sheets:main_report' %}"});
+            $("#report-form").submit();
+        });
+
+        $("#get-users-monthly-report").click(function(){
+            $("#report-form").prop({action: "{% url 'sheets:users_monthly_report' %}"});
+            $("#report-form").submit();
+        });
+
+        $("#get-projects-yearly-report").click(function(){
+            $("#report-form").prop({action: "{% url 'sheets:projects_yearly_report' %}"});
             $("#report-form").submit();
         });
 

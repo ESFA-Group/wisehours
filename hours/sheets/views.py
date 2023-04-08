@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
+from django.db.models import QuerySet
 
 import pandas as pd
 import numpy as np
@@ -166,3 +167,73 @@ class MainReportView(View):
         response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = f'attachment; filename=main_report_{year}_{month}.xlsx'
         return response
+    
+@method_decorator([staff_member_required], name='dispatch')
+class UsersMonthlyReportView(View):
+    
+    def get(self, request):
+        
+        year = request.GET.get("year")
+        users = User.objects.all()
+        data = dict()
+        for u in users:
+            sheets = Sheet.objects.filter(year=year, user=u).values('month', 'total')
+            data[u.get_full_name()] = {sheet['month']: round(sheet['total'] / 60, 2) for sheet in sheets}
+
+        df = pd.DataFrame(data)
+        df = df.transpose()
+        df = df[sorted(df)]
+        df['total'] = df.sum(axis=1)
+
+        buffer = io.BytesIO()
+        writer = pd.ExcelWriter(buffer, engine='xlsxwriter')
+        df.to_excel(writer, sheet_name="hours")
+        writer.save()
+        writer.close()
+
+        response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=users_monthly_report_{year}.xlsx'
+        return response
+    
+
+@method_decorator([staff_member_required], name='dispatch')
+class ProjectsYearlyReportView(View):
+    
+    def get(self, request):
+        
+        year = request.GET.get("year")
+        d = dict()
+        for i in range(1, 13):
+            qs = Sheet.objects.filter(month=i, year=year)
+            d[i] = self.get_info(qs).to_dict()
+        
+        for month, data in d.items():
+            for prj, minute in data.items():
+                d[month][prj] = round(minute / 60, 2)
+
+        df = pd.DataFrame(d)
+        df = df.transpose()
+        df['total'] = df.sum(axis=1)
+        df.loc['total']= df.sum()
+
+        buffer = io.BytesIO()
+        writer = pd.ExcelWriter(buffer, engine='xlsxwriter')
+        df.to_excel(writer, sheet_name="hours")
+        writer.save()
+        writer.close()
+
+        response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=projects_yearly_report_{year}.xlsx'
+        return response
+    
+    def get_info(self, queryset: QuerySet) -> pd.Series:
+        if not queryset.count():
+            return pd.Series(dtype='float64')
+        df_all = pd.DataFrame()
+        for sheet in queryset:
+            df = sheet.transform()
+            if "Hours" not in df:
+                continue
+            df.drop(["Day", "WeekDay", "Hours"], axis=1, inplace=True)
+            df_all = df_all.add(df, fill_value=0)
+        return df_all.sum()

@@ -17,6 +17,8 @@ urlpatterns = [
     path('reports', views.ReportsView.as_view(), name='reports'),
     path('detailed_report', views.DetailedReportView.as_view(), name='detailed_report'),
     path('main_report', views.MainReportView.as_view(), name='main_report'),
+    path('users_monthly_report', views.UsersMonthlyReportView.as_view(), name='users_monthly_report'),
+    path('projects_yearly_report', views.ProjectsYearlyReportView.as_view(), name='projects_yearly_report'),
 
     path('api/info', api_views.InfoApiView.as_view(), name='api_info'),
     path('api/projects', api_views.ProjectListApiView.as_view(), name='api_projects'),
