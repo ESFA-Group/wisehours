@@ -82,7 +82,7 @@ class Sheet(models.Model):
     submitted = models.BooleanField('submitted', default=False)
 
     def __str__(self):
-        return f"{self.user.username}_{self.year}_{self.month}"
+        return f"{self.user_name}_{self.year}_{self.month}"
 
     def save(self,  *args, **kwargs):
         if not len(self.data):
