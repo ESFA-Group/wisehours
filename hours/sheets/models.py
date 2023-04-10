@@ -10,7 +10,16 @@ def user_directory_path(instance, filename) -> str:
 
 
 class User(AbstractUser):
+    # payment info
     wage = models.IntegerField('wage', default=0)
+    fix_payment = models.IntegerField('fix_payment', default=0)
+    reduction1 = models.IntegerField('reduction1', default=0)
+    reduction2 = models.IntegerField('reduction2', default=0)
+    reduction3 = models.IntegerField('reduction3', default=0)
+    addition1 = models.IntegerField('addition', default=0)
+    comment = models.TextField("comment", default="")
+
+    # personal info
     national_ID = models.CharField("national_ID", max_length=10, blank=True, default="")
     mobile1 = models.CharField("mobile1", max_length=11, blank=True, default="")
     mobile2 = models.CharField("mobile2", max_length=11, blank=True, default="")
@@ -37,7 +46,7 @@ class User(AbstractUser):
     def __str__(self):
         return self.get_full_name()
     
-    def check_info(self):
+    def check_info(self) -> bool:
         value_list = [
             'first_name', 'last_name', 'national_ID', 'dob', 'email', 'mobile1', 'address', 'emergency_phone',
             'bank_name', 'card_number', 'account_number', 'SHEBA_number', 'personal_image', 
@@ -63,7 +72,8 @@ def current_mont_days(month: int, isleap: bool) -> int:
     return days_num
 
 class Sheet(models.Model):
-    user = models.ForeignKey(User, verbose_name="user", related_name="sheets", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name="user", related_name="sheets", on_delete=models.SET_NULL, null=True)
+    user_name = models.CharField('name', max_length=50, blank=True, default="")
     year = models.PositiveIntegerField('year', default=current_year)
     month = models.PositiveIntegerField('month', default=current_month)
     data = models.JSONField(default=list)

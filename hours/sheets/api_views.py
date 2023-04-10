@@ -34,7 +34,9 @@ class SheetApiView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, year: str, month: str):
-        sheet, created = Sheet.objects.get_or_create(user=self.request.user, year=year, month=month)
+        user = self.request.user
+        sheet, created = Sheet.objects.get_or_create(user=user, year=year, month=month)
+        sheet.user_name = user.get_full_name()
         data = request.data.get("data", [])
         data.sort(key=lambda row: int(row.get("Day", 0)))
         sheet.data = request.data['data']
@@ -46,7 +48,7 @@ class SheetApiView(APIView):
             sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
         except Sheet.DoesNotExist:
             return Response({"notFound": True}, status=status.HTTP_404_NOT_FOUND)
-        if request.user.check_info():
+        if request.user.check_info():       # if the user has entered needed personal information
             sheet.submitted = True
             sheet.save()
             return Response({"success": True}, status=status.HTTP_200_OK)
