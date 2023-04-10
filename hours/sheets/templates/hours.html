@@ -340,15 +340,21 @@
     function validateSheet(tableData){
         // validation function just indicates invalidity of row data
         const projects = getTableProjects(tableData);
+        if(!projects.length){
+            $(`.jexcel tbody td`).css({"background-color": "rgba(255, 50, 75, 0.1)"});
+            return false
+        }
         let valid = true;
         tableData.forEach((row, idx) => {
+            if(!row.Hours)
+                return
             let percent = 0;
             for(const [prj, value] of Object.entries(row)){
                 if(!projects.includes(prj))
                     continue
                 percent += parseProjectPorp(row[prj]); 
             }
-            const err = percent != 100 && percent != 0;
+            const err = percent != 100;
             valid = valid && !err;
             const today = new JDate().getDate();
             const bgcolor = err? "rgba(255, 50, 75, 0.1)": idx == today - 1? "rgba(20, 150, 255, 0.1)": "white";
@@ -358,23 +364,21 @@
         return valid
     }
 
-    var timer;
     function onChangeHandler(save=true){
         const rawData = window.spreadTable.getJson();
         const tableData = convertTableData(rawData);
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            const valid = validateSheet(tableData);
-            if(!valid){
-                jSuites.notification({
-                    error: 1,
-                    name: 'Error',
-                    title: "Sheet Data",
-                    message: "Data in highlighted rows is not valid.",
-                    timeout: 6000,
-                });
-            }
-        }, 3000);
+        const valid = validateSheet(tableData);
+        if(!valid){
+            const msg = `At least 1 project should be added to table, and sum of project proportions should be equal to 100%.`
+            jSuites.notification({
+                error: 1,
+                name: 'Error',
+                title: "Invalid Data",
+                message: msg,
+                timeout: 8000,
+            });
+            // return false
+        }
         const minutesInfo = getMinutesByProject(tableData);
         let {totalTime, meanTime, ...minutesByProject} = minutesInfo;
         updateHoursInfo(totalTime, meanTime);
