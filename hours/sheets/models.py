@@ -12,7 +12,7 @@ def user_directory_path(instance, filename) -> str:
 class User(AbstractUser):
     # payment info
     wage = models.IntegerField('wage', default=0)
-    fix_payment = models.IntegerField('fix_payment', default=0)
+    base_payment = models.IntegerField('base_payment', default=0)
     reduction1 = models.IntegerField('reduction1', default=0)
     reduction2 = models.IntegerField('reduction2', default=0)
     reduction3 = models.IntegerField('reduction3', default=0)
