@@ -344,10 +344,19 @@
             $(`.jexcel tbody td`).css({"background-color": "rgba(255, 50, 75, 0.1)"});
             return false
         }
+        $(`.jexcel tbody td`).css({"background-color": "white"});
+
+        const today = new JDate().getDate();
+        const month = new JDate().getMonth();
         let valid = true;
+
         tableData.forEach((row, idx) => {
+            if(idx === today - 1 && month == $("#month").val())
+                $(`.jexcel tbody tr`).eq(idx).find("td").css({"background-color": "rgba(20, 150, 255, 0.1)"});
+
             if(!row.Hours)
                 return
+
             let percent = 0;
             for(const [prj, value] of Object.entries(row)){
                 if(!projects.includes(prj))
@@ -356,11 +365,11 @@
             }
             const err = percent != 100;
             valid = valid && !err;
-            const today = new JDate().getDate();
-            const bgcolor = err? "rgba(255, 50, 75, 0.1)": idx == today - 1? "rgba(20, 150, 255, 0.1)": "white";
-            const txtcolor = err? "rgba(255, 50, 75, 1)": "black";
+            
+            const bgcolor = err? "rgba(255, 50, 75, 0.1)": "white";
             $(`.jexcel tbody tr`).eq(idx).find("td").css({"background-color": bgcolor});
         });
+
         return valid
     }
 
@@ -550,6 +559,9 @@
                 return false
             }
             addProjectToTable(project);
+            const rawData = window.spreadTable.getJson();
+            const tableData = convertTableData(rawData);
+            const valid = validateSheet(tableData);
         });
 
         $("#submit").click(submitSheet);

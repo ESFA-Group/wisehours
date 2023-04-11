@@ -141,6 +141,8 @@ class Sheet(models.Model):
         if "Hours" not in df.columns:
             return 0
         df = df.loc[df["Hours"] > 0]
+        if not len(df):
+            return 0
         return df["Hours"].sum() / len(df)
 
     def get_total(self, df: pd.DataFrame) -> int:
