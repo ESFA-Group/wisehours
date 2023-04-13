@@ -9,6 +9,8 @@ from django.db.models import QuerySet
 import pandas as pd
 import numpy as np
 import io
+import json
+import jdatetime as jdt
 
 from sheets.models import Sheet, User
 from sheets.api_views import MonthlyReportApiView
@@ -241,3 +243,28 @@ class ProjectsYearlyReportView(View):
             df.drop(["Day", "WeekDay", "Hours"], axis=1, inplace=True)
             df_all = df_all.add(df, fill_value=0)
         return df_all.sum()
+    
+@method_decorator([staff_member_required], name='dispatch')
+class PaymentExportView(View):
+
+    def post(self, request):
+        ids = json.loads(request.POST.get('IDs'))
+        month_names = jdt.date.j_months_en
+        payment_method = request.POST.get('paymentMethod')
+        payment_type = request.POST.get('paymentType')
+        year = int(request.POST.get('year'))
+        month = int(request.POST.get('month'))
+        string = str()
+        for i in ids:
+            user = User.objects.get(pk=i)
+            amount = user.get_base_payment() if payment_type == 'base' else user.get_final_payment(year, month)
+            if payment_method == 'AN':  # account number
+                string += f"{user.account_number},{amount},salary of {month_names[month - 1]}\n"
+            elif payment_method == 'SN':
+                string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},salary of {month_names[month - 1]},\n"
+
+        buffer = io.StringIO(string)
+        response = HttpResponse(buffer.getvalue(), content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename=file.txt'
+        return response
+        

@@ -188,3 +188,32 @@ class MonthlyReportApiView(APIView):
     @classmethod
     def minute_formatter(cls, minutes: int) -> str:
         return f"{int(minutes // 60)}:{int(minutes % 60)}"
+    
+class PaymentApiView(APIView):
+
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, year: str, month: str):
+        sheets = Sheet.objects.select_related('user').filter(year=year, month=month, submitted=True)
+        data = list()
+        for sheet in sheets:
+            user = sheet.user
+            if not sheet.user:
+                continue
+            base_payment = user.get_base_payment()
+            total_payment = user.get_total_payment(year, month)
+            final_payment = user.get_final_payment(year, month)
+            data.append({
+                'userID': user.id,
+                'user': user.get_full_name(),
+                'totalPayment': total_payment,
+                'basePayment': base_payment,
+                'reduction1': user.reduction1,
+                'reduction2': user.reduction2,
+                'reduction3': user.reduction3,
+                'addition': user.addition1,
+                'finalPayment': final_payment,
+                'complementaryPayment': final_payment - base_payment,
+            })
+
+        return Response(data, status=status.HTTP_200_OK)

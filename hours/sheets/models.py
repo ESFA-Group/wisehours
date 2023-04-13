@@ -56,6 +56,27 @@ class User(AbstractUser):
         filled = all(list(values.values()))
         return filled
     
+    def get_base_payment(self) -> int:
+        return self.base_payment
+    
+    def get_total_payment(self, year: int, month: int) -> int | None:
+        try:
+            sheet = self.sheets.get(year=year, month=month)
+            hours = round(sheet.total / 60, 3)
+        except Sheet.DoesNotExist:
+            return None
+        
+        return hours * self.wage
+    
+    def get_final_payment(self, year: int, month: int) -> int:
+
+        total_payment = self.get_total_payment(year, month)
+        if total_payment is None: 
+            return 0
+
+        payment = total_payment - (self.reduction1 + self.reduction2 + self.reduction3) + self.addition1
+        return payment
+
 def current_year() -> int:
     return jdt.date.today().year
 

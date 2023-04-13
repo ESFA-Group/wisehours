@@ -20,9 +20,11 @@ urlpatterns = [
     path('main_report', views.MainReportView.as_view(), name='main_report'),
     path('users_monthly_report', views.UsersMonthlyReportView.as_view(), name='users_monthly_report'),
     path('projects_yearly_report', views.ProjectsYearlyReportView.as_view(), name='projects_yearly_report'),
+    path('payment_export', views.PaymentExportView.as_view(), name='payment_export'),
 
     path('api/info', api_views.InfoApiView.as_view(), name='api_info'),
     path('api/projects', api_views.ProjectListApiView.as_view(), name='api_projects'),
     path('api/sheets/<str:year>/<str:month>', api_views.SheetApiView.as_view(), name='api_sheets'),
     path('api/monthly_report/<str:year>/<str:month>', api_views.MonthlyReportApiView.as_view(), name='api_monthly_report'),
+    path('api/payment/<str:year>/<str:month>', api_views.PaymentApiView.as_view(), name='api_payment'),
 ]
