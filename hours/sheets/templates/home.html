@@ -84,8 +84,9 @@ body{
         </div> -->
         {% if request.user.is_staff %}
             <div class="mt-5">
-                <a class="btn btn-primary" href="{% url 'admin:index' %}" style="width: 250px;">Admin Panel</a>
-                <a class="btn btn-success" href="{% url 'sheets:reports' %}" style="width: 250px;">Reports</a>
+                <a class="btn btn-primary" href="{% url 'admin:index' %}" style="width: 200px;">Admin Panel</a>
+                <a class="btn btn-success" href="{% url 'sheets:reports' %}" style="width: 200px;">Reports</a>
+                <a class="btn btn-warning" href="{% url 'sheets:payment' %}" style="width: 200px;">Payments</a>
             </div>
         {% endif %}
         

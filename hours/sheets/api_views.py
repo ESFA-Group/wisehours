@@ -37,6 +37,12 @@ class SheetApiView(APIView):
         user = self.request.user
         sheet, created = Sheet.objects.get_or_create(user=user, year=year, month=month)
         sheet.user_name = user.get_full_name()
+        sheet.wage = user.wage
+        sheet.base_payment = user.base_payment
+        sheet.reduction1 = user.reduction1
+        sheet.reduction2 = user.reduction2
+        sheet.reduction3 = user.reduction3
+        sheet.addition1 = user.addition1
         data = request.data.get("data", [])
         data.sort(key=lambda row: int(row.get("Day", 0)))
         sheet.data = request.data['data']
@@ -194,26 +200,24 @@ class PaymentApiView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def get(self, request, year: str, month: str):
-        sheets = Sheet.objects.select_related('user').filter(year=year, month=month, submitted=True)
+        sheets = Sheet.objects.select_related('user').filter(year=year, month=month)
         data = list()
         for sheet in sheets:
             user = sheet.user
             if not sheet.user:
                 continue
-            base_payment = user.get_base_payment()
-            total_payment = user.get_total_payment(year, month)
-            final_payment = user.get_final_payment(year, month)
             data.append({
                 'userID': user.id,
-                'user': user.get_full_name(),
-                'totalPayment': total_payment,
-                'basePayment': base_payment,
-                'reduction1': user.reduction1,
-                'reduction2': user.reduction2,
-                'reduction3': user.reduction3,
-                'addition': user.addition1,
-                'finalPayment': final_payment,
-                'complementaryPayment': final_payment - base_payment,
+                'user': user.get_full_name() + (" ☑️" if sheet.submitted else ""),
+                'bankName': user.bank_name,
+                'totalPayment': f"{sheet.get_total_payment():,}",
+                'basePayment': f"{sheet.get_base_payment():,}",
+                'reduction1': f"{sheet.reduction1:,}",
+                'reduction2': f"{sheet.reduction2:,}",
+                'reduction3': f"{sheet.reduction3:,}",
+                'addition': f"{sheet.addition1:,}",
+                'finalPayment': f"{sheet.get_final_payment():,}",
+                'complementaryPayment': f"{sheet.get_complementary_payment():,}",
             })
 
         return Response(data, status=status.HTTP_200_OK)

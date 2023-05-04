@@ -257,11 +257,12 @@ class PaymentExportView(View):
         string = str()
         for i in ids:
             user = User.objects.get(pk=i)
-            amount = user.get_base_payment() if payment_type == 'base' else user.get_final_payment(year, month)
+            sheet = Sheet.objects.get(user=user, month=month, year=year)
+            amount = sheet.get_base_payment() if payment_type == 'base' else sheet.get_complementary_payment()
             if payment_method == 'AN':  # account number
-                string += f"{user.account_number},{amount},salary of {month_names[month - 1]}\n"
+                string += f"{user.account_number},{amount},salary {month_names[month - 1]} {year}\n"
             elif payment_method == 'SN':
-                string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},salary of {month_names[month - 1]},\n"
+                string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},salary {month_names[month - 1]} {year},\n"
 
         buffer = io.StringIO(string)
         response = HttpResponse(buffer.getvalue(), content_type='text/plain')

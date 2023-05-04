@@ -55,27 +55,6 @@ class User(AbstractUser):
         values = User.objects.filter(pk=self.id).values(*value_list).first()
         filled = all(list(values.values()))
         return filled
-    
-    def get_base_payment(self) -> int:
-        return self.base_payment
-    
-    def get_total_payment(self, year: int, month: int) -> int | None:
-        try:
-            sheet = self.sheets.get(year=year, month=month)
-            hours = round(sheet.total / 60, 3)
-        except Sheet.DoesNotExist:
-            return None
-        
-        return hours * self.wage
-    
-    def get_final_payment(self, year: int, month: int) -> int:
-
-        total_payment = self.get_total_payment(year, month)
-        if total_payment is None: 
-            return 0
-
-        payment = total_payment - (self.reduction1 + self.reduction2 + self.reduction3) + self.addition1
-        return payment
 
 def current_year() -> int:
     return jdt.date.today().year
@@ -101,6 +80,14 @@ class Sheet(models.Model):
     mean = models.PositiveIntegerField('mean', default=0)       # in minutes
     total = models.PositiveIntegerField('total', default=0)     # in minutes
     submitted = models.BooleanField('submitted', default=False)
+
+    # payment info: data comes from user
+    wage = models.IntegerField('wage', default=0)
+    base_payment = models.IntegerField('base_payment', default=0)
+    reduction1 = models.IntegerField('reduction1', default=0)
+    reduction2 = models.IntegerField('reduction2', default=0)
+    reduction3 = models.IntegerField('reduction3', default=0)
+    addition1 = models.IntegerField('addition', default=0)
 
     def __str__(self):
         return f"{self.user_name}_{self.year}_{self.month}"
@@ -170,7 +157,22 @@ class Sheet(models.Model):
         if "Hours" not in df.columns:
             return 0
         return df["Hours"].sum()
-
+    
+    def get_base_payment(self) -> int:
+        return self.base_payment
+    
+    def get_total_payment(self) -> int:
+        hours = round(self.total / 60, 3)
+        return hours * self.wage
+    
+    def get_final_payment(self) -> int:
+        total_payment = self.get_total_payment()
+        final_payment = total_payment - (self.reduction1 + self.reduction2 + self.reduction3) + self.addition1
+        return final_payment
+    
+    def get_complementary_payment(self) -> int:
+        final_payment = self.get_final_payment()
+        return final_payment - self.base_payment
 class ProjectFamily(models.Model):
     name = models.CharField('name', max_length=150)
 
