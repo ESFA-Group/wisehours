@@ -17,7 +17,7 @@ class User(AbstractUser):
     reduction2 = models.IntegerField('reduction2', default=0)
     reduction3 = models.IntegerField('reduction3', default=0)
     addition1 = models.IntegerField('addition', default=0)
-    comment = models.TextField("comment", default="")
+    comment = models.TextField("comment", default="", blank=True)
 
     # personal info
     national_ID = models.CharField("national_ID", max_length=10, blank=True, default="")
