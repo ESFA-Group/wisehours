@@ -200,7 +200,7 @@ class PaymentApiView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def get(self, request, year: str, month: str):
-        sheets = Sheet.objects.select_related('user').filter(year=year, month=month)
+        sheets = Sheet.objects.select_related('user').filter(year=year, month=month).order_by('user__last_name')
         data = list()
         for sheet in sheets:
             user = sheet.user
