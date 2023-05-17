@@ -177,7 +177,7 @@ class Sheet(models.Model):
     def sync_payment_info(self) -> None:
         '''updates payment info from user'''
         self.wage = self.user.wage
-        self.get_base_payment = self.user.base_payment
+        self.base_payment = self.user.base_payment
         self.reduction1 = self.user.reduction1
         self.reduction2 = self.user.reduction2
         self.reduction3 = self.user.reduction3
