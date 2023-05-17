@@ -24,17 +24,17 @@
         <div class="row g-2">
             <div class="col-12 col-md-4 col-xl-3">
                 <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="firstName" name="firstName" value="{{request.user.first_name}}" required>
+                <input type="text" class="form-control" id="firstName" name="firstName" value="{{request.user.first_name}}" pattern="([A-z\s]){1,}" required>
                 <div class="invalid-feedback">
-                    This field is required.
+                    This field is required and should be in Latin.
                 </div>
             </div>
     
             <div class="col-12 col-md-4 col-xl-3">
                 <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="lastName" name="lastName" value="{{request.user.last_name}}" required>
+                <input type="text" class="form-control" id="lastName" name="lastName" value="{{request.user.last_name}}" pattern="([A-z\s]){1,}" required>
                 <div class="invalid-feedback">
-                    This field is required.
+                    This field is required and should be in Latin.
                 </div>
             </div>
     
@@ -114,9 +114,9 @@
         <div class="row g-2">
             <div class="col-12 col-md-4 col-xl-3">
                 <label for="bankName" class="form-label">Bank name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="bankName" name="bankName" value="{{request.user.bank_name}}" required>
+                <input type="text" class="form-control" id="bankName" name="bankName" value="{{request.user.bank_name}}" pattern="([A-z\s]){1,}" required>
                 <div class="invalid-feedback">
-                    This field is required.
+                    This field is required and should be in Latin.
                 </div>
             </div>
 
