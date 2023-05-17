@@ -128,6 +128,17 @@ class PaymentHandleView(BaseView):
     template_name = "payment.html"
 
 @method_decorator([staff_member_required], name='dispatch')
+class SyncSheetDataView(View):
+
+    def get(self, request, year: str, month: str):
+        sheets = Sheet.objects.filter(year=year, month=month)
+        for sheet in sheets:
+            sheet.sync_payment_info()
+
+
+        return JsonResponse({"success": True})
+
+@method_decorator([staff_member_required], name='dispatch')
 class DetailedReportView(View):
     
     def get(self, request):

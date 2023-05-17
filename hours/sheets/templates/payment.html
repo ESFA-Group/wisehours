@@ -59,8 +59,18 @@
                 </select>
             </div>
         </div>
-        <div class="col col-6 col-md-4 col-lg-3">
-            <button id="export" class="btn btn-primary" style="width: 120px; position: relative; top: 27px;">Export</button>
+        <div class="col col-6 col-md-2 col-lg-3">
+            <button id="export" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 120px; position: relative; top: 27px;">
+                <i class="fa fa-file-export"></i>
+                <span>Export</span>
+            </button>
+            <i class="fa fa-sync"></i>
+        </div>
+        <div class="col col-6 col-md-2 col-lg-2">
+            <span id="sync-last-sheet" style="width: 120px; position: relative; top: 35px; cursor: pointer;">
+                <i id="sync-spinner" class="fa fa-sync" style="color: goldenrod; font-size: x-large;"></i>
+                <span style="position: relative; top: -3px;">sync <span id="current-sheet-date"></span></span>
+            </span>
         </div>
     </div>
     <br>
@@ -136,6 +146,7 @@
         fillYears(currentYear); 
         $("#year").val(currentYear);
         $("#month").val(currentMonth);
+        $("#current-sheet-date").text(`${currentYear}/${currentMonth}`);
 
         $("#payment-table").bootstrapTable();
 
@@ -145,6 +156,39 @@
             const year = $("#year").val();
             const month = $("#month").val();
             fillTable(year, month);
+        });
+
+        $("#sync-last-sheet").click(function(){
+            $("#year").val(currentYear);
+            $("#month").val(currentMonth);
+            $("#sync-spinner").addClass("fa-spin");
+            const url = `{% url "sheets:sync_sheets" year='yearHolder' month='monthHolder' %}`
+            .replace("yearHolder", currentYear)
+            .replace("monthHolder", currentMonth);
+            fetch(url)
+            .then(res => res.json())
+            .then(res => {
+                jSuites.notification({
+                    success: 1,
+                    name: 'Success',
+                    title: "Sync Database",
+                    message: "Database synced successfully",
+                    timeout: 6000,
+                });
+            })
+            .catch(e => {
+                    jSuites.notification({
+                    error: 1,
+                    name: 'Error',
+                    title: "Sync Database",
+                    message: "Database did not synced",
+                    timeout: 6000,
+                });
+            })
+            .finally(() => {
+                $("#sync-spinner").removeClass("fa-spin");
+                fillTable(currentYear, currentMonth);
+            });
         });
 
         $("#export").click(function(){
