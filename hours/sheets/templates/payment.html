@@ -74,10 +74,12 @@
         </div>
     </div>
     <br>
+  
     <table 
     id="payment-table"
-    class="table table-sm table-hover"
+    data-show-export="true"
     data-click-to-select="true" 
+    class="table table-sm table-hover"
     style="table-layout: fixed; text-align: center; min-width: 1000px;">
         <thead class="table-dark">
             <tr>
@@ -99,7 +101,9 @@
 </div>
 <br>
 <br>
+<script src="{% static 'sheets/js/tableExport.min.js' %}"></script>
 <script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
+<script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
 <script>
 
     async function getTableData(year, month){
@@ -148,7 +152,10 @@
         $("#month").val(currentMonth);
         $("#current-sheet-date").text(`${currentYear}/${currentMonth}`);
 
-        $("#payment-table").bootstrapTable();
+        $("#payment-table").bootstrapTable({
+            exportTypes: ['json', 'xml', 'csv', 'txt', 'excel'],
+        });
+        $(".bi.bi-download").addClass(["fa", "fa-download"]); // to show the download icon
 
         fillTable(currentYear, currentMonth);
 
