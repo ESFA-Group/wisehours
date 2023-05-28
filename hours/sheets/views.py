@@ -270,6 +270,7 @@ class PaymentExportView(View):
             user = User.objects.get(pk=i)
             sheet = Sheet.objects.get(user=user, month=month, year=year)
             amount = sheet.get_base_payment() if payment_type == 'base' else sheet.get_complementary_payment()
+            amount = int(amount)
             if payment_method == 'AN':  # account number
                 string += f"{user.account_number},{amount},salary {month_names[month - 1]} {year}\n"
             elif payment_method == 'SN':
