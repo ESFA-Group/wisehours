@@ -222,19 +222,11 @@ class PaymentApiView(APIView):
             if not sheet.user:
                 continue
             payment_info = sheet.get_payment_info()
-            data.append({
+            payment_info.update({
                 'userID': user.id,
                 'user': user.get_full_name() + (" ☑️" if sheet.submitted else ""),
                 'bankName': user.bank_name,
-                'wage': sheet.wage,
-                'totalPayment': f"{payment_info['totalPayment']:,}",
-                'basePayment': f"{payment_info['basePayment']:,}",
-                'reduction1': f"{payment_info['reduction1']:,}",
-                'reduction2': f"{payment_info['reduction2']:,}",
-                'reduction3': f"{payment_info['reduction3']:,}",
-                'addition1': f"{payment_info['addition1']:,}",
-                'finalPayment': f"{payment_info['finalPayment']:,}",
-                'complementaryPayment': f"{payment_info['complementaryPayment']:,}",
             })
+            data.append(payment_info)
 
         return Response(data, status=status.HTTP_200_OK)

@@ -81,15 +81,15 @@
                 <th scope="col" data-field="userID" class="d-none">ID</th>
                 <th scope="col" data-field="user" data-sortable="true" data-width="14" data-width-unit="%">User</th>
                 <th scope="col" data-field="bankName" data-sortable="true" data-width="6" data-width-unit="%">Bank</th>
-                <th scope="col" data-field="wage" data-sortable="true" data-editable="true" data-width="6" data-width-unit="%">Wage (R)</th>
-                <th scope="col" data-field="totalPayment" data-sortable="true" data-width="9" data-width-unit="%">Total (R)</th>
-                <th scope="col" data-field="basePayment" data-editable="true" data-width="9" data-width-unit="%">Base (R)</th>
-                <th scope="col" data-field="reduction1" data-editable="true" data-width="8" data-width-unit="%">Reduction1 (R)</th>
-                <th scope="col" data-field="reduction2" data-editable="true" data-width="8" data-width-unit="%">Reduction2 (R)</th>
-                <th scope="col" data-field="reduction3" data-editable="true" data-width="8" data-width-unit="%">Reduction3 (R)</th>
-                <th scope="col" data-field="addition1" data-editable="true" data-width="8" data-width-unit="%">Addition (R)</th>
-                <th scope="col" data-field="complementaryPayment" data-width="11" data-width-unit="%" data-formatter="colorFormatter">Complementary (R)</th>
-                <th scope="col" data-field="finalPayment" data-width="9" data-width-unit="%" data-formatter="colorFormatter">Final (R)</th>
+                <th scope="col" data-field="wage" data-sortable="true" data-editable="true" data-width="6" data-width-unit="%" data-formatter="moneyFormatter" data-always-use-formatter="true">Wage (R)</th>
+                <th scope="col" data-field="totalPayment" data-sortable="true" data-width="9" data-width-unit="%" data-formatter="moneyFormatter">Total (R)</th>
+                <th scope="col" data-field="basePayment" data-editable="true" data-width="9" data-width-unit="%" data-formatter="moneyFormatter">Base (R)</th>
+                <th scope="col" data-field="reduction1" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction1 (R)</th>
+                <th scope="col" data-field="reduction2" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction2 (R)</th>
+                <th scope="col" data-field="reduction3" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction3 (R)</th>
+                <th scope="col" data-field="addition1" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Addition (R)</th>
+                <th scope="col" data-field="complementaryPayment" data-width="11" data-width-unit="%" data-formatter="colorMoneyFormatter">Complementary (R)</th>
+                <th scope="col" data-field="finalPayment" data-width="9" data-width-unit="%" data-formatter="colorMoneyFormatter">Final (R)</th>
             </tr>
         </thead>
     </table>
@@ -103,9 +103,18 @@
 <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
 <script>
 
-    function colorFormatter(value){
-        const color = value[0] === '-'? 'red': 'black';
-        return `<span style="color: ${color};">${value}</span>`
+    function moneyFormat(value){
+        //console.log(value)
+        return value.toLocaleString()
+    }
+
+    function colorMoneyFormatter(value){
+        const color = value < 0? 'red': 'black';
+        return `<span style="color: ${color};">${moneyFormat(value)}</span>`
+    }
+
+    function moneyFormatter(value){
+        return moneyFormat(value)
     }
 
     async function getTableData(year, month){
@@ -165,6 +174,12 @@
             const year = $("#year").val();
             const month = $("#month").val();
             fillTable(year, month);
+        });
+
+        $("#payment-table").on('editable-shown.bs.table', function(e, field, row){
+            let value = row[field];
+            value = String(value).replaceAll(',', '');
+            $("div.editable-input input").val(value);
         });
 
         $("#payment-table").on('editable-save.bs.table', function(e, field, row, idx, oldValue){
