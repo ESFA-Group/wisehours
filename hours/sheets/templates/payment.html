@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'sheets/css/bootstrap-table.min.css' %}">
+<link rel="stylesheet" href="{% static 'sheets/css/bootstrap-editable.css' %}">
 <style>
     th, td{
         border: 2px solid black !important;
@@ -64,13 +65,6 @@
                 <i class="fa fa-file-export"></i>
                 <span>Export</span>
             </button>
-            <i class="fa fa-sync"></i>
-        </div>
-        <div class="col col-6 col-md-2 col-lg-2">
-            <span id="sync-last-sheet" style="width: 120px; position: relative; top: 35px; cursor: pointer;">
-                <i id="sync-spinner" class="fa fa-sync" style="color: goldenrod; font-size: x-large;"></i>
-                <span style="position: relative; top: -3px;">sync <span id="current-sheet-date"></span></span>
-            </span>
         </div>
     </div>
     <br>
@@ -85,26 +79,34 @@
             <tr>
                 <th scope="col" data-field="state" data-checkbox="true" data-width="2" data-width-unit="%">#</th>
                 <th scope="col" data-field="userID" class="d-none">ID</th>
-                <th scope="col" data-field="user" data-sortable="true" data-width="15" data-width-unit="%">User</th>
-                <th scope="col" data-field="bankName" data-sortable="true" data-width="7" data-width-unit="%">Bank</th>
+                <th scope="col" data-field="user" data-sortable="true" data-width="14" data-width-unit="%">User</th>
+                <th scope="col" data-field="bankName" data-sortable="true" data-width="6" data-width-unit="%">Bank</th>
+                <th scope="col" data-field="wage" data-sortable="true" data-editable="true" data-width="6" data-width-unit="%">Wage (R)</th>
                 <th scope="col" data-field="totalPayment" data-sortable="true" data-width="9" data-width-unit="%">Total (R)</th>
-                <th scope="col" data-field="basePayment" data-width="9" data-width-unit="%">Base (R)</th>
-                <th scope="col" data-field="reduction1" data-width="9" data-width-unit="%">Reduction1 (R)</th>
-                <th scope="col" data-field="reduction2" data-width="9" data-width-unit="%">Reduction2 (R)</th>
-                <th scope="col" data-field="reduction3" data-width="9" data-width-unit="%">Reduction3 (R)</th>
-                <th scope="col" data-field="addition" data-width="9" data-width-unit="%">Addition (R)</th>
-                <th scope="col" data-field="finalPayment" data-width="9" data-width-unit="%">Final (R)</th>
-                <th scope="col" data-field="complementaryPayment" data-width="11" data-width-unit="%">Complementary (R)</th>
+                <th scope="col" data-field="basePayment" data-editable="true" data-width="9" data-width-unit="%">Base (R)</th>
+                <th scope="col" data-field="reduction1" data-editable="true" data-width="8" data-width-unit="%">Reduction1 (R)</th>
+                <th scope="col" data-field="reduction2" data-editable="true" data-width="8" data-width-unit="%">Reduction2 (R)</th>
+                <th scope="col" data-field="reduction3" data-editable="true" data-width="8" data-width-unit="%">Reduction3 (R)</th>
+                <th scope="col" data-field="addition1" data-editable="true" data-width="8" data-width-unit="%">Addition (R)</th>
+                <th scope="col" data-field="complementaryPayment" data-width="11" data-width-unit="%" data-formatter="colorFormatter">Complementary (R)</th>
+                <th scope="col" data-field="finalPayment" data-width="9" data-width-unit="%" data-formatter="colorFormatter">Final (R)</th>
             </tr>
         </thead>
     </table>
 </div>
 <br>
 <br>
+<script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
 <script src="{% static 'sheets/js/tableExport.min.js' %}"></script>
 <script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
+<script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
 <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
 <script>
+
+    function colorFormatter(value){
+        const color = value[0] === '-'? 'red': 'black';
+        return `<span style="color: ${color};">${value}</span>`
+    }
 
     async function getTableData(year, month){
         const url = `{% url "sheets:api_payment" year='yearHolder' month='monthHolder' %}`
@@ -165,36 +167,33 @@
             fillTable(year, month);
         });
 
-        $("#sync-last-sheet").click(function(){
-            $("#year").val(currentYear);
-            $("#month").val(currentMonth);
-            $("#sync-spinner").addClass("fa-spin");
-            const url = `{% url "sheets:sync_sheets" year='yearHolder' month='monthHolder' %}`
-            .replace("yearHolder", currentYear)
-            .replace("monthHolder", currentMonth);
-            fetch(url)
+        $("#payment-table").on('editable-save.bs.table', function(e, field, row, idx, oldValue){
+            const year = $("#year").val();
+            const month = $("#month").val();
+            const url = `{% url "sheets:api_sheets" year='yearHolder' month='monthHolder' %}`
+                .replace("yearHolder", year)
+                .replace("monthHolder", month);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{csrf_token}}',
+                },
+                body: JSON.stringify({row: row, field: field, editSheet: true}),
+            })
             .then(res => res.json())
             .then(res => {
-                jSuites.notification({
-                    success: 1,
-                    name: 'Success',
-                    title: "Sync Database",
-                    message: "Database synced successfully",
-                    timeout: 6000,
-                });
+                Object.assign(row, res);
+                $("#payment-table").bootstrapTable('updateRow', {index: idx, row: row});
             })
-            .catch(e => {
-                    jSuites.notification({
+            .catch(err => {
+                jSuites.notification({
                     error: 1,
                     name: 'Error',
-                    title: "Sync Database",
-                    message: "Database did not synced",
-                    timeout: 6000,
+                    title: "Editing Row",
+                    message: "Error occured while changing data.",
                 });
-            })
-            .finally(() => {
-                $("#sync-spinner").removeClass("fa-spin");
-                fillTable(currentYear, currentMonth);
+                $("#payment-table").bootstrapTable('updateCell', {index: idx, field: field, value: oldValue});
             });
         });
 

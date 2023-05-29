@@ -206,7 +206,7 @@
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{csrf_token}}',
             },
-            body: JSON.stringify({"data": data}),
+            body: JSON.stringify({"data": data, "saveSheet": true}),
         })
         .then(res => res.json())
         .catch(err => {

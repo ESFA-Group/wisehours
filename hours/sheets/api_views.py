@@ -7,9 +7,15 @@ from django.db.models import QuerySet, Sum
 
 import jdatetime as jdt
 import pandas as pd
+import re
 
 from sheets.models import Project, Sheet, User
 from sheets.serializers import ProjectSerializer, SheetSerializer
+
+def camel_to_snake(s: str) -> str:
+    pattern = re.compile(r'(?<!^)(?=[A-Z])')
+    snake = pattern.sub('_', s).lower()
+    return snake
 
 class ProjectListApiView(ListAPIView):
 
@@ -34,20 +40,29 @@ class SheetApiView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, year: str, month: str):
-        user = self.request.user
-        sheet, created = Sheet.objects.get_or_create(user=user, year=year, month=month)
-        sheet.user_name = user.get_full_name()
-        sheet.wage = user.wage
-        sheet.base_payment = user.base_payment
-        sheet.reduction1 = user.reduction1
-        sheet.reduction2 = user.reduction2
-        sheet.reduction3 = user.reduction3
-        sheet.addition1 = user.addition1
-        data = request.data.get("data", [])
-        data.sort(key=lambda row: int(row.get("Day", 0)))
-        sheet.data = request.data['data']
-        sheet.save()
-        return Response({"success": True}, status=status.HTTP_200_OK)
+        if "saveSheet" in request.data:
+            user = self.request.user
+            sheet, created = Sheet.objects.get_or_create(user=user, year=year, month=month)
+            sheet.user_name = user.get_full_name()
+            sheet.wage = user.wage
+            sheet.base_payment = user.base_payment
+            sheet.reduction1 = user.reduction1
+            sheet.reduction2 = user.reduction2
+            sheet.reduction3 = user.reduction3
+            sheet.addition1 = user.addition1
+            data = request.data.get("data", [])
+            data.sort(key=lambda row: int(row.get("Day", 0)))
+            sheet.data = request.data['data']
+            sheet.save()
+            return Response({"success": True}, status=status.HTTP_200_OK)
+        elif "editSheet" in request.data:
+            data = request.data.get("row", {})
+            field = request.data.get("field", "")
+            user = User.objects.get(pk=data["userID"])
+            update_data = {camel_to_snake(field): data[field]}
+            sheet = Sheet.objects.filter(user=user, year=year, month=month)
+            sheet.update(**update_data)
+            return Response(sheet.first().get_payment_info(), status=status.HTTP_200_OK)
 
     def put(self, request, year: str, month: str):
         try:
@@ -206,18 +221,20 @@ class PaymentApiView(APIView):
             user = sheet.user
             if not sheet.user:
                 continue
+            payment_info = sheet.get_payment_info()
             data.append({
                 'userID': user.id,
                 'user': user.get_full_name() + (" ☑️" if sheet.submitted else ""),
                 'bankName': user.bank_name,
-                'totalPayment': f"{sheet.get_total_payment():,}",
-                'basePayment': f"{sheet.get_base_payment():,}",
-                'reduction1': f"{sheet.reduction1:,}",
-                'reduction2': f"{sheet.reduction2:,}",
-                'reduction3': f"{sheet.reduction3:,}",
-                'addition': f"{sheet.addition1:,}",
-                'finalPayment': f"{sheet.get_final_payment():,}",
-                'complementaryPayment': f"{sheet.get_complementary_payment():,}",
+                'wage': sheet.wage,
+                'totalPayment': f"{payment_info['totalPayment']:,}",
+                'basePayment': f"{payment_info['basePayment']:,}",
+                'reduction1': f"{payment_info['reduction1']:,}",
+                'reduction2': f"{payment_info['reduction2']:,}",
+                'reduction3': f"{payment_info['reduction3']:,}",
+                'addition1': f"{payment_info['addition1']:,}",
+                'finalPayment': f"{payment_info['finalPayment']:,}",
+                'complementaryPayment': f"{payment_info['complementaryPayment']:,}",
             })
 
         return Response(data, status=status.HTTP_200_OK)

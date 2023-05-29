@@ -174,15 +174,19 @@ class Sheet(models.Model):
         final_payment = self.get_final_payment()
         return final_payment - self.base_payment
     
-    def sync_payment_info(self) -> None:
-        '''updates payment info from user'''
-        self.wage = self.user.wage
-        self.base_payment = self.user.base_payment
-        self.reduction1 = self.user.reduction1
-        self.reduction2 = self.user.reduction2
-        self.reduction3 = self.user.reduction3
-        self.addition1 = self.user.addition1
-        self.save()
+    def get_payment_info(self) -> dict:
+        info = {
+            "wage": self.wage,
+            "totalPayment": self.get_total_payment(),
+            "basePayment": self.get_base_payment(),
+            "reduction1": self.reduction1,
+            "reduction2": self.reduction2,
+            "reduction3": self.reduction3,
+            "addition1": self.addition1,
+            "finalPayment": self.get_final_payment(),
+            "complementaryPayment": self.get_complementary_payment(),
+        }
+        return info
 
 class ProjectFamily(models.Model):
     name = models.CharField('name', max_length=150)
