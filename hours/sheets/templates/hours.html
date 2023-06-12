@@ -373,9 +373,23 @@
         return valid
     }
 
-    function onChangeHandler(save=true){
+    function onChangeHandler(worksheet, cell, x, y, value){
         const rawData = window.spreadTable.getJson();
         const tableData = convertTableData(rawData);
+
+        // automatically fill 100% if there is only one project in table
+        const projects = getTableProjects(tableData);
+        if(projects.length === 1 && worksheet){
+            x = Number(x);
+            y = Number(y);
+            let hour = window.spreadTable.getCellFromCoords(x, y)?.textContent;
+            let percent = window.spreadTable.getCellFromCoords(x + 1, y)?.textContent;
+            if(hour && percent === ''){
+                window.spreadTable.updateCell(x + 1, y, "100"); // this will trigger onChange event again
+                return
+            }
+        }
+
         const valid = validateSheet(tableData);
         if(!valid){
             const msg = `At least 1 project should be added to table, and sum of project proportions should be equal to 100%.`
@@ -392,7 +406,7 @@
         let {totalTime, meanTime, ...minutesByProject} = minutesInfo;
         updateHoursInfo(totalTime, meanTime);
         updateChart(minutesByProject);
-        if(save)
+        if(worksheet)
             saveSheet(tableData);
     }
 
@@ -510,7 +524,7 @@
         handleSubmit(sheet.submitted);
         toggleSubmit();
         constructTable(sheet.data);
-        onChangeHandler(save=false);
+        onChangeHandler();
     }
 
     function toggleSubmit(){
