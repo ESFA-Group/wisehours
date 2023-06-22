@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Get the day of week
-_dow="$(date +'%F')"
+set -e
+PATH="/usr/local/bin:/usr/bin:/bin"
+
+# Get the date
+_d="$(date +'%F')"
 
 # open database, wait up to 1 seconds for any activity to end and create a backup file
-sqlite3 db.sqlite3 << EOF
-.timeout 1000
-.backup db_${_dow}.sqlite3
-EOF
+sqlite3 /home/mrn/hours/hours/db.sqlite3 ".backup /home/mrn/hours/hours/db_${_d}.sqlite3"
 
-gdrive files upload --parent 1JbFc6ECZQmWuDgzXF3ZQ7VCE7HxJwdDO db_${_dow}.sqlite3
+gdrive files upload --parent 1JbFc6ECZQmWuDgzXF3ZQ7VCE7HxJwdDO /home/mrn/hours/hours/db_${_d}.sqlite3
 
-rm db_${_dow}.sqlite3
+rm /home/mrn/hours/hours/db_${_d}.sqlite3
