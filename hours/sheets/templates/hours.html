@@ -94,6 +94,10 @@
                         <strong>Average working hours (per day):</strong>
                         <strong id="mean-hours"></strong>
                     </p>
+                    <p class="d-flex justify-content-between">
+                        <strong>No. of days worked:</strong>
+                        <strong id="worked-days-count"></strong>
+                    </p>
                 </div>
 
                 <hr>
@@ -309,13 +313,14 @@
         return minutesByProject
     }
 
-    function updateHoursInfo(totalMinutes, minutesMean){
+    function updateHoursInfo(totalMinutes, minutesMean, workedDaysCount){
         const totalH = Math.floor(totalMinutes / 60);
         const totalM = totalMinutes % 60;
         const meanH = Math.floor(minutesMean / 60);
         const meanM = minutesMean % 60;
         $("#total-hours").text(`${totalH < 10? 0: ''}${totalH}:${totalM < 10? 0: ''}${totalM}`); 
         $("#mean-hours").text(`${meanH < 10? 0: ''}${meanH}:${meanM < 10? 0: ''}${meanM}`); 
+        $("#worked-days-count").text(workedDaysCount); 
     }
 
     function updateChart(minutesByProject){
@@ -404,7 +409,8 @@
         }
         const minutesInfo = getMinutesByProject(tableData);
         let {totalTime, meanTime, ...minutesByProject} = minutesInfo;
-        updateHoursInfo(totalTime, meanTime);
+        const workedDaysCount = tableData.filter(row => hhmm2minutes(row.Hours) > 0).length;
+        updateHoursInfo(totalTime, meanTime, workedDaysCount);
         updateChart(minutesByProject);
         if(worksheet)
             saveSheet(tableData);
