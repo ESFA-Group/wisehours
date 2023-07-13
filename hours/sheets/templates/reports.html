@@ -162,7 +162,12 @@
 
         $("#monthly-table tbody tr").remove();
         $("#monthly-table thead tr").remove();
-        const ths = Object.keys(Object.values(data.hours)[0]);
+        let ths = Object.keys(Object.values(data.hours)[0]);
+
+        // total column should be the last column
+        ths = ths.filter(i => i.toLowerCase() != 'total');
+        ths.push("Total");
+
         const table = $("#monthly-table");
         let tr = $("<tr>");
         ["Name", ...ths].forEach((val, idx) => {
