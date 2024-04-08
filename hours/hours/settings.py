@@ -31,6 +31,9 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 LOGIN_REDIRECT_URL = '/'
 AUTH_USER_MODEL = 'sheets.User'
 
+# settings.py
+APPEND_SLASH = True
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
