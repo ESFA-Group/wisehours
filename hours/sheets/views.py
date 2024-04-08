@@ -126,6 +126,10 @@ class ReportsView(BaseView):
 @method_decorator([staff_member_required], name='dispatch')
 class PaymentHandleView(BaseView):
     template_name = "payment.html"
+    
+class MonthlyStats(BaseView):
+    template_name = "monthly_stats.html"
+
 
 @method_decorator([staff_member_required], name='dispatch')
 class DetailedReportView(View):

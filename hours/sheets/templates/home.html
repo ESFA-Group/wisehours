@@ -44,7 +44,7 @@ body{
 
         <div class="row">
                 
-                <div class="col col-12 col-lg-4 mb-2 card-container">
+                <div class="col col-12 col-lg-3 mb-2 card-container">
                     <a href="{% url 'sheets:hours' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -55,7 +55,7 @@ body{
                     </a>
                 </div>
 
-                <div class="col col-12 col-lg-4 mb-2 card-container">
+                <div class="col col-12 col-lg-3 mb-2 card-container">
                     <a href="{% url 'sheets:hours_info' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -66,12 +66,23 @@ body{
                     </a>
                 </div>
 
-                <div class="col col-12 col-lg-4 mb-2 card-container">
+                <div class="col col-12 col-lg-3 mb-2 card-container">
                     <a href="{% url 'sheets:personal_info' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
                                 <h5 class="card-title">Personal Info</h5>
                                 <p class="card-text">Your personal information</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col col-12 col-lg-3 mb-2 card-container">
+                    <a href="{% url 'sheets:monthly_stats' %}" class="card-link">
+                        <div class="card mx-3" style="width: 19rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">Monthly Stats</h5>
+                                <p class="card-text">Your monthly hours stats</p>
                             </div>
                         </div>
                     </a>
