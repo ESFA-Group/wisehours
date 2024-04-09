@@ -152,10 +152,10 @@ class PublicMonthlyReportApiView(APIView):
     def get(self, request, year: str, month: str):
 
         sheets = Sheet.objects.filter(year=year, month=month)
-        hours = PublicMonthlyReportApiView.get_sheet_sums(sheets)
+        hours, activeUsers = PublicMonthlyReportApiView.get_sheet_sums(sheets)
         res = {
             "hours": hours,
-            "usersNum": User.objects.count(),
+            "activeUsers": activeUsers,
         }
 
         return Response(res, status=status.HTTP_200_OK)
@@ -172,7 +172,7 @@ class PublicMonthlyReportApiView(APIView):
             sheet_sum = cls.get_sum(sheet)
             projects_sum = projects_sum.add(sheet_sum, fill_value=0)
 
-        return projects_sum.apply(cls.minute_formatter).to_dict()
+        return projects_sum.apply(cls.minute_formatter).to_dict(), sheets.count()
 
 
     @classmethod
