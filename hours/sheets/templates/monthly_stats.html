@@ -14,13 +14,13 @@
 
 <script src="{% static 'sheets/js/plotly-basic.min.js' %}"></script>
 <script>
-    async function getPublicInfo(){
+    async function getPublicInfo() {
         const url = '{% url "sheets:api_info"%}';
-        try{
+        try {
             let res = await fetch(url);
             return await res.json();
         }
-        catch (err){
+        catch (err) {
             jSuites.notification({
                 error: 1,
                 name: 'Error',
@@ -31,44 +31,100 @@
         }
     }
 
-    function drawMonthlyChart(selector, monthlyHours){
+    async function getEsfaMonthlyData(year) {
+        MonthlyData = [];
+        for (let i = 1; i <= 12; i++) {
+            monthData = await getEsfaMonthData(year, i);
+            hours = parseInt(monthData.hours.Total.Total.split(':')[0]);
+            if (hours == 0) {
+                continue;
+            }
+
+            MonthlyData.push({
+                month: i,
+                meanHours: hours / monthData.usersNum,
+            });
+        }
+        return MonthlyData;
+    }
+
+    async function getEsfaMonthData(year, month) {
+        const url = `{% url "sheets:api_monthly_report" year='yearHolder' month='monthHolder' %}`
+            .replace("yearHolder", year)
+            .replace("monthHolder", month);
+
+        try {
+            let res = await fetch(url);
+            return await res.json();
+        }
+        catch (err) {
+            jSuites.notification({
+                error: 1,
+                name: 'Error',
+                title: "Fetching Info",
+                message: err,
+                timeout: 6000,
+            });
+        }
+    }
+
+    function drawMonthlyChart(selector, userMonthlyHours, esfaMonthlyHours) {
         const months = [
-            "Farvardin", "Ordibehest",  "Khordad",  "Tir",  "Mordad",  "Shahrivar",
-            "Mehr",  "Aban",  "Azar",  "Dey",  "Bahman",  "Esfand",
+            "Farvardin", "Ordibehest", "Khordad", "Tir", "Mordad", "Shahrivar",
+            "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand",
         ]
-        const data = [{
-            x: monthlyHours.map(x => months[x.month - 1]),
-            y: monthlyHours.map(x => Math.floor(x.total / 60)),
-            text: monthlyHours.map(x => Math.floor(x.total / 60)),
-            type: "bar",
-            marker: {
-                color: 'rgb(158, 202, 225)',
-                opacity: 0.7,
-                line: {
-                    color: 'rgb(8, 48, 107)',
-                    width: 1.5
+        const data = [
+            {
+                name: "{{request.user.username}}",
+                x: userMonthlyHours.map(x => months[x.month - 1]),
+                y: userMonthlyHours.map(x => Math.floor(x.total / 60)),
+                text: userMonthlyHours.map(x => Math.floor(x.total / 60)),
+                type: "bar",
+                marker: {
+                    color: 'rgb(158, 202, 225)',
+                    opacity: 0.7,
+                    line: {
+                        color: 'rgb(8, 48, 107)',
+                        width: 1.5
+                    }
+                }
+            },
+            {
+                name: "ESFA",
+                x: esfaMonthlyHours.map(x => months[x.month - 1]),
+                y: esfaMonthlyHours.map(x => parseInt(x.meanHours)),
+                text: esfaMonthlyHours.map(x => parseInt(x.meanHours)),
+                type: "bar",
+                marker: {
+                    color: 'RGBA(255,0,0,0.60)',
+                    opacity: 0.7,
+                    line: {
+                        color: 'RGBA(130,20,30,1)',
+                        width: 1.5
+                    }
                 }
             }
-        }];
+        ];
 
         layout = {
             xaxis: {
                 tickangle: -45
             },
             barmode: 'group',
-            margin: {t: 0},
+            margin: { t: 0 },
         };
 
-        const config = {responsive: true};
+        const config = { responsive: true };
         Plotly.newPlot(selector, data, layout, config);
     }
 
 
-    async function showInfo(){
+    async function showInfo() {
         const info = await getPublicInfo();
         console.log('info is:', info)
-        drawMonthlyChart('monthly-chart', info.user_monthly_hours);
-       }
+        const esfa_monthly_hours = await getEsfaMonthlyData(1403);
+        drawMonthlyChart('monthly-chart', info.user_monthly_hours, esfa_monthly_hours);
+    }
 
     showInfo()
 </script>
