@@ -145,6 +145,49 @@ class InfoApiView(APIView):
         return df_all.sum()
 
 
+class PublicMonthlyReportApiView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, year: str, month: str):
+
+        sheets = Sheet.objects.filter(year=year, month=month)
+        hours = PublicMonthlyReportApiView.get_sheet_sums(sheets)
+        res = {
+            "hours": hours,
+            "usersNum": User.objects.count(),
+        }
+
+        return Response(res, status=status.HTTP_200_OK)
+
+    @classmethod
+    def get_sheet_sums(cls, sheets: QuerySet) -> dict:
+        projects = [p['name'] for p in Project.objects.values('name')]
+        projects.append('Total')
+
+        # a pandas Series which will be a summation of all desiered sheet sums
+        projects_sum = pd.Series({p: 0 for p in projects})
+
+        for sheet in sheets:
+            sheet_sum = cls.get_sum(sheet)
+            projects_sum = projects_sum.add(sheet_sum, fill_value=0)
+
+        return projects_sum.apply(cls.minute_formatter).to_dict()
+
+
+    @classmethod
+    def get_sum(self, sheet: Sheet) -> pd.Series:
+        """returns sheet column sums"""
+        df = sheet.transform()
+        df.drop(["Day", "WeekDay"], axis=1, inplace=True)
+        df.rename(columns={"Hours": "Total"}, inplace=True)
+        return df.sum()
+
+    @classmethod
+    def minute_formatter(cls, minutes: int) -> str:
+        return f"{int(minutes // 60)}:{int(minutes % 60)}"
+   
+
 class MonthlyReportApiView(APIView):
 
     permission_classes = [permissions.IsAdminUser]

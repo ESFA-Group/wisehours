@@ -37,6 +37,11 @@ urlpatterns = [
         name="api_sheets",
     ),
     path(
+        "api/public_monthly_report/<str:year>/<str:month>",
+        api_views.PublicMonthlyReportApiView.as_view(),
+        name="api_public_monthly_report",
+    ),
+    path(
         "api/monthly_report/<str:year>/<str:month>",
         api_views.MonthlyReportApiView.as_view(),
         name="api_monthly_report",
