@@ -15,6 +15,7 @@ urlpatterns = [
     path("hours_info", views.HoursInfoView.as_view(), name="hours_info"),
     path("personal_info", views.PersonalInfoView.as_view(), name="personal_info"),
     path("payment", views.PaymentHandleView.as_view(), name="payment"),
+    path("alter_payment", views.AlterPaymentHandleView.as_view(), name="alter_payment"),
     path("reports", views.ReportsView.as_view(), name="reports"),
     path("detailed_report", views.DetailedReportView.as_view(), name="detailed_report"),
     path("main_report", views.MainReportView.as_view(), name="main_report"),
@@ -50,5 +51,10 @@ urlpatterns = [
         "api/payment/<str:year>/<str:month>",
         api_views.PaymentApiView.as_view(),
         name="api_payment",
+    ),
+    path(
+        "api/alter_payment",
+        api_views.AlterPaymentApiView.as_view(),
+        name="api_alter_payment",
     ),
 ]

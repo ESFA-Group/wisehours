@@ -128,6 +128,10 @@ class PaymentHandleView(BaseView):
     template_name = "payment.html"
 
 @method_decorator([staff_member_required], name='dispatch')
+class AlterPaymentHandleView(BaseView):
+    template_name = "AlterPayment.html"
+
+@method_decorator([staff_member_required], name='dispatch')
 class DetailedReportView(View):
     
     def get(self, request):

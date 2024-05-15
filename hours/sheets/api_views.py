@@ -273,3 +273,22 @@ class PaymentApiView(APIView):
             data.append(payment_info)
 
         return Response(data, status=status.HTTP_200_OK)
+    
+class AlterPaymentApiView(APIView):
+
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        users = User.objects.all()
+        data = list()
+        
+        for user in users:
+            payment_info = user.get_payment_info()
+            payment_info.update({
+                'userID': user.id,
+                'user': user.get_full_name(),
+                'state': 0,
+            })
+            data.append(payment_info)
+
+        return Response(data, status=status.HTTP_200_OK)
