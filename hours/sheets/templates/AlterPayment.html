@@ -60,16 +60,23 @@
                     </select>
                 </div>
             </div>
-            <div class="col col-6 col-md-2 col-lg-3">
+            <div class="col col-12 col-md-4 col-lg-2">
                 <button id="export" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 120px; position: relative; top: 27px;">
                     <i class="fa fa-file-export"></i>
                     <span>Export</span>
                 </button>
             </div>
-            <div class="col col-6 col-md-2 col-lg-3">
-                <button id="export-excel" class="btn btn-success d-flex align-items-center justify-content-around" style="width: 120px; position: relative; top: 27px;">
+            <div class="col col-12 col-md-4 col-lg-2">
+                <button id="export-excel" class="btn btn-success d-flex align-items-center justify-content-around" style="width: 160px; position: relative; top: 27px;">
                     <i class="fa fa-file-export"></i>
                     <span>Export Excel</span>
+                </button>
+            </div>
+            <div class="col col-12 col-md-4 col-lg-2">
+                <input type="file" id="excelFileInput" style="display:none;" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
+                <button id="import-excel" class="btn btn-warning d-flex align-items-center justify-content-around" style="width: 160px; position: relative; top: 27px;">
+                    <i class="fa fa-file-import"></i>
+                    <span>import Excel</span>
                 </button>
             </div>
         </div>
@@ -159,6 +166,30 @@
         }
     }
 
+    function handleFileUpload(event) {
+        var file = event.target.files[0];
+        var formData = new FormData();
+    
+        // Append the file to the form data
+        formData.append('file', file);
+        
+        // Send the file to the backend
+        const year = $("#year").val();
+        const month = $("#month").val();
+        const url = `{% url "sheets:payment_excel_import" year='yearHolder' month='monthHolder'  %}`
+            .replace("yearHolder", year)
+            .replace("monthHolder", month);
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{csrf_token}}',
+            },
+            body:  formData,
+        })
+        .then(res => fillTable(year, month)
+        .catch(error => console.error('Error:', error)));
+    }
+
     $("document").ready(async function(){
 
         const today = new JDate();
@@ -242,6 +273,10 @@
             $form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val("{{csrf_token}}"));
             $("body").append($form);
             $form.submit();
+        });
+
+        $("#import-excel").click(function(){
+            $("#excelFileInput").click();
         });
     });
 </script>
