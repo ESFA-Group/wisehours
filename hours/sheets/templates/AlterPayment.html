@@ -230,25 +230,18 @@
             $("body").append($form);
             $form.submit();
         });
+
         $("#export-excel").click(function(){
-            const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);
-            const $form = $("<form>", {action: "{% url 'sheets:payment_export' %}", method: "POST"});
-            $form.append($("<input type='hidden' name='IDs'>").val(JSON.stringify(userIDs)));
-            $form.append($("<input type='hidden' name='month'>").val($("#month").val()));
-            $form.append($("<input type='hidden' name='year'>").val($("#year").val()));
-            $form.append($("<input type='hidden' name='paymentMethod'>").val($("#paymentMethod").val()));
-            $form.append($("<input type='hidden' name='paymentType'>").val($("#paymentType").val()));
+            const year = $("#year").val();
+            const month = $("#month").val();
+            const $form = $("<form>", 
+                {action: `{% url "sheets:payment_excel_export" year='yearHolder' month='monthHolder'  %}`
+                    .replace("yearHolder", year)
+                    .replace("monthHolder", month),
+                method: "POST"});
             $form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val("{{csrf_token}}"));
             $("body").append($form);
             $form.submit();
-        });
-        $("#get-payment-report").click(function(){
-            const year = $("#year").val();
-            const month = $("#month").val();
-            $("#report-form").prop({action: `{% url "sheets:api_alter_payment" year='yearHolder' month='monthHolder' %}`
-                .replace("yearHolder", year)
-                .replace("monthHolder", month)});
-            $("#report-form").submit();
         });
     });
 </script>

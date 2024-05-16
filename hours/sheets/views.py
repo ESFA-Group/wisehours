@@ -274,3 +274,22 @@ class PaymentExportView(View):
         response['Content-Disposition'] = f'attachment; filename=file.txt'
         return response
         
+@method_decorator([staff_member_required], name='dispatch')
+class PaymentExcelExportView(View):
+
+    def post(self, request, year: str, month: str):
+        sheet = Sheet.objects.filter(year=year, month=month).values('user_name', 'wage', 'base_payment', 'reduction1', 'reduction2', 'reduction3', 'addition1')
+        
+        df = pd.DataFrame(sheet)
+        
+        buffer = io.BytesIO()
+        writer = pd.ExcelWriter(buffer, engine='xlsxwriter')
+        df.to_excel(writer, sheet_name="hours")
+        writer.save()
+        writer.close()
+        
+        response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=payment_report_{year}_{month}.xlsx'
+        return response
+    
+        
