@@ -332,7 +332,7 @@ class PaymentExcelExportView(View):
 
     def post(self, request, year: str, month: str):
         sheet = Sheet.objects.filter(year=year, month=month).values(
-            "id",  # sheet id
+            "user_id",  # user id
             "user_name",
             "wage",
             "base_payment",
@@ -369,10 +369,11 @@ class PaymentExcelImportView(View):
         df = pd.read_excel(file)
 
         for index, row in df.iterrows():
+            user_id = row["user_id"]
             wage = row["wage"]
             base = row["base_payment"]
             row = row.to_dict()
-            current_sheet = Sheet.objects.get(pk=row["id"])
+            current_sheet = Sheet.objects.get(user_id=user_id, year=year, month=month)
             current_sheet.wage = wage
             current_sheet.base_payment = base
             current_sheet.reduction1 = row["reduction1"]
@@ -381,7 +382,7 @@ class PaymentExcelImportView(View):
             current_sheet.addition1 = row["addition1"]
             current_sheet.save()
 
-            user = User.objects.get(pk=current_sheet.user_id)
+            user = User.objects.get(pk=user_id)
             user.wage = wage
             user.base_payment = base
             user.save()

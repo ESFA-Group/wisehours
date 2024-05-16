@@ -186,8 +186,15 @@
             },
             body:  formData,
         })
-        .then(res => fillTable(year, month)
-        .catch(error => console.error('Error:', error)));
+        .then(res => {
+            if (res.ok) {
+                fillTable(year, month);
+                document.getElementById('excelFileInput').value = '';
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        })            
+        .catch(error => console.error('Error:', error));
     }
 
     $("document").ready(async function(){
