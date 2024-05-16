@@ -17,6 +17,16 @@ def camel_to_snake(s: str) -> str:
     snake = pattern.sub('_', s).lower()
     return snake
 
+def _setup_sheet(sheet, user):
+    sheet.user_name = user.get_full_name()
+    sheet.wage = user.wage
+    sheet.base_payment = user.base_payment
+    sheet.reduction1 = user.reduction1
+    sheet.reduction2 = user.reduction2
+    sheet.reduction3 = user.reduction3
+    sheet.addition1 = user.addition1
+    return sheet
+
 class ProjectListApiView(ListAPIView):
 
     queryset = Project.objects.all()
@@ -278,17 +288,40 @@ class AlterPaymentApiView(APIView):
 
     permission_classes = [permissions.IsAdminUser]
 
-    def get(self, request):
+    def get(self, request, year: str, month: str):
         users = User.objects.all()
         data = list()
         
         for user in users:
-            payment_info = user.get_payment_info()
+            sheet, created = Sheet.objects.get_or_create(user=user, year=year, month=month)
+            if created:
+                sheet = _setup_sheet(sheet, user)
+                sheet.save()
+            payment_info = sheet.get_payment_info()
             payment_info.update({
                 'userID': user.id,
                 'user': user.get_full_name(),
-                'state': 0,
+                'bankName': user.bank_name,
             })
             data.append(payment_info)
 
         return Response(data, status=status.HTTP_200_OK)
+    
+    def post(self, request, year: str, month: str):
+        editted_row = request.data['row']
+        id= editted_row['userID']
+        wage = editted_row['wage']
+        base = editted_row['basePayment']
+        
+        user = User.objects.get(pk=id)
+        user.wage = wage
+        user.base_payment = base
+        # user.reduction1 = editted_row['reduction1']
+        user.save()
+        user_sheets = Sheet.objects.filter(user=id ,year=1403)
+        for sheet in user_sheets:
+            sheet.wage = wage
+            sheet.base_payment = base
+            sheet.save()
+        # n = let(user_sheets)
+        return Response(user.get_payment_info(), status=status.HTTP_200_OK)

@@ -80,12 +80,16 @@
                 <th scope="col" data-field="state" data-checkbox="true" data-width="2" data-width-unit="%">#</th>
                 <th scope="col" data-field="userID" class="d-none">ID</th>
                 <th scope="col" data-field="user" data-sortable="true" data-width="14" data-width-unit="%">User</th>
-                <th scope="col" data-field="wage" data-sortable="true" data-editable="true" data-width="15" data-width-unit="%" data-formatter="moneyFormatter" data-always-use-formatter="true">Wage (R)</th>
-                <th scope="col" data-field="basePayment" data-editable="true" data-width="15" data-width-unit="%" data-formatter="moneyFormatter">Base (R)</th>
-                <th scope="col" data-field="reduction1" data-editable="true" data-width="15" data-width-unit="%" data-formatter="moneyFormatter">Reduction1 (R)</th>
-                <th scope="col" data-field="reduction2" data-editable="true" data-width="15" data-width-unit="%" data-formatter="moneyFormatter">Reduction2 (R)</th>
-                <th scope="col" data-field="reduction3" data-editable="true" data-width="15" data-width-unit="%" data-formatter="moneyFormatter">Reduction3 (R)</th>
-                <th scope="col" data-field="addition1" data-editable="true" data-width="15" data-width-unit="%" data-formatter="moneyFormatter">Addition (R)</th>
+                <th scope="col" data-field="bankName" data-sortable="true" data-width="9" data-width-unit="%">Bank</th>
+                <th scope="col" data-field="wage" data-sortable="true" data-editable="true" data-width="6" data-width-unit="%" data-formatter="moneyFormatter" data-always-use-formatter="true">Wage (R)</th>
+                <th scope="col" data-field="totalPayment" data-sortable="true" data-width="9" data-width-unit="%" data-formatter="moneyFormatter">Total (R)</th>
+                <th scope="col" data-field="basePayment" data-editable="true" data-width="9" data-width-unit="%" data-formatter="moneyFormatter">Base (R)</th>
+                <th scope="col" data-field="reduction1" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction1 (R)</th>
+                <th scope="col" data-field="reduction2" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction2 (R)</th>
+                <th scope="col" data-field="reduction3" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction3 (R)</th>
+                <th scope="col" data-field="addition1" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Addition (R)</th>
+                <th scope="col" data-field="complementaryPayment" data-width="11" data-width-unit="%" data-formatter="colorMoneyFormatter">Complementary (R)</th>
+                <th scope="col" data-field="finalPayment" data-width="9" data-width-unit="%" data-formatter="colorMoneyFormatter">Final (R)</th>
             </tr>
         </thead>
     </table>
@@ -114,7 +118,9 @@
     }
 
     async function getTableData(year, month){
-        const url = `{% url "sheets:api_alter_payment" %}`;
+        const url = `{% url "sheets:api_alter_payment" year='yearHolder' month='monthHolder' %}`
+                .replace("yearHolder", year)
+                .replace("monthHolder", month);
         try{
             let res = await fetch(url);
             return await res.json();
@@ -179,7 +185,7 @@
         $("#payment-table").on('editable-save.bs.table', function(e, field, row, idx, oldValue){
             const year = $("#year").val();
             const month = $("#month").val();
-            const url = `{% url "sheets:api_sheets" year='yearHolder' month='monthHolder' %}`
+            const url = `{% url "sheets:api_alter_payment" year='yearHolder' month='monthHolder' %}`
                 .replace("yearHolder", year)
                 .replace("monthHolder", month);
             fetch(url, {
@@ -218,7 +224,6 @@
             $("body").append($form);
             $form.submit();
         });
-
     });
 </script>
 {% endblock body %}
