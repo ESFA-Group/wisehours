@@ -39,40 +39,13 @@
                     </select>
                 </div>
             </div>
-        </div>
-        <hr>
-        <div class="row">
-            <div class="col col-6 col-md-4 col-lg-3">
-                <strong>Payment Method</strong>
-                <div class="mt-1">
-                    <select name="paymentMethod" id="paymentMethod" style="min-width: 180px; border-radius: 5px; height: 35px;">
-                        <option value="AN">Account number</option>
-                        <option value="SN">SHEBA number</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col col-6 col-md-4 col-lg-3">
-                <strong>Payment Type</strong>
-                <div class="mt-1">
-                    <select name="paymentType" id="paymentType" style="min-width: 180px; border-radius: 5px; height: 35px;">
-                        <option value="base">Base payment</option>
-                        <option value="complementary">Complementary payment</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col col-12 col-md-4 col-lg-2">
-                <button id="export" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 120px; position: relative; top: 27px;">
-                    <i class="fa fa-file-export"></i>
-                    <span>Export</span>
-                </button>
-            </div>
-            <div class="col col-12 col-md-4 col-lg-2">
+            <div class="col col-12 col-md-4 col-lg-3">
                 <button id="export-excel" class="btn btn-success d-flex align-items-center justify-content-around" style="width: 160px; position: relative; top: 27px;">
                     <i class="fa fa-file-export"></i>
                     <span>Export Excel</span>
                 </button>
             </div>
-            <div class="col col-12 col-md-4 col-lg-2">
+            <div class="col col-12 col-md-4 col-lg-3">
                 <input type="file" id="excelFileInput" style="display:none;" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
                 <button id="import-excel" class="btn btn-warning d-flex align-items-center justify-content-around" style="width: 160px; position: relative; top: 27px;">
                     <i class="fa fa-file-import"></i>
@@ -80,15 +53,15 @@
                 </button>
             </div>
         </div>
+        <hr>
         <br>
 
     <table 
     id="payment-table"
-    data-show-export="true"
     data-click-to-select="true" 
     class="table table-sm table-hover"
     style="table-layout: fixed; text-align: center; min-width: 1000px;">
-        <thead class="table-dark">
+        <thead class="table-success">
             <tr>
                 <th scope="col" data-field="state" data-checkbox="true" data-width="2" data-width-unit="%">#</th>
                 <th scope="col" data-field="userID" class="d-none">ID</th>
