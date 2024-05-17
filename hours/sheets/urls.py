@@ -15,6 +15,7 @@ urlpatterns = [
     path("hours_info", views.HoursInfoView.as_view(), name="hours_info"),
     path("personal_info", views.PersonalInfoView.as_view(), name="personal_info"),
     path("payment", views.PaymentHandleView.as_view(), name="payment"),
+    path("alter_payment", views.AlterPaymentHandleView.as_view(), name="alter_payment"),
     path("reports", views.ReportsView.as_view(), name="reports"),
     path("detailed_report", views.DetailedReportView.as_view(), name="detailed_report"),
     path("main_report", views.MainReportView.as_view(), name="main_report"),
@@ -29,6 +30,8 @@ urlpatterns = [
         name="projects_yearly_report",
     ),
     path("payment_export", views.PaymentExportView.as_view(), name="payment_export"),
+    path("payment_excel_export/<str:year>/<str:month>", views.PaymentExcelExportView.as_view(), name="payment_excel_export"),
+    path("payment_excel_import/<str:year>/<str:month>", views.PaymentExcelImportView.as_view(), name="payment_excel_import"),
     path("api/info", api_views.InfoApiView.as_view(), name="api_info"),
     path("api/projects", api_views.ProjectListApiView.as_view(), name="api_projects"),
     path(
@@ -50,5 +53,10 @@ urlpatterns = [
         "api/payment/<str:year>/<str:month>",
         api_views.PaymentApiView.as_view(),
         name="api_payment",
+    ),
+    path(
+        "api/alter_payment/<str:year>/<str:month>",
+        api_views.AlterPaymentApiView.as_view(),
+        name="api_alter_payment",
     ),
 ]

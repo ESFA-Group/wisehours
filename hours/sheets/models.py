@@ -56,6 +56,17 @@ class User(AbstractUser):
         filled = all(list(values.values()))
         return filled
 
+    def get_payment_info(self) -> dict:
+        info = {
+            "wage": self.wage,
+            "basePayment": self.base_payment,
+            "reduction1": self.reduction1,
+            "reduction2": self.reduction2,
+            "reduction3": self.reduction3,
+            "addition1": self.addition1,
+        }
+        return info
+
 def current_year() -> int:
     return jdt.date.today().year
 
