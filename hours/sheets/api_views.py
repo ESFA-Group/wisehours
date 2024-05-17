@@ -357,13 +357,13 @@ class AlterPaymentApiView(APIView):
         user.base_payment = base
         user.save()
         user_sheets = Sheet.objects.filter(user=id, year=1403)
-        correntSheet = Sheet.objects.get(user=id, year=1403, month=month)
         for sheet in user_sheets:
             if sheet.month >= int(month):
                 sheet.wage = wage
                 sheet.base_payment = base
                 sheet.save()
 
+        correntSheet = Sheet.objects.get(user=id, year=1403, month=month)
         correntSheet.reduction1 = int(editted_row["reduction1"])
         correntSheet.reduction2 = int(editted_row["reduction2"])
         correntSheet.reduction3 = int(editted_row["reduction3"])
