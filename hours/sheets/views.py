@@ -301,11 +301,13 @@ class PaymentExportView(View):
 
     def post(self, request):
         ids = json.loads(request.POST.get("IDs"))
-        month_names = jdt.date.j_months_en
+        month_names_en = jdt.date.j_months_en
+        month_names_fa = jdt.date.j_months_fa
         payment_method = request.POST.get("paymentMethod")
         payment_type = request.POST.get("paymentType")
         year = int(request.POST.get("year"))
         month = int(request.POST.get("month"))
+        export_type = request.POST.get("exportType")
         string = str()
         for i in ids:
             user = User.objects.get(pk=i)
@@ -316,15 +318,67 @@ class PaymentExportView(View):
                 else sheet.get_complementary_payment()
             )
             amount = int(amount)
-            if payment_method == "AN":  # account number
-                string += f"{user.account_number},{amount},salary {month_names[month - 1]} {year}\n"
-            elif payment_method == "SN":
-                string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},salary {month_names[month - 1]} {year},\n"
+            match export_type:
+                case "default":
+                    string = self.fill_default_export(
+                        string,
+                        payment_method,
+                        month_names_en,
+                        user,
+                        amount,
+                        month,
+                        year,
+                    )
+                case "melli":
+                    string = self.fill_melli_export(
+                        string,
+                        payment_method,
+                        user,
+                        amount,
+                    )
+                case "sepah":
+                    string = self.fill_sepah_export(
+                        string,
+                        payment_method,
+                        month_names_fa,
+                        user,
+                        amount,
+                        month,
+                        year,
+                    )
 
+        file_name = f"{export_type}_{year}_{month}.txt"
         buffer = io.StringIO(string)
         response = HttpResponse(buffer.getvalue(), content_type="text/plain")
-        response["Content-Disposition"] = f"attachment; filename=file.txt"
+        response["Content-Disposition"] = f"attachment; filename={file_name}"
         return response
+
+    def fill_default_export(
+        self, string, payment_method, month_names, user, amount, month, year
+    ):
+        if payment_method == "AN":  # account number
+            string += f"{user.account_number},{amount},salary {month_names[month - 1]} {year}\n"
+        elif payment_method == "SN":
+            string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},salary {month_names[month - 1]} {year},\n"
+        return string
+
+    def fill_melli_export(self, string, payment_method, user, amount):
+        if payment_method == "AN":
+            string += f"{amount} , {user.account_number} , 1 , {user.first_name} {user.last_name}\n"
+        elif payment_method == "SN":
+            string += (
+                f"{amount},IR{user.SHEBA_number},1,{user.first_name} {user.last_name}\n"
+            )
+        return string
+
+    def fill_sepah_export(
+        self, string, payment_method, month_names, user, amount, month, year
+    ):
+        if payment_method == "AN":
+            string += f"{user.account_number},{amount},{user.first_name},{user.last_name},بابت حقوق {month_names[month - 1]} ماه {year},\n"
+        elif payment_method == "SN":
+            string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},بابت حقوق {month_names[month - 1]} ماه {year},\n"
+        return string
 
 
 @method_decorator([staff_member_required], name="dispatch")

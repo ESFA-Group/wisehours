@@ -60,10 +60,22 @@
                 </select>
             </div>
         </div>
-        <div class="col col-6 col-md-2 col-lg-3">
+        <div class="col col-6 col-md-2 col-lg-2">
             <button id="export" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 120px; position: relative; top: 27px;">
                 <i class="fa fa-file-export"></i>
                 <span>Export</span>
+            </button>
+        </div>
+        <div class="col col-6 col-md-2 col-lg-2">
+            <button id="export-sepah" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 160px; position: relative; top: 27px;">
+                <i class="fa fa-file-export"></i>
+                <span>Export sepah</span>
+            </button>
+        </div>
+        <div class="col col-6 col-md-2 col-lg-2">
+            <button id="export-melli" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 160px; position: relative; top: 27px;">
+                <i class="fa fa-file-export"></i>
+                <span>Export melli</span>
             </button>
         </div>
     </div>
@@ -221,6 +233,35 @@
             $form.append($("<input type='hidden' name='paymentMethod'>").val($("#paymentMethod").val()));
             $form.append($("<input type='hidden' name='paymentType'>").val($("#paymentType").val()));
             $form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val("{{csrf_token}}"));
+            $form.append($("<input type='hidden' name='exportType'>").val("default"));
+            $("body").append($form);
+            $form.submit();
+        });
+        
+        $("#export-sepah").click(function(){
+            const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);
+            const $form = $("<form>", {action: "{% url 'sheets:payment_export' %}", method: "POST"});
+            $form.append($("<input type='hidden' name='IDs'>").val(JSON.stringify(userIDs)));
+            $form.append($("<input type='hidden' name='month'>").val($("#month").val()));
+            $form.append($("<input type='hidden' name='year'>").val($("#year").val()));
+            $form.append($("<input type='hidden' name='paymentMethod'>").val($("#paymentMethod").val()));
+            $form.append($("<input type='hidden' name='paymentType'>").val($("#paymentType").val()));
+            $form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val("{{csrf_token}}"));
+            $form.append($("<input type='hidden' name='exportType'>").val("sepah"));
+            $("body").append($form);
+            $form.submit();
+        });
+        
+        $("#export-melli").click(function(){
+            const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);
+            const $form = $("<form>", {action: "{% url 'sheets:payment_export' %}", method: "POST"});
+            $form.append($("<input type='hidden' name='IDs'>").val(JSON.stringify(userIDs)));
+            $form.append($("<input type='hidden' name='month'>").val($("#month").val()));
+            $form.append($("<input type='hidden' name='year'>").val($("#year").val()));
+            $form.append($("<input type='hidden' name='paymentMethod'>").val($("#paymentMethod").val()));
+            $form.append($("<input type='hidden' name='paymentType'>").val($("#paymentType").val()));
+            $form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val("{{csrf_token}}"));
+            $form.append($("<input type='hidden' name='exportType'>").val("melli"));
             $("body").append($form);
             $form.submit();
         });
