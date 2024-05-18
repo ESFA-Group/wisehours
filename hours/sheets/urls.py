@@ -55,6 +55,11 @@ urlpatterns = [
         name="api_payment",
     ),
     path(
+        "api/public_payment/<str:year>/<str:month>",
+        api_views.PublicPaymentApiView.as_view(),
+        name="api_public_payment",
+    ),
+    path(
         "api/alter_payment/<str:year>/<str:month>",
         api_views.AlterPaymentApiView.as_view(),
         name="api_alter_payment",

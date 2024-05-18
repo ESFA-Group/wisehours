@@ -98,6 +98,14 @@
                         <strong>No. of days worked:</strong>
                         <strong id="worked-days-count"></strong>
                     </p>
+                    <p class="d-flex justify-content-between d-none">
+                        <strong>Base payment:</strong>
+                        <strong id="base-payment"></strong>
+                    </p>
+                    <p class="d-flex justify-content-between d-none">
+                        <strong>complimentary</strong>
+                        <strong id="complimentary"></strong>
+                    </p>
                 </div>
 
                 <hr>
@@ -157,6 +165,51 @@
     // timeout: 4000,
     // autoHide: true,
     // closeable: true,
+
+    const [ BASE_PAYMENT, COMPLIMENTARY ] = get_payment_holders_eleements();
+
+    function get_payment_holders_eleements(){
+        let complimentary = document.getElementById('complimentary');
+        let base = document.getElementById('base-payment');
+        return [ base, complimentary ];
+    }
+    
+    async function updatePaymentsValue(){
+        is_salary_paid = true;
+        if (!is_salary_paid)
+        {
+            return;
+        }
+        
+        let a = await getPaymentsValue();
+        
+        BASE_PAYMENT.parentNode.classList.remove('d-none');
+        COMPLIMENTARY.parentNode.classList.remove('d-none');
+        BASE_PAYMENT.textContent = a.basePayment;
+        COMPLIMENTARY.textContent = a.complementaryPayment;
+    }
+
+    async function getPaymentsValue(){
+        const year = $("#year").val();
+        const month = $("#month").val();
+        const url = `{% url "sheets:api_public_payment" year='yearHolder' month='monthHolder' %}`
+            .replace("yearHolder", year)
+            .replace("monthHolder", month);
+
+        try{
+            let res = await fetch(url);
+            return await res.json();
+        }
+        catch (err){
+            jSuites.notification({
+                error: 1,
+                name: 'Error',
+                title: "Fetching Projects",
+                message: err,
+                timeout: 6000,
+            });
+        }
+    }
 
     function addColumnToTable(config, data=[]){
         // config format: [{width:200, title: 'hi'}]
@@ -381,7 +434,7 @@
     function onChangeHandler(worksheet, cell, x, y, value){
         const rawData = window.spreadTable.getJson();
         const tableData = convertTableData(rawData);
-
+        let a = BASE_PAYMENT
         // automatically fill 100% if there is only one project in table
         const projects = getTableProjects(tableData);
         if(projects.length === 1 && worksheet){
@@ -412,6 +465,7 @@
         const workedDaysCount = tableData.filter(row => hhmm2minutes(row.Hours) > 0).length;
         updateHoursInfo(totalTime, meanTime, workedDaysCount);
         updateChart(minutesByProject);
+        updatePaymentsValue()
         if(worksheet)
             saveSheet(tableData);
     }
@@ -523,6 +577,7 @@
         const year = $("#year").val();
         const month = $("#month").val();
         let sheet = await getSheet(year, month);
+
 
         if(typeof window.spreadTable === 'object')
             window.spreadTable.destroy();

@@ -319,6 +319,15 @@ class PaymentApiView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+class PublicPaymentApiView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, year: str, month: str):
+        sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
+        data = sheet.get_public_payment_info()
+        return Response(data, status=status.HTTP_200_OK)
+
+
 class AlterPaymentApiView(APIView):
 
     permission_classes = [permissions.IsAdminUser]

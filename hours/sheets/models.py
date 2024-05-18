@@ -198,6 +198,13 @@ class Sheet(models.Model):
             "complementaryPayment": self.get_complementary_payment(),
         }
         return info
+    
+    def get_public_payment_info(self) -> dict:
+        info =  {
+            "basePayment": self.get_base_payment(),
+            "complementaryPayment": self.get_complementary_payment(),
+        }
+        return info
 
 class ProjectFamily(models.Model):
     name = models.CharField('name', max_length=150)
