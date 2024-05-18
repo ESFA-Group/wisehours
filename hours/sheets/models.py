@@ -56,6 +56,17 @@ class User(AbstractUser):
         filled = all(list(values.values()))
         return filled
 
+    def get_payment_info(self) -> dict:
+        info = {
+            "wage": self.wage,
+            "basePayment": self.base_payment,
+            "reduction1": self.reduction1,
+            "reduction2": self.reduction2,
+            "reduction3": self.reduction3,
+            "addition1": self.addition1,
+        }
+        return info
+
 def current_year() -> int:
     return jdt.date.today().year
 
@@ -80,6 +91,7 @@ class Sheet(models.Model):
     mean = models.PositiveIntegerField('mean', default=0)       # in minutes
     total = models.PositiveIntegerField('total', default=0)     # in minutes
     submitted = models.BooleanField('submitted', default=False)
+    is_salary_paid = models.BooleanField('is_salary_paid', default=False)
 
     # payment info: data comes from user
     wage = models.IntegerField('wage', default=0)
@@ -185,6 +197,15 @@ class Sheet(models.Model):
             "addition1": self.addition1,
             "finalPayment": self.get_final_payment(),
             "complementaryPayment": self.get_complementary_payment(),
+            "is_salary_paid": self.is_salary_paid,
+        }
+        return info
+    
+    def get_public_payment_info(self) -> dict:
+        info =  {
+            "basePayment": self.get_base_payment(),
+            "complementaryPayment": self.get_complementary_payment(),
+            "is_salary_paid": self.is_salary_paid,
         }
         return info
 

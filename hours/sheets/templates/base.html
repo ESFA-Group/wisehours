@@ -86,6 +86,10 @@
                         <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:payment' %}">Payments</a>
                     </li>
                     <li class="nav-item">
+                        {% url 'sheets:alter_payment' as temp_url %}
+                        <a class="nav-link {% if request.path == temp_url %}active{% endif %}" href="{% url 'sheets:alter_payment' %}">Alter Payments</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
                     </li>
                     {% comment %} <li class="nav-item dropdown">
