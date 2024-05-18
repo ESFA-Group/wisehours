@@ -401,7 +401,6 @@ class PaymentExcelExportView(View):
         buffer = io.BytesIO()
         writer = pd.ExcelWriter(buffer, engine="xlsxwriter")
         df.to_excel(writer, sheet_name="hours")
-        writer.save()
         writer.close()
 
         response = HttpResponse(

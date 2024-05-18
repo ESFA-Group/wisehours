@@ -375,11 +375,11 @@ class AlterPaymentApiView(APIView):
                 sheet.base_payment = base
                 sheet.save()
 
-        correntSheet = Sheet.objects.get(user=id, year=1403, month=month)
-        correntSheet.reduction1 = int(editted_row["reduction1"])
-        correntSheet.reduction2 = int(editted_row["reduction2"])
-        correntSheet.reduction3 = int(editted_row["reduction3"])
-        correntSheet.addition1 = int(editted_row["addition1"])
-        correntSheet.save()
+        currentSheet = Sheet.objects.get(user=id, year=1403, month=month)
+        currentSheet.reduction1 = int(editted_row["reduction1"])
+        currentSheet.reduction2 = int(editted_row["reduction2"])
+        currentSheet.reduction3 = int(editted_row["reduction3"])
+        currentSheet.addition1 = int(editted_row["addition1"])
+        currentSheet.save()
 
-        return Response(correntSheet.get_payment_info(), status=status.HTTP_200_OK)
+        return Response(currentSheet.get_payment_info(), status=status.HTTP_200_OK)
