@@ -3,32 +3,37 @@
 
 {% block extra_css %}
 <style>
-body{
-    /* background-color: #5b6467;
+    body {
+        /* background-color: #5b6467;
     background-image: linear-gradient(315deg, #5b6467 0%, #8b939a 59%); */
-    height: 100vh; 
-    background-color: #c2b6b6;
-    background-image: linear-gradient(315deg, #c2b6b6 0%, #576574 74%);
-}
-.card-container{
-    display: flex;
-    justify-content: center;
-}
-.card-link{
-    color: black;
-    text-decoration: none;
-}
-.card-link:hover{
-    color: black;
-    transition: all 0.01s ease-in;
-}
-.card{
-    background-color: #e0e4ee;
-}
-.card:hover{
-    background-color: #bcc5db;
-    transition: all 0.1s ease-in;
-}
+        height: 100vh;
+        background-color: #c2b6b6;
+        background-image: linear-gradient(315deg, #c2b6b6 0%, #576574 74%);
+    }
+
+    .card-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .card-link {
+        color: black;
+        text-decoration: none;
+    }
+
+    .card-link:hover {
+        color: black;
+        transition: all 0.01s ease-in;
+    }
+
+    .card {
+        background-color: #e0e4ee;
+    }
+
+    .card:hover {
+        background-color: #bcc5db;
+        transition: all 0.1s ease-in;
+    }
 </style>
 {% endblock extra_css %}
 
@@ -43,53 +48,53 @@ body{
         </h1>
 
         <div class="row">
-                
-                <div class="col col-12 col-lg-4 mb-2 card-container">
-                    <a href="{% url 'sheets:hours' %}" class="card-link">
-                        <div class="card mx-3" style="width: 19rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">My Hours</h5>
-                                <p class="card-text">Edit your hours</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
 
-                <div class="col col-12 col-lg-4 mb-2 card-container">
-                    <a href="{% url 'sheets:hours_info' %}" class="card-link">
-                        <div class="card mx-3" style="width: 19rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">Info</h5>
-                                <p class="card-text">Information about hours in E<span style="color: red;">S</span>FA</p>
-                            </div>
+            <div class="col col-12 col-lg-4 mb-2 card-container">
+                <a href="{% url 'sheets:hours' %}" class="card-link">
+                    <div class="card mx-3" style="width: 19rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">My Hours</h5>
+                            <p class="card-text">Edit your hours</p>
                         </div>
-                    </a>
-                </div>
+                    </div>
+                </a>
+            </div>
 
-                <div class="col col-12 col-lg-4 mb-2 card-container">
-                    <a href="{% url 'sheets:personal_info' %}" class="card-link">
-                        <div class="card mx-3" style="width: 19rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">Personal Info</h5>
-                                <p class="card-text">Your personal information</p>
-                            </div>
+            <div class="col col-12 col-lg-4 mb-2 card-container">
+                <a href="{% url 'sheets:hours_info' %}" class="card-link">
+                    <div class="card mx-3" style="width: 19rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Info</h5>
+                            <p class="card-text">Information about hours in E<span style="color: red;">S</span>FA</p>
                         </div>
-                    </a>
-                </div>
-    
+                    </div>
+                </a>
+            </div>
+
+            <div class="col col-12 col-lg-4 mb-2 card-container">
+                <a href="{% url 'sheets:personal_info' %}" class="card-link">
+                    <div class="card mx-3" style="width: 19rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Personal Info</h5>
+                            <p class="card-text">Your personal information</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
 
         <!-- <div class="mt-5">
             <a class="btn btn-danger" href="{% url 'sheets:logout' %}" style="width: 250px;">Logout</a>
         </div> -->
         {% if request.user.is_staff %}
-            <div class="mt-5">
-                <a class="btn btn-primary" href="{% url 'admin:index' %}" style="width: 200px;">Admin Panel</a>
-                <a class="btn btn-success" href="{% url 'sheets:reports' %}" style="width: 200px;">Reports</a>
-                <a class="btn btn-warning" href="{% url 'sheets:payment' %}" style="width: 200px;">Payments</a>
-            </div>
+        <div class="mt-5">
+            <a class="btn btn-primary" href="{% url 'admin:index' %}" style="width: 200px;">Admin Panel</a>
+            <a class="btn btn-success" href="{% url 'sheets:reports' %}" style="width: 200px;">Reports</a>
+            <a class="btn btn-warning" href="{% url 'sheets:payment' %}" style="width: 200px;">Payments</a>
+            <a class="btn btn-danger" href="{% url 'sheets:alter_payment' %}" style="width: 200px;">Alter Payments</a>
+        </div>
         {% endif %}
-        
+
     </div>
 </div>
 {% endblock body %}
