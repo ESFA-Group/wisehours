@@ -91,6 +91,7 @@ class Sheet(models.Model):
     mean = models.PositiveIntegerField('mean', default=0)       # in minutes
     total = models.PositiveIntegerField('total', default=0)     # in minutes
     submitted = models.BooleanField('submitted', default=False)
+    is_salary_paid = models.BooleanField('is_salary_paid', default=False)
 
     # payment info: data comes from user
     wage = models.IntegerField('wage', default=0)
@@ -196,6 +197,7 @@ class Sheet(models.Model):
             "addition1": self.addition1,
             "finalPayment": self.get_final_payment(),
             "complementaryPayment": self.get_complementary_payment(),
+            "is_salary_paid": self.is_salary_paid,
         }
         return info
     
@@ -203,6 +205,7 @@ class Sheet(models.Model):
         info =  {
             "basePayment": self.get_base_payment(),
             "complementaryPayment": self.get_complementary_payment(),
+            "is_salary_paid": self.is_salary_paid,
         }
         return info
 

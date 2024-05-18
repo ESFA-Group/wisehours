@@ -325,6 +325,9 @@ class PublicPaymentApiView(APIView):
     def get(self, request, year: str, month: str):
         sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
         data = sheet.get_public_payment_info()
+        data.update({
+            "is_salary_paid": True,
+        })
         return Response(data, status=status.HTTP_200_OK)
 
 

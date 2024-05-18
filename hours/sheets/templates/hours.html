@@ -175,18 +175,18 @@
     }
     
     async function updatePaymentsValue(){
-        is_salary_paid = true;
-        if (!is_salary_paid)
+        let public_payment_info = await getPaymentsValue();
+        
+        if (!public_payment_info.is_salary_paid)
         {
             return;
         }
         
-        let a = await getPaymentsValue();
-        
         BASE_PAYMENT.parentNode.classList.remove('d-none');
         COMPLIMENTARY.parentNode.classList.remove('d-none');
-        BASE_PAYMENT.textContent = a.basePayment;
-        COMPLIMENTARY.textContent = a.complementaryPayment;
+        
+        BASE_PAYMENT.textContent = public_payment_info.basePayment;
+        COMPLIMENTARY.textContent = public_payment_info.complementaryPayment;
     }
 
     async function getPaymentsValue(){
