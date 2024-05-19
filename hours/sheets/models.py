@@ -124,6 +124,11 @@ def current_mont_days(month: int, isleap: bool) -> int:
 
 
 class Sheet(models.Model):
+    payment_status_choices = [
+        (0, 'Not paid'),
+        (1, 'Base paid'),
+        (2, 'Completly paid'),
+    ]
     user = models.ForeignKey(
         User,
         verbose_name="user",
@@ -138,8 +143,8 @@ class Sheet(models.Model):
     mean = models.PositiveIntegerField("mean", default=0)  # in minutes
     total = models.PositiveIntegerField("total", default=0)  # in minutes
     submitted = models.BooleanField("submitted", default=False)
-    is_salary_paid = models.BooleanField("is_salary_paid", default=False)
-
+    payment_status = models.IntegerField("payment_status", choices=payment_status_choices, default=0)
+    
     # payment info: data comes from user
     wage = models.IntegerField("wage", default=0)
     base_payment = models.IntegerField("base_payment", default=0)
@@ -257,7 +262,7 @@ class Sheet(models.Model):
             "addition1": self.addition1,
             "finalPayment": self.get_final_payment(),
             "complementaryPayment": self.get_complementary_payment(),
-            "is_salary_paid": self.is_salary_paid,
+            "paymentStatus": self.payment_status,
         }
         return info
 
@@ -265,7 +270,7 @@ class Sheet(models.Model):
         info = {
             "basePayment": self.get_base_payment(),
             "complementaryPayment": self.get_complementary_payment(),
-            "is_salary_paid": self.is_salary_paid,
+            "paymentStatus": self.payment_status,
         }
         return info
 
