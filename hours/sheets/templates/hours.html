@@ -150,8 +150,12 @@
                             <strong id="base-payment"></strong>
                         </p>
                         <p class="d-flex justify-content-between d-none">
-                            <strong>complimentary</strong>
+                            <strong>Complimentary</strong>
                             <strong id="complimentary"></strong>
+                        </p>
+                        <p class="d-flex justify-content-between d-none">
+                            <strong>Total Pay</strong>
+                            <strong id="total-pay"></strong>
                         </p>
                     </div>
 
@@ -234,27 +238,34 @@
     // autoHide: true,
     // closeable: true,
 
-    const [ BASE_PAYMENT, COMPLIMENTARY ] = get_payment_holders_eleements();
+    const [ BASE_PAYMENT, COMPLIMENTARY, TOTAL ] = get_payment_holders_eleements();
 
     function get_payment_holders_eleements(){
-        let complimentary = document.getElementById('complimentary');
         let base = document.getElementById('base-payment');
-        return [ base, complimentary ];
+        let complimentary = document.getElementById('complimentary');
+        let total = document.getElementById('total-pay');
+        return [ base, complimentary, total ];
     }
     
     async function updatePaymentsValue(){
         let public_payment_info = await getPaymentsValue();
         
-        if (!public_payment_info.is_salary_paid)
-        {
-            return;
+        if (public_payment_info.paymentStatus === 1){ // Only Base
+            BASE_PAYMENT.parentNode.classList.remove('d-none');
+            BASE_PAYMENT.textContent = public_payment_info.basePayment;
         }
-        
-        BASE_PAYMENT.parentNode.classList.remove('d-none');
-        COMPLIMENTARY.parentNode.classList.remove('d-none');
-        
-        BASE_PAYMENT.textContent = public_payment_info.basePayment;
-        COMPLIMENTARY.textContent = public_payment_info.complementaryPayment;
+        else if (public_payment_info.paymentStatus === 2){ //Only Complementary
+            TOTAL.parentNode.classList.remove('d-none');
+            TOTAL.textContent = public_payment_info.complementaryPayment;
+        }
+        else if (public_payment_info.paymentStatus === 3){ //Base+Complementary
+            BASE_PAYMENT.parentNode.classList.remove('d-none');
+            BASE_PAYMENT.textContent = public_payment_info.basePayment;
+            COMPLIMENTARY.parentNode.classList.remove('d-none');
+            COMPLIMENTARY.textContent = public_payment_info.complementaryPayment;
+            TOTAL.parentNode.classList.remove('d-none');
+            TOTAL.textContent = public_payment_info.complementaryPayment + public_payment_info.basePayment;
+        }
     }
 
     async function getPaymentsValue(){
@@ -502,7 +513,6 @@
     function onChangeHandler(worksheet, cell, x, y, value){
         const rawData = window.spreadTable.getJson();
         const tableData = convertTableData(rawData);
-        let a = BASE_PAYMENT
         // automatically fill 100% if there is only one project in table
         const projects = getTableProjects(tableData);
         if(projects.length === 1 && worksheet){

@@ -210,7 +210,7 @@
                     <th scope="col"
                         data-field="paymentStatus"
                         data-width-unit="%"
-                        data-width="9.5"
+                        data-width="15"
                         data-formatter="statusFormatter">
                         Payment Status
                     </th>
@@ -247,8 +247,9 @@
         return `
             <select class="form-select" >
                 <option value="0"${selectedIndex === 0? 'selected' : ''}> Not Paid 😡</option>
-                <option value="1"${selectedIndex === 1? 'selected' : ''}> Base ☹️</option>
-                <option value="2"${selectedIndex === 2? 'selected' : ''}> Completly🤑</option>
+                <option value="1"${selectedIndex === 1? 'selected' : ''}> Only Base ☹️</option>
+                <option value="2"${selectedIndex === 2? 'selected' : ''}> Only Complementary😶‍🌫️</option>
+                <option value="3"${selectedIndex === 3? 'selected' : ''}> Base+Complementary🤑</option>
             </select>`;
     }
 

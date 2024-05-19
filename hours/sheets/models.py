@@ -126,8 +126,9 @@ def current_mont_days(month: int, isleap: bool) -> int:
 class Sheet(models.Model):
     payment_status_choices = [
         (0, 'Not paid'),
-        (1, 'Base paid'),
-        (2, 'Completly paid'),
+        (1, 'Only base paid'),
+        (2, 'Only Complementary paid'),
+        (3, 'Base+Complementary paid'),
     ]
     user = models.ForeignKey(
         User,
