@@ -401,7 +401,7 @@ class PaymentExcelExportView(View):
 
         buffer = io.BytesIO()
         writer = pd.ExcelWriter(buffer, engine="xlsxwriter")
-        df.to_excel(writer, sheet_name="hours")
+        df.to_excel(writer, sheet_name="hours", index=False)
         writer.close()
 
         response = HttpResponse(
@@ -421,6 +421,7 @@ class PaymentExcelImportView(View):
 
         file = request.FILES["file"]
         df = pd.read_excel(file)
+        df.fillna(0, inplace=True)
 
         for index, row in df.iterrows():
             user_id = row["user_id"]
