@@ -108,13 +108,12 @@
                class="table table-sm table-hover"
                style="table-layout: fixed;
                       text-align: center;
-                      min-width: 1000px">
+                      min-width: 1600px">
             <thead class="table-success">
                 <tr>
                     <th scope="col"
                         data-field="state"
                         data-checkbox="true"
-                        data-width="2"
                         data-width-unit="%">
                         #
                     </th>
@@ -124,14 +123,14 @@
                     <th scope="col"
                         data-field="user"
                         data-sortable="true"
-                        data-width="14"
+                        data-width="8"
                         data-width-unit="%">
                         User
                     </th>
                     <th scope="col"
                         data-field="bankName"
                         data-sortable="true"
-                        data-width="9"
+                        data-width="7"
                         data-width-unit="%">
                         Bank
                     </th>
@@ -139,7 +138,7 @@
                         data-field="wage"
                         data-sortable="true"
                         data-editable="true"
-                        data-width="6"
+                        data-width="7"
                         data-width-unit="%"
                         data-formatter="moneyFormatter"
                         data-always-use-formatter="true">
@@ -148,7 +147,7 @@
                     <th scope="col"
                         data-field="totalPayment"
                         data-sortable="true"
-                        data-width="9"
+                        data-width="8"
                         data-width-unit="%"
                         data-formatter="moneyFormatter">
                         Total (R)
@@ -156,7 +155,7 @@
                     <th scope="col"
                         data-field="basePayment"
                         data-editable="true"
-                        data-width="9"
+                        data-width="7"
                         data-width-unit="%"
                         data-formatter="moneyFormatter">
                         Base (R)
@@ -195,63 +194,27 @@
                     </th>
                     <th scope="col"
                         data-field="complementaryPayment"
-                        data-width="11"
+                        data-width="10"
                         data-width-unit="%"
                         data-formatter="colorMoneyFormatter">
                         Complementary (R)
                     </th>
                     <th scope="col"
                         data-field="finalPayment"
-                        data-width="9"
+                        data-width="8"
                         data-width-unit="%"
                         data-formatter="colorMoneyFormatter">
                         Final (R)
                     </th>
-                </tr>
-            </thead>
-        </table>
-
-        <br>
-        <br>
-
-        <table data-toggle="table" data-search="true">
-            <thead>
-                <tr>
-                    <th>
-                        Item ID
-                    </th>
-                    <th>
-                        Item Name
-                    </th>
-                    <th>
-                        Item Price
+                    <th scope="col"
+                        data-field="paymentStatus"
+                        data-width-unit="%"
+                        data-width="9.5"
+                        data-formatter="statusFormatter">
+                        Payment Status
                     </th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        1
-                    </td>
-                    <td>
-                        Item 1
-                    </td>
-                    <td>
-                        $1
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        2
-                    </td>
-                    <td>
-                        Item 2
-                    </td>
-                    <td>
-                        $2
-                    </td>
-                </tr>
-            </tbody>
         </table>
 
     </div>
@@ -278,13 +241,24 @@
         return moneyFormat(value)
     }
 
+    function statusFormatter(value, row) {
+        const selectedIndex = parseInt(value); // Convert to integer if value is a string
+        return `
+            <select class="form-select" >
+                <option value="0"${selectedIndex === 0? 'selected' : ''}> Not Paid 😡</option>
+                <option value="1"${selectedIndex === 1? 'selected' : ''}> Base ☹️</option>
+                <option value="2"${selectedIndex === 2? 'selected' : ''}> Completly🤑</option>
+            </select>`;
+    }
+
     async function getTableData(year, month){
         const url = `{% url "sheets:api_alter_payment" year='yearHolder' month='monthHolder' %}`
                 .replace("yearHolder", year)
                 .replace("monthHolder", month);
         try{
             let res = await fetch(url);
-            return await res.json();
+            let data = await res.json();
+            return data;
         }
         catch(err){
             jSuites.notification({
@@ -345,6 +319,36 @@
         .catch(error => console.error('Error:', error));
     }
 
+    function updatePaymentTable(year, month, rowData, idx) {
+        const url = `{% url "sheets:api_alter_payment" year='yearHolder' month='monthHolder' %}`
+           .replace("yearHolder", year)
+           .replace("monthHolder", month);
+    
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{csrf_token}}',
+            },
+            body: JSON.stringify({row: rowData}),
+        })
+       .then(res => res.json())
+       .then(res => {
+            Object.assign(rowData, res);            
+            $("#payment-table").bootstrapTable('updateRow', {index: idx, row: rowData});
+            return true
+        })
+       .catch(err => {
+            jSuites.notification({
+                error: 1,
+                name: 'Error',
+                title: "Editing Row",
+                message: "Error occurred while changing data.",
+            });
+            return false
+        });
+    }
+
     $("document").ready(async function(){
 
         const today = new JDate();
@@ -377,32 +381,21 @@
         $("#payment-table").on('editable-save.bs.table', function(e, field, row, idx, oldValue){
             const year = $("#year").val();
             const month = $("#month").val();
-            const url = `{% url "sheets:api_alter_payment" year='yearHolder' month='monthHolder' %}`
-                .replace("yearHolder", year)
-                .replace("monthHolder", month);
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{csrf_token}}',
-                },
-                body: JSON.stringify({row: row, field: field, editSheet: true}),
-            })
-            .then(res => res.json())
-            .then(res => {
-                Object.assign(row, res);
-                $("#payment-table").bootstrapTable('updateRow', {index: idx, row: row});
-            })
-            .catch(err => {
-                jSuites.notification({
-                    error: 1,
-                    name: 'Error',
-                    title: "Editing Row",
-                    message: "Error occured while changing data.",
-                });
+            responsStatus = updatePaymentTable(year, month, row, idx)
+            if(responsStatus == false)
                 $("#payment-table").bootstrapTable('updateCell', {index: idx, field: field, value: oldValue});
-            });
         });
+
+        $('#payment-table').on('change', '.form-select', function(){
+            const $table = $(this).closest('table');
+            let idx = $(this).closest('tr').data('index');
+            row = $table.bootstrapTable('getData')[idx];
+            row.paymentStatus = $(this).val()
+
+            const year = $("#year").val();
+            const month = $("#month").val();
+            updatePaymentTable(year, month, row, idx)
+        })
 
         $("#export").click(function(){
             const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);

@@ -325,11 +325,6 @@ class PublicPaymentApiView(APIView):
     def get(self, request, year: str, month: str):
         sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
         data = sheet.get_public_payment_info()
-        data.update(
-            {
-                "is_salary_paid": True,
-            }
-        )
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -382,6 +377,7 @@ class AlterPaymentApiView(APIView):
         currentSheet.reduction2 = int(editted_row["reduction2"])
         currentSheet.reduction3 = int(editted_row["reduction3"])
         currentSheet.addition1 = int(editted_row["addition1"])
+        currentSheet.payment_status = int(editted_row["paymentStatus"])
         currentSheet.save()
 
         return Response(currentSheet.get_payment_info(), status=status.HTTP_200_OK)
