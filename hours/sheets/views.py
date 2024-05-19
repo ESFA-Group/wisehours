@@ -149,7 +149,7 @@ class PaymentHandleView(BaseView):
 
 @method_decorator([staff_member_required], name="dispatch")
 class AlterPaymentHandleView(BaseView):
-    template_name = "AlterPayment.html"
+    template_name = "alter_payment.html"
 
 
 @method_decorator([staff_member_required], name="dispatch")
