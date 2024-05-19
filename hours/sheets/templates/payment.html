@@ -2,118 +2,265 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'sheets/css/bootstrap-table.min.css' %}">
-<link rel="stylesheet" href="{% static 'sheets/css/bootstrap-editable.css' %}">
-<style>
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/bootstrap-table.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/bootstrap-editable.css' %}">
+    <style>
     th, td{
         border: 2px solid black !important;
     }
-</style>
+    </style>
 {% endblock extra_css %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="row mt-2">
-        <div class="col col-6 col-md-4 col-lg-3">
-            <strong>Year</strong>
-            <div class="mt-1">
-                <select name="year" id="year" style="min-width: 180px; border-radius: 5px; height: 35px;"></select>
+    <div class="container-fluid">
+        <div class="row mt-2">
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Year</strong>
+                <div class="mt-1">
+                    <select name="year"
+                            id="year"
+                            style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                    </select>
+                </div>
+            </div>
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Month</strong>
+                <div class="mt-1">
+                    <select name="month"
+                            id="month"
+                            style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                        <option value="1">
+                            Farvardin
+                        </option>
+                        <option value="2">
+                            Ordibehest
+                        </option>
+                        <option value="3">
+                            Khordad
+                        </option>
+                        <option value="4">
+                            Tir
+                        </option>
+                        <option value="5">
+                            Mordad
+                        </option>
+                        <option value="6">
+                            Shahrivar
+                        </option>
+                        <option value="7">
+                            Mehr
+                        </option>
+                        <option value="8">
+                            Aban
+                        </option>
+                        <option value="9">
+                            Azar
+                        </option>
+                        <option value="10">
+                            Dey
+                        </option>
+                        <option value="11">
+                            Bahman
+                        </option>
+                        <option value="12">
+                            Esfand
+                        </option>
+                    </select>
+                </div>
             </div>
         </div>
-        <div class="col col-6 col-md-4 col-lg-3">
-            <strong>Month</strong>
-            <div class="mt-1">
-                <select name="month" id="month" style="min-width: 180px; border-radius: 5px; height: 35px;">
-                    <option value="1">Farvardin</option>
-                    <option value="2">Ordibehest</option>
-                    <option value="3">Khordad</option>
-                    <option value="4">Tir</option>
-                    <option value="5">Mordad</option>
-                    <option value="6">Shahrivar</option>
-                    <option value="7">Mehr</option>
-                    <option value="8">Aban</option>
-                    <option value="9">Azar</option>
-                    <option value="10">Dey</option>
-                    <option value="11">Bahman</option>
-                    <option value="12">Esfand</option>
-                </select>
+        <hr>
+        <div class="row">
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Payment Method</strong>
+                <div class="mt-1">
+                    <select name="paymentMethod"
+                            id="paymentMethod"
+                            style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                        <option value="AN">
+                            Account number
+                        </option>
+                        <option value="SN">
+                            SHEBA number
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Payment Type</strong>
+                <div class="mt-1">
+                    <select name="paymentType"
+                            id="paymentType"
+                            style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                        <option value="base">
+                            Base payment
+                        </option>
+                        <option value="complementary">
+                            Complementary payment
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col col-6 col-md-2 col-lg-2">
+                <button id="export"
+                        class="btn btn-primary d-flex align-items-center justify-content-around"
+                        style="width: 120px;
+                               position: relative;
+                               top: 27px">
+                    <i class="fa fa-file-export"></i>
+                    <span>Export</span>
+                </button>
+            </div>
+            <div class="col col-6 col-md-2 col-lg-2">
+                <button id="export-sepah"
+                        class="btn btn-primary d-flex align-items-center justify-content-around"
+                        style="width: 160px;
+                               position: relative;
+                               top: 27px">
+                    <i class="fa fa-file-export"></i>
+                    <span>Export sepah</span>
+                </button>
+            </div>
+            <div class="col col-6 col-md-2 col-lg-2">
+                <button id="export-melli"
+                        class="btn btn-primary d-flex align-items-center justify-content-around"
+                        style="width: 160px;
+                               position: relative;
+                               top: 27px">
+                    <i class="fa fa-file-export"></i>
+                    <span>Export melli</span>
+                </button>
             </div>
         </div>
-    </div>
-    <hr>
-    <div class="row">
-        <div class="col col-6 col-md-4 col-lg-3">
-            <strong>Payment Method</strong>
-            <div class="mt-1">
-                <select name="paymentMethod" id="paymentMethod" style="min-width: 180px; border-radius: 5px; height: 35px;">
-                    <option value="AN">Account number</option>
-                    <option value="SN">SHEBA number</option>
-                </select>
-            </div>
-        </div>
-        <div class="col col-6 col-md-4 col-lg-3">
-            <strong>Payment Type</strong>
-            <div class="mt-1">
-                <select name="paymentType" id="paymentType" style="min-width: 180px; border-radius: 5px; height: 35px;">
-                    <option value="base">Base payment</option>
-                    <option value="complementary">Complementary payment</option>
-                </select>
-            </div>
-        </div>
-        <div class="col col-6 col-md-2 col-lg-2">
-            <button id="export" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 120px; position: relative; top: 27px;">
-                <i class="fa fa-file-export"></i>
-                <span>Export</span>
-            </button>
-        </div>
-        <div class="col col-6 col-md-2 col-lg-2">
-            <button id="export-sepah" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 160px; position: relative; top: 27px;">
-                <i class="fa fa-file-export"></i>
-                <span>Export sepah</span>
-            </button>
-        </div>
-        <div class="col col-6 col-md-2 col-lg-2">
-            <button id="export-melli" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 160px; position: relative; top: 27px;">
-                <i class="fa fa-file-export"></i>
-                <span>Export melli</span>
-            </button>
-        </div>
+        <br>
+
+        <table id="payment-table"
+               data-show-export="true"
+               data-click-to-select="true"
+               class="table table-sm table-hover"
+               style="table-layout: fixed;
+                      text-align: center;
+                      min-width: 1000px">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col"
+                        data-field="state"
+                        data-checkbox="true"
+                        data-width="2"
+                        data-width-unit="%">
+                        #
+                    </th>
+                    <th scope="col" data-field="userID" class="d-none">
+                        ID
+                    </th>
+                    <th scope="col"
+                        data-field="user"
+                        data-sortable="true"
+                        data-width="14"
+                        data-width-unit="%">
+                        User
+                    </th>
+                    <th scope="col"
+                        data-field="bankName"
+                        data-sortable="true"
+                        data-width="6"
+                        data-width-unit="%">
+                        Bank
+                    </th>
+                    <th scope="col"
+                        data-field="wage"
+                        data-sortable="true"
+                        data-editable="true"
+                        data-width="6"
+                        data-width-unit="%"
+                        data-formatter="moneyFormatter"
+                        data-always-use-formatter="true">
+                        Wage (R)
+                    </th>
+                    <th scope="col"
+                        data-field="totalPayment"
+                        data-sortable="true"
+                        data-width="9"
+                        data-width-unit="%"
+                        data-formatter="moneyFormatter">
+                        Total (R)
+                    </th>
+                    <th scope="col"
+                        data-field="basePayment"
+                        data-editable="true"
+                        data-width="9"
+                        data-width-unit="%"
+                        data-formatter="moneyFormatter">
+                        Base (R)
+                    </th>
+                    <th scope="col"
+                        data-field="reduction1"
+                        data-editable="true"
+                        data-width="8"
+                        data-width-unit="%"
+                        data-formatter="moneyFormatter">
+                        Reduction1 (R)
+                    </th>
+                    <th scope="col"
+                        data-field="reduction2"
+                        data-editable="true"
+                        data-width="8"
+                        data-width-unit="%"
+                        data-formatter="moneyFormatter">
+                        Reduction2 (R)
+                    </th>
+                    <th scope="col"
+                        data-field="reduction3"
+                        data-editable="true"
+                        data-width="8"
+                        data-width-unit="%"
+                        data-formatter="moneyFormatter">
+                        Reduction3 (R)
+                    </th>
+                    <th scope="col"
+                        data-field="addition1"
+                        data-editable="true"
+                        data-width="8"
+                        data-width-unit="%"
+                        data-formatter="moneyFormatter">
+                        Addition (R)
+                    </th>
+                    <th scope="col"
+                        data-field="complementaryPayment"
+                        data-width="11"
+                        data-width-unit="%"
+                        data-formatter="colorMoneyFormatter">
+                        Complementary (R)
+                    </th>
+                    <th scope="col"
+                        data-field="finalPayment"
+                        data-width="9"
+                        data-width-unit="%"
+                        data-formatter="colorMoneyFormatter">
+                        Final (R)
+                    </th>
+                </tr>
+            </thead>
+        </table>
     </div>
     <br>
-  
-    <table 
-    id="payment-table"
-    data-show-export="true"
-    data-click-to-select="true" 
-    class="table table-sm table-hover"
-    style="table-layout: fixed; text-align: center; min-width: 1000px;">
-        <thead class="table-dark">
-            <tr>
-                <th scope="col" data-field="state" data-checkbox="true" data-width="2" data-width-unit="%">#</th>
-                <th scope="col" data-field="userID" class="d-none">ID</th>
-                <th scope="col" data-field="user" data-sortable="true" data-width="14" data-width-unit="%">User</th>
-                <th scope="col" data-field="bankName" data-sortable="true" data-width="6" data-width-unit="%">Bank</th>
-                <th scope="col" data-field="wage" data-sortable="true" data-editable="true" data-width="6" data-width-unit="%" data-formatter="moneyFormatter" data-always-use-formatter="true">Wage (R)</th>
-                <th scope="col" data-field="totalPayment" data-sortable="true" data-width="9" data-width-unit="%" data-formatter="moneyFormatter">Total (R)</th>
-                <th scope="col" data-field="basePayment" data-editable="true" data-width="9" data-width-unit="%" data-formatter="moneyFormatter">Base (R)</th>
-                <th scope="col" data-field="reduction1" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction1 (R)</th>
-                <th scope="col" data-field="reduction2" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction2 (R)</th>
-                <th scope="col" data-field="reduction3" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Reduction3 (R)</th>
-                <th scope="col" data-field="addition1" data-editable="true" data-width="8" data-width-unit="%" data-formatter="moneyFormatter">Addition (R)</th>
-                <th scope="col" data-field="complementaryPayment" data-width="11" data-width-unit="%" data-formatter="colorMoneyFormatter">Complementary (R)</th>
-                <th scope="col" data-field="finalPayment" data-width="9" data-width-unit="%" data-formatter="colorMoneyFormatter">Final (R)</th>
-            </tr>
-        </thead>
-    </table>
-</div>
-<br>
-<br>
-<script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
-<script src="{% static 'sheets/js/tableExport.min.js' %}"></script>
-<script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
-<script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
-<script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
-<script>
+    <br>
+    <script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
+    <script src="{% static 'sheets/js/tableExport.min.js' %}"></script>
+    <script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
+    <script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
+    <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
+    <script>
 
     function moneyFormat(value){
         //console.log(value)
@@ -267,5 +414,5 @@
         });
 
     });
-</script>
+    </script>
 {% endblock body %}
