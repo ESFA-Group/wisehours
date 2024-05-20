@@ -265,9 +265,9 @@ class MonthlyReportApiView(APIView):
             sheet_sum = cls.get_sum(sheet)
             sheet_sum = projects_empty.add(sheet_sum, fill_value=0)
             projects_sum = projects_sum.add(sheet_sum, fill_value=0)
-            full_name = sheet.user.get_full_name()
+            full_name = sheet.user.get_full_name() if sheet.user else 'Deleted User'
             hours[full_name] = sheet_sum.apply(cls.minute_formatter).to_dict()
-            wage = sheet.user.wage
+            wage = sheet.user.wage if sheet.user else 0
             payments[full_name] = sheet_sum.apply(
                 lambda x: int(x / 60 * wage)
             ).to_dict()
