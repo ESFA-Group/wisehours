@@ -251,8 +251,8 @@
         let public_payment_info = await getPaymentsValue();
         
         if (public_payment_info.paymentStatus === 1){ // Only Base
-            BASE_PAYMENT.parentNode.classList.remove('d-none');
-            BASE_PAYMENT.textContent = public_payment_info.basePayment;
+            BASE_PAYMENT.parentNode.parentNode.classList.remove('d-none');
+            BASE_PAYMENT.textContent = `public_payment_info.basePayment + ✅`;
         }
         else if (public_payment_info.paymentStatus === 2){ //Only Complementary
             TOTAL.parentNode.classList.remove('d-none');
@@ -260,11 +260,11 @@
         }
         else if (public_payment_info.paymentStatus === 3){ //Base+Complementary
             BASE_PAYMENT.parentNode.classList.remove('d-none');
-            BASE_PAYMENT.textContent = public_payment_info.basePayment;
+            BASE_PAYMENT.textContent = `${public_payment_info.basePayment}✅`;
             COMPLIMENTARY.parentNode.classList.remove('d-none');
-            COMPLIMENTARY.textContent = public_payment_info.complementaryPayment;
+            COMPLIMENTARY.textContent = `${public_payment_info.complementaryPayment}✅`;
             TOTAL.parentNode.classList.remove('d-none');
-            TOTAL.textContent = public_payment_info.complementaryPayment + public_payment_info.basePayment;
+            TOTAL.textContent = `${public_payment_info.complementaryPayment + public_payment_info.basePayment}✅`;
         }
     }
 
