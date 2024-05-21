@@ -101,6 +101,72 @@
             </div>
         </div>
         <hr>
+        <div class="row">
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Payment Method</strong>
+                <div class="mt-1">
+                    <select name="paymentMethod"
+                            id="paymentMethod"
+                            style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                        <option value="AN">
+                            Account number
+                        </option>
+                        <option value="SN">
+                            SHEBA number
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Payment Type</strong>
+                <div class="mt-1">
+                    <select name="paymentType"
+                            id="paymentType"
+                            style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                        <option value="base">
+                            Base payment
+                        </option>
+                        <option value="complementary">
+                            Complementary payment
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col col-6 col-md-2 col-lg-2">
+                <button id="export"
+                        class="btn btn-primary d-flex align-items-center justify-content-around"
+                        style="width: 120px;
+                               position: relative;
+                               top: 27px">
+                    <i class="fa fa-file-export"></i>
+                    <span>Export</span>
+                </button>
+            </div>
+            <div class="col col-6 col-md-2 col-lg-2">
+                <button id="export-sepah"
+                        class="btn btn-primary d-flex align-items-center justify-content-around"
+                        style="width: 160px;
+                               position: relative;
+                               top: 27px">
+                    <i class="fa fa-file-export"></i>
+                    <span>Export sepah</span>
+                </button>
+            </div>
+            <div class="col col-6 col-md-2 col-lg-2">
+                <button id="export-melli"
+                        class="btn btn-primary d-flex align-items-center justify-content-around"
+                        style="width: 160px;
+                               position: relative;
+                               top: 27px">
+                    <i class="fa fa-file-export"></i>
+                    <span>Export melli</span>
+                </button>
+            </div>
+        </div>
         <br>
 
         <table id="payment-table"
@@ -120,6 +186,13 @@
                     </th>
                     <th scope="col" data-field="userID" class="d-none">
                         ID
+                    </th>
+                    <th scope="col"
+                        data-field="paymentStatus"
+                        data-width-unit="%"
+                        data-width="14"
+                        data-formatter="statusFormatter">
+                        Payment Status
                     </th>
                     <th scope="col"
                         data-field="user"
@@ -207,13 +280,6 @@
                         data-formatter="colorMoneyFormatter">
                         Final (R)
                     </th>
-                    <th scope="col"
-                        data-field="paymentStatus"
-                        data-width-unit="%"
-                        data-width="15"
-                        data-formatter="statusFormatter">
-                        Payment Status
-                    </th>
                 </tr>
             </thead>
         </table>
@@ -245,7 +311,7 @@
     function statusFormatter(value, row) {
         const selectedIndex = parseInt(value); // Convert to integer if value is a string
         return `
-            <select class="form-select" >
+            <select class="form-select">
                 <option value="0"${selectedIndex === 0? 'selected' : ''}> Not Paid 😡</option>
                 <option value="1"${selectedIndex === 1? 'selected' : ''}> Only Base ☹️</option>
                 <option value="2"${selectedIndex === 2? 'selected' : ''}> Only Complementary😶‍🌫️</option>
@@ -427,6 +493,35 @@
 
         $("#import-excel").click(function(){
             $("#excelFileInput").click();
+        });
+
+        
+        $("#export-sepah").click(function(){
+            const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);
+            const $form = $("<form>", {action: "{% url 'sheets:payment_export' %}", method: "POST"});
+            $form.append($("<input type='hidden' name='IDs'>").val(JSON.stringify(userIDs)));
+            $form.append($("<input type='hidden' name='month'>").val($("#month").val()));
+            $form.append($("<input type='hidden' name='year'>").val($("#year").val()));
+            $form.append($("<input type='hidden' name='paymentMethod'>").val($("#paymentMethod").val()));
+            $form.append($("<input type='hidden' name='paymentType'>").val($("#paymentType").val()));
+            $form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val("{{csrf_token}}"));
+            $form.append($("<input type='hidden' name='exportType'>").val("sepah"));
+            $("body").append($form);
+            $form.submit();
+        });
+        
+        $("#export-melli").click(function(){
+            const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);
+            const $form = $("<form>", {action: "{% url 'sheets:payment_export' %}", method: "POST"});
+            $form.append($("<input type='hidden' name='IDs'>").val(JSON.stringify(userIDs)));
+            $form.append($("<input type='hidden' name='month'>").val($("#month").val()));
+            $form.append($("<input type='hidden' name='year'>").val($("#year").val()));
+            $form.append($("<input type='hidden' name='paymentMethod'>").val($("#paymentMethod").val()));
+            $form.append($("<input type='hidden' name='paymentType'>").val($("#paymentType").val()));
+            $form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val("{{csrf_token}}"));
+            $form.append($("<input type='hidden' name='exportType'>").val("melli"));
+            $("body").append($form);
+            $form.submit();
         });
     });
     </script>
