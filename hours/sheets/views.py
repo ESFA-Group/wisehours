@@ -428,7 +428,10 @@ class PaymentExcelImportView(View):
             wage = row["wage"]
             base = row["base_payment"]
             row = row.to_dict()
-            current_sheet = Sheet.objects.get(user_id=user_id, year=year, month=month)
+            try:
+                current_sheet = Sheet.objects.get(user_id=user_id, year=year, month=month)
+            except:
+                continue
             current_sheet.wage = wage
             current_sheet.base_payment = base
             current_sheet.reduction1 = row["reduction1"]
