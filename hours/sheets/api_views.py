@@ -62,13 +62,14 @@ class SheetApiView(APIView):
             sheet, created = Sheet.objects.get_or_create(
                 user=user, year=year, month=month
             )
-            sheet.user_name = user.get_full_name()
-            sheet.wage = user.wage
-            sheet.base_payment = user.base_payment
-            sheet.reduction1 = user.reduction1
-            sheet.reduction2 = user.reduction2
-            sheet.reduction3 = user.reduction3
-            sheet.addition1 = user.addition1
+            if(created):
+                sheet.user_name = user.get_full_name()
+                sheet.wage = user.wage
+                sheet.base_payment = user.base_payment
+                sheet.reduction1 = user.reduction1
+                sheet.reduction2 = user.reduction2
+                sheet.reduction3 = user.reduction3
+                sheet.addition1 = user.addition1
             data = request.data.get("data", [])
             data.sort(key=lambda row: int(row.get("Day", 0)))
             sheet.data = request.data["data"]
