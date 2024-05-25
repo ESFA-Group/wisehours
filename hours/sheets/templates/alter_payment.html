@@ -190,6 +190,7 @@
                     <th scope="col"
                         data-field="paymentStatus"
                         data-width-unit="%"
+                        data-sortable="true"
                         data-width="14"
                         data-formatter="statusFormatter">
                         Payment Status
@@ -410,8 +411,8 @@
         })
        .then(res => res.json())
        .then(res => {
-            Object.assign(rowData, res);            
-            $("#payment-table").bootstrapTable('updateRow', {index: idx, row: rowData});
+            Object.assign(rowData, res);      
+            $("#payment-table").bootstrapTable('load', rowData);
             return true
         })
        .catch(err => {
