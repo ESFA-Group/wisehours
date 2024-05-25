@@ -145,16 +145,16 @@
                             <strong>No. of days worked:</strong>
                             <strong id="worked-days-count"></strong>
                         </p>
-                        <p class="d-flex justify-content-between d-none">
-                            <strong>Base payment:</strong>
+                        <p class="d-flex justify-content-between">
+                            <strong>payment 1:</strong>
                             <strong id="base-payment"></strong>
                         </p>
-                        <p class="d-flex justify-content-between d-none">
-                            <strong>Complimentary</strong>
+                        <p class="d-flex justify-content-between">
+                            <strong>Payment 2:</strong>
                             <strong id="complimentary"></strong>
                         </p>
-                        <p class="d-flex justify-content-between d-none">
-                            <strong>Total Pay</strong>
+                        <p class="d-flex justify-content-between">
+                            <strong>Final Payment:</strong>
                             <strong id="total-pay"></strong>
                         </p>
                     </div>
@@ -250,22 +250,37 @@
     async function updatePaymentsValue(){
         let public_payment_info = await getPaymentsValue();
         
+        if (public_payment_info.paymentStatus === 0){ // Only Base
+            updateBase(public_payment_info.basePayment);
+            updateComplimentary(public_payment_info.complementaryPayment);
+            updateTotal(public_payment_info.complementaryPayment + public_payment_info.basePayment)
+        }
         if (public_payment_info.paymentStatus === 1){ // Only Base
-            BASE_PAYMENT.parentNode.parentNode.classList.remove('d-none');
-            BASE_PAYMENT.textContent = `public_payment_info.basePayment + ✅`;
+            updateBase(public_payment_info.basePayment, true);
+            updateComplimentary(public_payment_info.complementaryPayment);
+            updateTotal(public_payment_info.complementaryPayment + public_payment_info.basePayment)
         }
         else if (public_payment_info.paymentStatus === 2){ //Only Complementary
-            TOTAL.parentNode.classList.remove('d-none');
-            TOTAL.textContent = public_payment_info.complementaryPayment;
+            updateBase(public_payment_info.basePayment);
+            updateComplimentary(public_payment_info.complementaryPayment, true);
+            updateTotal(public_payment_info.complementaryPayment + public_payment_info.basePayment, public_payment_info.basePayment === 0);
         }
         else if (public_payment_info.paymentStatus === 3){ //Base+Complementary
-            BASE_PAYMENT.parentNode.classList.remove('d-none');
-            BASE_PAYMENT.textContent = `${public_payment_info.basePayment}✅`;
-            COMPLIMENTARY.parentNode.classList.remove('d-none');
-            COMPLIMENTARY.textContent = `${public_payment_info.complementaryPayment}✅`;
-            TOTAL.parentNode.classList.remove('d-none');
-            TOTAL.textContent = `${public_payment_info.complementaryPayment + public_payment_info.basePayment}✅`;
-        }
+            updateBase(public_payment_info.basePayment, true);
+            updateComplimentary(public_payment_info.complementaryPayment, true);
+            updateTotal(public_payment_info.complementaryPayment + public_payment_info.basePayment, true);
+}
+    }
+    function updateBase(value, isPayed = false){
+        const paymentStatus = isPayed || value === 0? "✅" : "";
+        BASE_PAYMENT.textContent = `${value}${paymentStatus}`;
+    }
+    function updateComplimentary(value, isPayed = false){
+        const paymentStatus = isPayed || value === 0? "✅" : "";
+        COMPLIMENTARY.textContent = `${value}${paymentStatus}`;
+    }
+    function updateTotal(value, isPayed = false){
+        TOTAL.textContent = `${value}${isPayed?"✅":""}`;
     }
 
     async function getPaymentsValue(){
@@ -345,6 +360,7 @@
             body: JSON.stringify({"data": data, "saveSheet": true}),
         })
         .then(res => res.json())
+        .then(() => updatePaymentsValue() )
         .catch(err => {
             jSuites.notification({
                 error: 1,
@@ -544,8 +560,9 @@
         updateHoursInfo(totalTime, meanTime, workedDaysCount);
         updateChart(minutesByProject);
         updatePaymentsValue()
-        if(worksheet)
+        if(worksheet){
             saveSheet(tableData);
+        }
     }
 
     function onselectionHandler(worksheet, px, py, ux, uy, origin){
