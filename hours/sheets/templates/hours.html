@@ -30,6 +30,9 @@
         /* .jexcel tbody tr td{
             background-color: rgba(200, 0, 0, 0.2);
         } */
+        .redFont{
+            color: red;
+        }
     </style>
 {% endblock extra_css %}
 {% block body %}
@@ -153,9 +156,16 @@
                             <strong>Payment 2:</strong>
                             <strong id="complimentary"></strong>
                         </p>
+                        <p class="d-flex justify-content-between d-none">
+                            <strong>Refund:</strong>
+                            <strong id="refund"></strong>
+                        </p>
                         <p class="d-flex justify-content-between">
                             <strong>Final Payment:</strong>
                             <strong id="total-pay"></strong>
+                        </p>
+                        <p class="d-flex justify-content-between">
+                            <strong id="refund-text" class="redFont"></strong>
                         </p>
                     </div>
 
@@ -269,18 +279,48 @@
             updateBase(public_payment_info.basePayment, true);
             updateComplimentary(public_payment_info.complementaryPayment, true);
             updateTotal(public_payment_info.complementaryPayment + public_payment_info.basePayment, true);
-}
+        }
+        else if (public_payment_info.paymentStatus === 4){ //Refund Needed
+            updateBase(public_payment_info.basePayment, true);
+            updateTotal(public_payment_info.complementaryPayment + public_payment_info.basePayment);
+            handleRefund(public_payment_info.complementaryPayment)
+        }      
+        else if (public_payment_info.paymentStatus === 5){ //Refund Paid
+            updateBase(public_payment_info.basePayment, true);
+            updateTotal(public_payment_info.complementaryPayment + public_payment_info.basePayment, true);
+            handleRefund(public_payment_info.complementaryPayment, true)
+        }    
     }
     function updateBase(value, isPayed = false){
+        value = value.toLocaleString('en-US');
         const paymentStatus = isPayed || value === 0? "✅" : "";
         BASE_PAYMENT.textContent = `${value}${paymentStatus}`;
     }
     function updateComplimentary(value, isPayed = false){
+        value = value.toLocaleString('en-US');
         const paymentStatus = isPayed || value === 0? "✅" : "";
         COMPLIMENTARY.textContent = `${value}${paymentStatus}`;
     }
     function updateTotal(value, isPayed = false){
+        value = value.toLocaleString('en-US');
         TOTAL.textContent = `${value}${isPayed?"✅":""}`;
+    }
+    function handleRefund(value, isPayed = false){
+        value = (-value).toLocaleString('en-US');
+        const REFUND = document.getElementById('refund')
+        REFUND.parentNode.classList.remove('d-none');
+        COMPLIMENTARY.parentNode.classList.add('d-none');
+        const REFUND_TEXT = document.getElementById('refund-text')
+        if(!isPayed){
+            console.log("hi")
+            REFUND.textContent = `${value}`
+            REFUND_TEXT.textContent = `Please transfer ${value}R to account number:\n 1234 5678 9012 3456`;
+        }
+        else{
+            REFUND.textContent = `${value}✅`
+            REFUND.classList.remove("redFont")
+            REFUND_TEXT.textContent = ``;
+        }
     }
 
     async function getPaymentsValue(){
