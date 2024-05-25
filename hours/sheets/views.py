@@ -394,6 +394,7 @@ class PaymentExcelExportView(View):
             "reduction2",
             "reduction3",
             "addition1",
+            "addition2",
             "payment_status",
         )
 
@@ -437,7 +438,8 @@ class PaymentExcelImportView(View):
             current_sheet.reduction1 = row["reduction1"]
             current_sheet.reduction2 = row["reduction2"]
             current_sheet.reduction3 = row["reduction3"]
-            current_sheet.addition1 = row["addition1"]
+            current_sheet.addition1  = row["addition1"]
+            current_sheet.addition2  = row["addition2"]
             current_sheet.payment_status = row["payment_status"]
             current_sheet.save()
 

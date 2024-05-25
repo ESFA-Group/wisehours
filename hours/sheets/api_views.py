@@ -26,6 +26,7 @@ def _setup_sheet(sheet, user):
     sheet.reduction2 = user.reduction2
     sheet.reduction3 = user.reduction3
     sheet.addition1 = user.addition1
+    sheet.addition2 = user.addition2
     return sheet
 
 
@@ -70,6 +71,7 @@ class SheetApiView(APIView):
                 sheet.reduction2 = user.reduction2
                 sheet.reduction3 = user.reduction3
                 sheet.addition1 = user.addition1
+                sheet.addition2 = user.addition2
             data = request.data.get("data", [])
             data.sort(key=lambda row: int(row.get("Day", 0)))
             sheet.data = request.data["data"]
@@ -378,6 +380,7 @@ class AlterPaymentApiView(APIView):
         currentSheet.reduction2 = int(editted_row["reduction2"])
         currentSheet.reduction3 = int(editted_row["reduction3"])
         currentSheet.addition1 = int(editted_row["addition1"])
+        currentSheet.addition2 = int(editted_row["addition2"])
         currentSheet.payment_status = int(editted_row["paymentStatus"])
         currentSheet.save()
 

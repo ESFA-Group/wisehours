@@ -18,6 +18,7 @@ class User(AbstractUser):
     reduction2 = models.IntegerField("reduction2", default=0)
     reduction3 = models.IntegerField("reduction3", default=0)
     addition1 = models.IntegerField("addition", default=0)
+    addition2 = models.IntegerField("addition2", default=0)
     comment = models.TextField("comment", default="", blank=True)
 
     # personal info
@@ -101,6 +102,7 @@ class User(AbstractUser):
             "reduction2": self.reduction2,
             "reduction3": self.reduction3,
             "addition1": self.addition1,
+            "addition2": self.addition2,
         }
         return info
 
@@ -153,6 +155,7 @@ class Sheet(models.Model):
     reduction2 = models.IntegerField("reduction2", default=0)
     reduction3 = models.IntegerField("reduction3", default=0)
     addition1 = models.IntegerField("addition", default=0)
+    addition2 = models.IntegerField("addition2", default=0)
 
     def __str__(self):
         return f"{self.user_name}_{self.year}_{self.month}"
@@ -244,7 +247,7 @@ class Sheet(models.Model):
         final_payment = (
             total_payment
             - (self.reduction1 + self.reduction2 + self.reduction3)
-            + self.addition1
+            + (self.addition1 + self.addition2)
         )
         return final_payment
 
@@ -261,6 +264,7 @@ class Sheet(models.Model):
             "reduction2": self.reduction2,
             "reduction3": self.reduction3,
             "addition1": self.addition1,
+            "addition2": self.addition2,
             "finalPayment": self.get_final_payment(),
             "complementaryPayment": self.get_complementary_payment(),
             "paymentStatus": self.payment_status,
