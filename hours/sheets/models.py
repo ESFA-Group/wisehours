@@ -22,6 +22,7 @@ class User(AbstractUser):
     comment = models.TextField("comment", default="", blank=True)
 
     # personal info
+    is_active = models.BooleanField("is_active",  default=True)
     national_ID = models.CharField("national_ID", max_length=10, blank=True, default="")
     mobile1 = models.CharField("mobile1", max_length=11, blank=True, default="")
     mobile2 = models.CharField("mobile2", max_length=11, blank=True, default="")

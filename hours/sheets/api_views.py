@@ -336,7 +336,7 @@ class AlterPaymentApiView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def get(self, request, year: str, month: str):
-        users = User.objects.all()
+        users = User.objects.filter(is_active=1)
         data = list()
 
         for user in users:
