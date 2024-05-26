@@ -424,7 +424,7 @@ class PaymentExcelImportView(View):
         df = pd.read_excel(file)
         df.fillna(0, inplace=True)
 
-        not_found_ids = []
+        not_found_name = []
 
         for index, row in df.iterrows():
             user_id = row["user_id"]
@@ -436,7 +436,7 @@ class PaymentExcelImportView(View):
                     user_id=user_id, year=year, month=month
                 )
             except:
-                not_found_ids.append(user_id)
+                not_found_name.append({'name': row["user_name"], 'user_id': row["user_id"]})
                 continue
             current_sheet.wage = wage
             current_sheet.base_payment = base
@@ -461,7 +461,7 @@ class PaymentExcelImportView(View):
 
         response_data = {
             "message": "success",
-            "users_not_found": not_found_ids,
+            "users_not_found": not_found_name,
         }
 
         return JsonResponse(response_data)

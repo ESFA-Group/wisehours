@@ -89,18 +89,22 @@
                        id="excelFileInput"
                        style="display:none"
                        accept=".xlsx,.xls"
-                       onchange="handleFileUpload(event)">
+                       onchange="handleExcelImport(event)">
                 <button id="import-excel"
                         class="btn btn-warning d-flex align-items-center justify-content-around"
                         style="width: 160px;
                                position: relative;
                                top: 27px">
-                    <i class="fa fa-file-import"></i>
+                    <i id="import-excel-icon" class="fa fa-file-import"></i>
+                    <div id="import-excel-spinner" class="spinner-border text-dark d-none">
+                    </div>
                     <span>import Excel</span>
                 </button>
             </div>
         </div>
+
         <hr>
+
         <div class="row">
             <div class="col col-6 col-md-4 col-lg-3">
                 <strong>Payment Method</strong>
@@ -167,6 +171,7 @@
                 </button>
             </div>
         </div>
+
         <br>
 
         <table id="payment-table"
@@ -292,8 +297,72 @@
                 </tr>
             </thead>
         </table>
-
     </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade"
+         id="successModal"
+         data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Import Data Result
+                    </h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-success">succesfully updated</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-success"
+                            data-bs-dismiss="modal"
+                            id="submit">
+                        Ok
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warrning Modal -->
+    <div class="modal fade"
+         id="warningModal"
+         data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Import Data Result
+                    </h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-warning">partially updated ‼️</p>
+                    <p>Users not found:</p>
+                    <ul id="missing-users-list"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-success"
+                            data-bs-dismiss="modal"
+                            id="submit">
+                        Ok
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <br>
     <br>
     <script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
@@ -367,7 +436,8 @@
         }
     }
 
-    function handleFileUpload(event) {
+    function handleExcelImport(event) {
+        excelImmportLoadingStart()
         var file = event.target.files[0];
         var formData = new FormData();
     
@@ -389,13 +459,49 @@
         })
         .then(res => {
             if (res.ok) {
-                fillTable(year, month);
-                document.getElementById('excelFileInput').value = '';
+                return res.json()
             } else {
                 throw new Error('Network response was not ok');
             }
-        })            
+        })
+        .then(json =>{
+            if(json.users_not_found.length > 0){
+                showImportError(json.users_not_found)
+            }
+            else{
+                showImportSucces()
+            }
+            fillTable(year, month);
+            document.getElementById('excelFileInput').value = '';
+        })
+        .then(()=> {
+            excelImmportLoadingDone();
+        })
         .catch(error => console.error('Error:', error));
+    }
+
+    function showImportError(missingUsersList){
+        $('#warningModal').modal('show')
+        $('#missing-users-list').empty(); // Clear existing list
+
+        $.each(missingUsersList, function(index, user) {
+            $('#missing-users-list').append(`<li>${user.name} (Id: ${user.user_id})</li>`);
+        });
+    }
+
+    function showImportSucces(){
+        $('#successModal').modal('show')
+        $('.modal-body').html("<p>succesfully updated✅</p>");
+    }
+
+    function excelImmportLoadingStart(){
+        $('#import-excel-spinner').removeClass('d-none');
+        $('#import-excel-icon').addClass('d-none')
+    }
+
+    function excelImmportLoadingDone(){
+        $('#import-excel-spinner').addClass('d-none')
+        $('#import-excel-icon').removeClass('d-none');
     }
 
     function updatePaymentTable(year, month, rowData, idx) {
