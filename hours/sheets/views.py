@@ -424,14 +424,19 @@ class PaymentExcelImportView(View):
         df = pd.read_excel(file)
         df.fillna(0, inplace=True)
 
+        not_found_ids = []
+
         for index, row in df.iterrows():
             user_id = row["user_id"]
             wage = row["wage"]
             base = row["base_payment"]
             row = row.to_dict()
             try:
-                current_sheet = Sheet.objects.get(user_id=user_id, year=year, month=month)
+                current_sheet = Sheet.objects.get(
+                    user_id=user_id, year=year, month=month
+                )
             except:
+                not_found_ids.append(user_id)
                 continue
             current_sheet.wage = wage
             current_sheet.base_payment = base
@@ -454,4 +459,9 @@ class PaymentExcelImportView(View):
                 sheet.base_payment = base
                 sheet.save()
 
-        return HttpResponse("success")
+        response_data = {
+            "message": "success",
+            "users_not_found": not_found_ids,
+        }
+
+        return JsonResponse(response_data)
