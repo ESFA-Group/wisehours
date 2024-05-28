@@ -1,4 +1,9 @@
 "use strict";
+
+// ****
+// comment console.log and console.warn in xmldom.parser.js to prevent logging errors in console
+// ****
+
 var xpath = require('xpath');
 var dom = require('@xmldom/xmldom').DOMParser;
 // const fs = require('node:fs');
