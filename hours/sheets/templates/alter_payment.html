@@ -96,8 +96,8 @@
                                position: relative;
                                top: 27px">
                     <i id="import-excel-icon" class="fa fa-file-import"></i>
-                    <div id="import-excel-spinner" class="spinner-border text-dark d-none">
-                    </div>
+                    <div id="import-excel-spinner" class="spinner-border text-dark">
+                    </div>                    
                     <span>import Excel</span>
                 </button>
             </div>
@@ -495,13 +495,15 @@
     }
 
     function excelImmportLoadingStart(){
-        $('#import-excel-spinner').removeClass('d-none');
-        $('#import-excel-icon').addClass('d-none')
+        $('#import-excel').prop("disabled", true);
+        $('#import-excel-spinner').show();
+        $('#import-excel-icon').hide()
     }
-
+    
     function excelImmportLoadingDone(){
-        $('#import-excel-spinner').addClass('d-none')
-        $('#import-excel-icon').removeClass('d-none');
+        $('#import-excel').prop("disabled", false);
+        $('#import-excel-spinner').hide()
+        $('#import-excel-icon').show();
     }
 
     function updatePaymentTable(year, month, rowData, idx) {
@@ -543,6 +545,7 @@
         $("#year").val(currentYear);
         $("#month").val(currentMonth);
         $("#current-sheet-date").text(`${currentYear}/${currentMonth}`);
+        $('#import-excel-spinner').hide()
 
         $("#payment-table").bootstrapTable({
             exportTypes: ['json', 'xml', 'csv', 'txt', 'excel'],

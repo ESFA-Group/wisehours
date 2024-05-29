@@ -385,20 +385,20 @@ class PaymentExportView(View):
 class PaymentExcelExportView(View):
 
     def post(self, request, year: str, month: str):
-        sheet = Sheet.objects.filter(year=year, month=month).values(
-            "user_id",
-            "user_name",
-            "wage",
-            "base_payment",
-            "reduction1",
-            "reduction2",
-            "reduction3",
-            "addition1",
-            "addition2",
-            "payment_status",
-        )
+        sheets = Sheet.objects.filter(year=year, month=month)
 
-        df = pd.DataFrame(sheet)
+        payments_info = []
+        for sheet in sheets:
+            payment_info = {
+                "userID": sheet.user_id,
+                "user": sheet.user.get_full_name(),
+                "bankName": sheet.user.bank_name,
+            }
+            payment_info.update(sheet.get_payment_info())
+
+            payments_info.append(payment_info)
+
+        df = pd.DataFrame(payments_info)
 
         buffer = io.BytesIO()
         writer = pd.ExcelWriter(buffer, engine="xlsxwriter")
@@ -427,25 +427,27 @@ class PaymentExcelImportView(View):
         not_found_name = []
 
         for index, row in df.iterrows():
-            user_id = row["user_id"]
+            user_id = row["userID"]
             wage = row["wage"]
-            base = row["base_payment"]
+            base = row["basePayment"]
             row = row.to_dict()
             try:
                 current_sheet = Sheet.objects.get(
                     user_id=user_id, year=year, month=month
                 )
             except:
-                not_found_name.append({'name': row["user_name"], 'user_id': row["user_id"]})
+                not_found_name.append(
+                    {"name": row["user_name"], "user_id": row["user_id"]}
+                )
                 continue
             current_sheet.wage = wage
             current_sheet.base_payment = base
             current_sheet.reduction1 = row["reduction1"]
             current_sheet.reduction2 = row["reduction2"]
             current_sheet.reduction3 = row["reduction3"]
-            current_sheet.addition1  = row["addition1"]
-            current_sheet.addition2  = row["addition2"]
-            current_sheet.payment_status = row["payment_status"]
+            current_sheet.addition1 = row["addition1"]
+            current_sheet.addition2 = row["addition2"]
+            current_sheet.payment_status = row["paymentStatus"]
             current_sheet.save()
 
             user = User.objects.get(pk=user_id)
