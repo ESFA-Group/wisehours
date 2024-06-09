@@ -6,8 +6,8 @@
           href="{% static 'sheets/css/bootstrap-table.min.css' %}">
     <link rel="stylesheet"
           href="{% static 'sheets/css/bootstrap-editable.css' %}">
-    <style>
-    </style>
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/templatesScripts/food_form.css' %}">
 {% endblock extra_css %}
 
 {% block body %}
@@ -86,6 +86,26 @@
         <hr>
         <br>
 
+        <table id="foodTable" data-toggle="table">
+        </table>
+
+        <br>
+        <div class="container d-flex justify-content-start align-items-center">
+            <div class="text-center">
+                <button id="submitFood" type="button" class="btn btn-primary">
+                    submit
+                </button>
+            </div>
+        </div>
+
+
+        <div class="col col-12 col-lg-8"
+             style="overflow-x: auto;
+                    border-left: 1px solid;
+                    padding-left: 10px">
+            <div id="spreadsheet">
+            </div>
+        </div>
 
     </div>
 
@@ -94,69 +114,5 @@
     <script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
     <script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
     <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
-    <script>
-        function fillYears(year) {
-            for (let i = window.START_YEAR; i <= year; i++) {
-                $("#year").append($("<option>").text(i));
-            }
-        }
-
-        function fillWeeks(year, month) {
-            let weeks = getWeeksOfMonth(year, month)
-            $("#week").empty();
-            for (let i = 0; i < weeks.length; i++) {
-                $("#week").append($("<option>").text(`week${i+1} (${weeks[i].from} --> ${weeks[i].to})`));
-            }
-        }
-
-        function getWeeksOfMonth(year, month) {
-            const totalDaysInMonth = JDate.daysInMonth(year, month);
-          
-            let weeks = [];
-          
-            for (let i = 1; i <= totalDaysInMonth; i++) {
-              let startDate = new JDate(year, month, i);
-              if (startDate.getDay() === 6) {
-                //if current date is shanbe
-                weeks.push({
-                  from: startDate.format('MM/DD'),
-                });
-                i = i + 6;
-                if (i > totalDaysInMonth) {
-                  month += 1;
-                  if(month > 12){
-                    year+=1
-                    month = 1
-                  }
-                  i -= totalDaysInMonth;
-                  startDate = new JDate(year, month, i);
-          
-                  weeks[weeks.length - 1]['to'] = startDate.format('MM/DD');
-                  break;
-                }
-                startDate = new JDate(year, month, i);
-          
-                weeks[weeks.length - 1]['to'] = startDate.format('MM/DD');
-              }
-            }
-            return weeks;
-        }
-
-
-        $("document").ready(async function() {
-
-            const today = new JDate();
-            const currentYear = today.getFullYear();
-            const currentMonth = today.getMonth();
-            fillYears(currentYear);
-            fillWeeks(currentYear, currentMonth);
-            $("#year").val(currentYear);
-            $("#month").val(currentMonth);
-            $("#current-sheet-date").text(`${currentYear}/${currentMonth}`);
-
-            $("#year, #month").change(function() {
-                fillWeeks($("#year").val(), $("#month").val());
-            });
-        });
-    </script>
+    <script src="{% static 'sheets/js/templatesScripts/food_form.js' %}"></script>
 {% endblock body %}
