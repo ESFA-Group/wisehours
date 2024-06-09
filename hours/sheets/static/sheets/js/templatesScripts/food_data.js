@@ -1,7 +1,7 @@
 "use strict";
 //CONSTANTS************************************************
-// const TODAY = new JDate();
-const TODAY = new JDate(1403, 2, 22);
+const TODAY = new JDate();
+// const TODAY = new JDate(1403, 2, 22);
 
 
 const CURRENT_YEAR = TODAY.getFullYear();
@@ -9,13 +9,6 @@ var ACTIVE_YEAR = CURRENT_YEAR;
 
 const CURRENT_MONTH = TODAY.getMonth();
 var ACTIVE_MONTH = CURRENT_MONTH
-
-const CURRENT_MONTH_WEEKS = getWeeksOfMonth()
-var ACTIVE_MONTH_WEEKS = CURRENT_MONTH_WEEKS
-
-const [CURRENT_WEEK, CURRENT_WEEK_INDEX] = getCurrentWeek()
-var ACTIVE_WEEK = CURRENT_WEEK
-var ACTIVE_WEEK_INDEX = CURRENT_WEEK_INDEX
 
 
 
@@ -85,95 +78,218 @@ function fillYears() {
 	}
 }
 
-function fillWeeks() {
-	let weeks = getWeeksOfMonth()
-	$("#week").empty();
-	for (let i = 0; i < weeks.length; i++) {
-		$("#week").append($("<option>")
-			.text(`week${i + 1} (${weeks[i]['0'].format('MM/DD')} --> ${weeks[i]['6'].format('MM/DD')})`)
-			.val(i));
+async function getDBTable(url) {
+	try {
+		let res = await fetch(url);
+		return await res.json();
+	}
+	catch (err) {
+		jSuites.notification({
+			error: 1,
+			name: 'Error',
+			title: "Fetching This month's Sheet",
+			message: err,
+		});
 	}
 }
 
-function getWeeksOfMonth() {
-	let year = ACTIVE_YEAR
-	let month = ACTIVE_MONTH
-	const totalDaysInMonth = JDate.daysInMonth(year, month);
+async function getSheetDBT(year, month) {
+	const url = `/hours/api/sheets/${year}/${month}`;
+	return await getDBTable(url)
+}
 
-	let weeksDate = []
-	let shouldbreak = false;
-	for (let i = 1; i <= totalDaysInMonth; i++) {
-		if (shouldbreak) {
-			break;
-		}
-		let startDate = new JDate(year, month, i);
-		if (startDate.getDay() === 6) {
-			weeksDate.push({
-				0: startDate
-			})
-			for (let j = 1; j < 7; j++) {
-				i = i + 1
-				if (i > totalDaysInMonth) {
-					month += 1;
-					if (month > 12) {
-						year += 1
-						month = 1
-					}
-					i = 1;
-					startDate = new JDate(year, month, i);
 
-					weeksDate[weeksDate.length - 1][j] = startDate;
-					shouldbreak = true;
-					continue;
-				}
-				startDate = new JDate(year, month, i);
-				weeksDate[weeksDate.length - 1][j] = startDate;
+async function getFoodDataDBT(year, month) {
+	return [
+		{ "day": 1, "data": [{ "id": 0, "name": "steakd", "price": 250 }, { "id": 1, "name": "kebab", "price": 100 }, { "id": 2, "name": "chicken", "price": 80 }, { "id": 3, "name": "coca", "price": 10 }] },
+		{ "day": 17, "data": [{ "id": 0, "name": "steakd", "price": 500 }, { "id": 1, "name": "kebab", "price": 222 }, { "id": 2, "name": "chicken", "price": 150 }, { "id": 3, "name": "coca", "price": 21 }] }
+	];
+}
+
+function saveFoodDataDBT(fooddata){
+	
+}
+
+async function renderSheet(food_data) {
+	resetFoodSheet();
+
+	const foodColumns = food_data[0].data.map(foodItem => ({
+		type: 'numeric',
+		title: foodItem.name,
+		width: 130,
+		readOnly: false
+	}));
+
+	const columns = [
+		{ type: 'text', title: 'Day', width: 80, readOnly: true },
+		{ type: 'text', title: 'WeekDay', width: 130, readOnly: true },
+		...foodColumns
+	];
+
+
+	let monthdata = await getSheetDBT(ACTIVE_YEAR, ACTIVE_MONTH)
+
+	let foodSheetData = mergeMonthDataWithFoodData(monthdata.data, food_data)
+
+	window.spreadTable = jspreadsheet(document.getElementById('spreadsheet'), {
+		data: foodSheetData,
+		columns: columns,
+		allowInsertColumn: false,
+		allowInsertRow: false,
+		allowDeleteRow: false,
+		allowRenameColumn: false,
+		onundo: onChangeHandler,
+		onredo: onChangeHandler,
+		onchange: (worksheet, cell, x, y, value) => onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data),
+		ondeletecolumn: onChangeHandler,
+		onselection: onselectionHandler,
+		tableOverflow: true,
+		tableHeight: "100vh",
+		updateTable: function (el, cell, x, y, source, value, id) {
+			if (value == "Fri") {
+				cell.style.color = 'red';
+			}
+
+			const todayIndex = TODAY.getDate() - 1; // Example: disable rows 1, 3, and 5
+			if (y < todayIndex) {
+				cell.classList.add('readonly');
+				cell.setAttribute('readonly', 'readonly');
 			}
 		}
+	});
+	window.spreadTable.hideIndex();
+
+}
+
+function resetFoodSheet() {
+	if (typeof window.spreadTable === 'object') {
+		window.spreadTable.destroy();
 	}
-	return weeksDate;
 }
 
-function getCurrentWeek() {
-	for (const [index, week] of Object.entries(CURRENT_MONTH_WEEKS)) {
-		let startweekday = week[0]
-		let dayDiff = getDayDiff(TODAY, startweekday)
-		if (dayDiff <= 0 && dayDiff >= -6) {
-			return [week, index];
+function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data) {
+	const rawData = window.spreadTable.getJson();
+	const tableData = convertTableData(rawData);
+	const currentValue = foodSheetData[y][food_data[0].data[x - 2].name];
+	if (+value === currentValue) {
+		return;
+	}
+	const foodid = x - 2;
+	const day = +y + 1;
+
+	let index;
+	if ((index = food_data.findIndex(item => item.day === day)) !== -1) {
+		let last_data = food_data.at(index).data;
+		last_data[foodid].price = +value;
+		removeDuplicates(food_data)
+		saveFoodDataDBT(fooddata);
+		renderSheet(food_data);
+	}
+	else if (day < food_data.at(-1).day) {
+		const newItem = findAndCopyLastLessThan(food_data, day);
+		newItem.day = day;
+		newItem.data[foodid].price = +value;
+		food_data.push(newItem)
+		food_data.sort((a, b) => a.day - b.day);
+		saveFoodDataDBT(fooddata);
+		renderSheet(food_data);
+	}
+	else {
+		let new_data = JSON.parse(JSON.stringify(food_data.at(-1)));
+		new_data.day = day;
+		new_data.data[foodid].price = +value;
+		food_data.push(new_data);
+		saveFoodDataDBT(fooddata);
+		renderSheet(food_data);
+	}
+}
+
+function removeDuplicates(data) {
+	data.forEach((item, index) => {
+		if (index === data.length - 1) return;
+
+		const currentItemData = JSON.stringify(item.data);
+		const nextItemData = JSON.stringify(data[index + 1].data);
+
+		if (currentItemData === nextItemData) {
+			// Remove the item with the greater day value
+			if (item.day > data[index + 1].day) {
+				data.splice(index, 1);
+			} else {
+				data.splice(index + 1, 1);
+			}
 		}
-	};
+	});
+	return data
 }
 
-function getDayDiff(JDate1, JDate2) {
-	let diff = JDate2._d.getTime() - JDate1._d.getTime()
-	return Math.round(diff / (1000 * 60 * 60 * 24));
+function findAndCopyLastLessThan(array, newDay) {
+	for (let i = array.length - 1; i >= 0; i--) {
+		const item = array[i];
+
+		if (item.day < newDay) {
+			return JSON.parse(JSON.stringify(item));
+		}
+	}
+	return null;
 }
 
-function handleChangeWeek() {
-	ACTIVE_WEEK_INDEX = $("#week").val();
-	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
-	initializeFoodTable()
-	fillFoodTable();
+function convertTableData(rawData) {
+	/*  table's getJson method won't return table data correctly, some headers (mostly created ones in project adding) 
+		are wrong in each rows data. this function iterates each row and correct wrong keys to real keys in header.
+	*/
+	const headers = window.spreadTable.getHeaders(true);
+	rawData.map(row => {
+		for (let [key, value] of Object.entries(row)) {
+			if (!headers.includes(key)) {
+				row[headers[key]] = value;
+				delete row[key];
+			}
+		}
+	})
+	return rawData
 }
 
-function addFoodRow() {
+function onselectionHandler(worksheet, px, py, ux, uy, origin) {
+	// scroll to element while working with arrow keys or sth when selected element is out of viewport
+	const td = $(worksheet).find('td.highlight-selected.highlight').get(0);
+	if (td === undefined)
+		return false
+	const box = td.getBoundingClientRect();
+	if (box.top > window.innerHeight || box.bottom <= 0)
+		td.scrollIntoView();
 }
+
+function mergeMonthDataWithFoodData(monthData, foodData) {
+	const foodMap = new Map(foodData.map(item => [item.day, item.data]));
+	let lastFoodData = [];
+	let lastFoodPairs = {};
+
+	return monthData.map(({ Day, WeekDay }) => {
+		if (foodMap.has(Day)) {
+			lastFoodData = foodMap.get(Day);
+			lastFoodPairs = lastFoodData.reduce((acc, { name, price }) => {
+				acc[name] = price;
+				return acc;
+			}, {});
+		}
+
+		return { Day, WeekDay, ...lastFoodPairs };
+	});
+}
+
+
 
 $("document").ready(async function () {
 	fillYears(ACTIVE_YEAR);
-	fillWeeks();
+	const food_data = await getFoodDataDBT(ACTIVE_YEAR, ACTIVE_MONTH)
+	renderSheet(food_data)
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
-	$("#week").val(CURRENT_WEEK_INDEX);
 
 
 	$("#year, #month").change(function () {
 		ACTIVE_YEAR = $("#year").val()
 		ACTIVE_MONTH = $("#month").val()
-		fillWeeks();
-		handleChangeWeek()
-	});
-	$("#week").change(function () {
-		handleChangeWeek();
 	});
 });

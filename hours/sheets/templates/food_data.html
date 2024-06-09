@@ -8,6 +8,12 @@
           href="{% static 'sheets/css/bootstrap-editable.css' %}">
     <link rel="stylesheet"
           href="{% static 'sheets/css/templatesScripts/food_form.css' %}">
+    <link rel="stylesheet" href="{% static 'sheets/css/jspreadsheet.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/jspreadsheet.datatables.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/jspreadsheet.theme.css' %}">
+    <link rel="stylesheet" href="{% static 'sheets/css/templatesScripts/food_data.css' %}">
 {% endblock extra_css %}
 
 {% block body %}
@@ -71,40 +77,15 @@
                     </select>
                 </div>
             </div>
-            <div class="col col-6 col-md-4 col-lg-3">
-                <strong>Week</strong>
-                <div class="mt-1">
-                    <select name="week"
-                            id="week"
-                            style="min-width: 220px;
-                                   border-radius: 5px;
-                                   height: 35px">
-                    </select>
-                </div>
-            </div>
         </div>
         <hr>
 
-        <div class="container mt-5">
-            <h2>Food and Price Input Form</h2>
-            <form>
-                <div id="dynamicInputFields">
-                    <!-- Initial row(s) go here -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="food1">Food Item 1:</label>
-                            <input type="text" class="form-control" id="food1" placeholder="Enter food item">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="price1">Price:</label>
-                            <input type="number" class="form-control" id="price1" placeholder="Enter price">
-                        </div>
-                    </div>
-                    <!-- Additional rows will be appended here -->
-                </div>
-                <button type="button" class="btn btn-success mt-3" onclick="addFoodRow()">+</button>
-                <button type="submit" class="btn btn-primary mt-3 ml-2">Submit</button>
-            </form>
+        <div class="col col-12 col-lg-8"
+             style="overflow-x: auto;
+                    border-left: 1px solid;
+                    padding-left: 10px">
+            <div id="spreadsheet">
+            </div>
         </div>
 
     </div>
@@ -115,4 +96,6 @@
     <script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
     <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
     <script src="{% static 'sheets/js/templatesScripts/food_data.js' %}"></script>
+    <script src="{% static 'sheets/js/plotly-basic.min.js' %}"></script>
+    <script src="{% static 'sheets/js/jspreadsheet.min.js' %}"></script>
 {% endblock body %}
