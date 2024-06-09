@@ -100,10 +100,12 @@ async function getSheetDBT(year, month) {
 
 
 async function getFoodDataDBT(year, month) {
-	return [
-		{ "day": 1, "data": [{ "id": 0, "name": "steakd", "price": 250 }, { "id": 1, "name": "kebab", "price": 100 }, { "id": 2, "name": "chicken", "price": 80 }, { "id": 3, "name": "coca", "price": 10 }] },
-		{ "day": 17, "data": [{ "id": 0, "name": "steakd", "price": 500 }, { "id": 1, "name": "kebab", "price": 222 }, { "id": 2, "name": "chicken", "price": 150 }, { "id": 3, "name": "coca", "price": 21 }] }
-	];
+	const url = `/hours/api/FoodManagement/${year}/${month}`;
+	return await getDBTable(url)
+	// return [
+	// 	{ "day": 1, "data": [{ "id": 0, "name": "steakd", "price": 250 }, { "id": 1, "name": "kebab", "price": 100 }, { "id": 2, "name": "chicken", "price": 80 }, { "id": 3, "name": "coca", "price": 10 }] },
+	// 	{ "day": 17, "data": [{ "id": 0, "name": "steakd", "price": 500 }, { "id": 1, "name": "kebab", "price": 222 }, { "id": 2, "name": "chicken", "price": 150 }, { "id": 3, "name": "coca", "price": 21 }] }
+	// ];
 }
 
 function saveFoodDataDBT(fooddata){
@@ -113,12 +115,15 @@ function saveFoodDataDBT(fooddata){
 async function renderSheet(food_data) {
 	resetFoodSheet();
 
-	const foodColumns = food_data[0].data.map(foodItem => ({
-		type: 'numeric',
-		title: foodItem.name,
-		width: 130,
-		readOnly: false
-	}));
+	let foodColumns = []
+	if (typeof food_data[0] === 'object' && food_data[0].hasOwnProperty('data')){
+		foodColumns = food_data[0].data.map(foodItem => ({
+			type: 'numeric',
+			title: foodItem.name,
+			width: 130,
+			readOnly: false
+		}));
+	}
 
 	const columns = [
 		{ type: 'text', title: 'Day', width: 80, readOnly: true },

@@ -75,6 +75,11 @@ urlpatterns = [
         name="api_alter_payment",
     ),
     path(
+        "api/FoodManagement/<str:year>/<str:month>",
+        api_views.FoodManagementApiView.as_view(),
+        name="api_FoodManagement",
+    ),
+    path(
         "api/order_food/<str:year>/<str:month>",
         api_views.OrderFoodApiView.as_view(),
         name="api_order_food",

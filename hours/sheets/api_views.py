@@ -410,21 +410,26 @@ class FoodManagementApiView(APIView):
 
         if created:
             try:
-                last_food_data = Food_data.objects.order_by("-id").first()
+                last_food_data = Food_data.objects.last()
                 food_data.data = last_food_data.data
             except Food_data.DoesNotExist:
+                print("error")
                 # Handle the case where there is no last data
-                food_data.data = [
-                    {
-                        "day": 1,
-                        "data": [
-                            {"id": 0, "name": "کباب", "price": 250},
-                            {"id": 1, "name": "جوجه", "price": 100},
-                            {"id": 2, "name": "مرغ", "price": 80},
-                            {"id": 3, "name": "نوشابه", "price": 10},
-                        ],
-                    }
-                ]
+                # food_data.data = [
+                #     {
+                #         "day": 1,
+                #         "data": [
+                #             {"id": 0, "name": "زرشک پلو با مرغ", "price": 1290000},
+                #             {"id": 1, "name": "چلوکباب لقمه", "price": 1190000},
+                #             {"id": 2, "name": "چلوجوجه سینه", "price": 1190000},
+                #             {"id": 3, "name": "چلوخورشت قیمه سیب زمینی", "price": 1190000},
+                #             {"id": 4, "name": "چلوخورشت قورمه سبزی", "price": 1190000},
+                #             {"id": 5, "name": "خوراک لقمه با دورچین", "price": 1190000},
+                #             {"id": 6, "name": "خوراک جوجه با دورچین", "price": 1190000},
+                #             {"id": 7, "name": "خوراک مرغ با دورچین", "price": 1190000},
+                #         ],
+                #     }
+                # ]
 
         # Return the data as a JSON response
         return Response(food_data.data, status=status.HTTP_200_OK)
