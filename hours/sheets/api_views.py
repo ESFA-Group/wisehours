@@ -8,7 +8,7 @@ import jdatetime as jdt
 import pandas as pd
 import re
 
-from sheets.models import Project, Sheet, User
+from sheets.models import Project, Sheet, User, Food_data
 from sheets.serializers import ProjectSerializer, SheetSerializer
 
 
@@ -401,4 +401,33 @@ class OrderFoodApiView(APIView):
         sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
         sheet.food_data[index] = data
         sheet.save()
-        return  Response(sheet.food_data, status=status.HTTP_200_OK)
+        return Response(sheet.food_data, status=status.HTTP_200_OK)
+
+
+class FoodManagementApiView(APIView):
+    def get(self, request, year: str, month: str):
+        food_data, created = Food_data.objects.get_or_create(year=year, month=month)
+
+        if created:
+            try:
+                last_food_data = Food_data.objects.order_by("-id").first()
+                food_data.data = last_food_data.data
+            except Food_data.DoesNotExist:
+                # Handle the case where there is no last data
+                food_data.data = [
+                    {
+                        "day": 1,
+                        "data": [
+                            {"id": 0, "name": "کباب", "price": 250},
+                            {"id": 1, "name": "جوجه", "price": 100},
+                            {"id": 2, "name": "مرغ", "price": 80},
+                            {"id": 3, "name": "نوشابه", "price": 10},
+                        ],
+                    }
+                ]
+
+        # Return the data as a JSON response
+        return Response(food_data.data, status=status.HTTP_200_OK)
+
+    def post(self, request, year: str, month: str):
+        return HttpResponse("POST request!")

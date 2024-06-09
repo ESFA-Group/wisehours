@@ -306,3 +306,9 @@ class Project(models.Model):
 
     def __str__(self):
         return f"{self.family.name}-{self.name}"
+
+
+class Food_data(models.Model):
+    year = models.PositiveIntegerField("year", default=current_year)
+    month = models.PositiveIntegerField("month", default=current_month)
+    data = models.JSONField(default=list)
