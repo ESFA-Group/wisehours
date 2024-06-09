@@ -16,6 +16,7 @@ urlpatterns = [
     path("personal_info", views.PersonalInfoView.as_view(), name="personal_info"),
     path("payment", views.PaymentHandleView.as_view(), name="payment"),
     path("alter_payment", views.AlterPaymentHandleView.as_view(), name="alter_payment"),
+    path("order_food_form", views.FoodFormView.as_view(), name="food_form"),
     path("reports", views.ReportsView.as_view(), name="reports"),
     path("detailed_report", views.DetailedReportView.as_view(), name="detailed_report"),
     path("main_report", views.MainReportView.as_view(), name="main_report"),

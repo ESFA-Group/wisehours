@@ -153,6 +153,11 @@ class AlterPaymentHandleView(BaseView):
 
 
 @method_decorator([staff_member_required], name="dispatch")
+class FoodFormView(BaseView):
+    template_name = "food_form.html"
+
+
+@method_decorator([staff_member_required], name="dispatch")
 class DetailedReportView(View):
 
     def get(self, request):
