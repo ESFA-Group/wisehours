@@ -1,3 +1,4 @@
+"use strict";
 //CONSTANTS************************************************
 // const TODAY = new JDate(1403, 2, 22);
 const TODAY = new JDate();
@@ -18,7 +19,7 @@ var ACTIVE_WEEK_INDEX = CURRENT_WEEK_INDEX
 
 
 
-foods = [
+const foods = [
 	{
 		num: 0,
 		name: "باقالی پلو",
@@ -76,7 +77,7 @@ foods = [
 	},
 ]
 
-var weekdays = [
+const weekdays = [
 	'شنبه',
 	'یک‌شنبه',
 	'دوشنبه',
@@ -109,7 +110,7 @@ function getWeeksOfMonth() {
 	const totalDaysInMonth = JDate.daysInMonth(year, month);
 
 	let weeksDate = []
-	shouldbreak = false;
+	let shouldbreak = false;
 	for (let i = 1; i <= totalDaysInMonth; i++) {
 		if (shouldbreak) {
 			break;
@@ -145,7 +146,7 @@ function getWeeksOfMonth() {
 function getCurrentWeek() {
 	for (const [index, week] of Object.entries(CURRENT_MONTH_WEEKS)) {
 		let startweekday = week[0]
-		dayDiff = getDayDiff(TODAY, startweekday)
+		let dayDiff = getDayDiff(TODAY, startweekday)
 		if (dayDiff <= 0 && dayDiff >= -6) {
 			return [week, index];
 		}
@@ -153,7 +154,7 @@ function getCurrentWeek() {
 }
 
 function getDayDiff(JDate1, JDate2) {
-	diff = JDate2._d.getTime() - JDate1._d.getTime()
+	let diff = JDate2._d.getTime() - JDate1._d.getTime()
 	return Math.round(diff / (1000 * 60 * 60 * 24));
 }
 
@@ -195,55 +196,18 @@ function fillFoodTablebody() {
 	}
 }
 
-function fillFoodTable() {
+async function fillFoodTable() {
 
-	// const food_data = getFoodData(ACTIVE_YEAR, ACTIVE_MONTH)
-	// const food_data = [
-	// 	{ "day": 1, "foods": [0, 9] },
-	// 	{ "day": 2, "foods": [1, 8] },
-	// 	{ "day": 3, "foods": [5, 8, 9] },
-	// 	{ "day": 6, "foods": [7, 9] },
-	// 	{ "day": 7, "foods": [4] },
-	// 	{ "day": 11, "foods": [1, 8] },
-	// 	{ "day": 12, "foods": [2, 8] },
-	// 	{ "day": 13, "foods": [3, 9] },
-	// 	{ "day": 16, "foods": [0, 10] }
-	// ]
-	const food_data = [
-		[
-			{ "day": 5, "foods": [0, 9] },
-			{ "day": 6, "foods": [5, 8, 9] },
-			{ "day": 7, "foods": [1, 8] },
-			{ "day": 9, "foods": [7, 9] }
-		],
-		[
-			{ "day": 12, "foods": [0, 9] },
-			{ "day": 13, "foods": [2] },
-			{ "day": 14, "foods": [5, 8, 10] },
-			{ "day": 16, "foods": [7, 9] }
-		],
-		[
-			{ "day": 19, "foods": [1, 8] },
-			{ "day": 20, "foods": [2, 8] },
-			{ "day": 21, "foods": [3, 9] },
-			{ "day": 22, "foods": [0, 10] },
-			{ "day": 25, "foods": [0, 10] }
-		],
-		[
-			{ "day": 26, "foods": [0, 9] },
-			{ "day": 27, "foods": [2, 8] },
-			{ "day": 28, "foods": [3] },
-			{ "day": 1, "foods": [0, 10] }
-		]
-	]
+	const food_data = await getFoodData()
+	
 
-	activeWeek_food_data = food_data[ACTIVE_WEEK_INDEX]
-	let rows = $('#foodTable tr')
+	let activeWeek_food_data = food_data[ACTIVE_WEEK_INDEX]
+	const [header, ...rows] = $('#foodTable tr')
 
 	activeWeek_food_data.forEach(dayfood => {
-		const matchingRow = rows.filter((i, r) => r.cells[0].value == dayfood.day)[0];
+		const matchingRow = rows.filter(r => r.cells[0].value == dayfood.day)[0];
 		if (matchingRow !== undefined) {
-			[day, ...checkboxes] = matchingRow.cells;
+			const [day, ...checkboxes] = matchingRow.cells;
 			for (const food of dayfood.foods) {
 				var checkbox = checkboxes[food].querySelector('input[type="checkbox"]');
 				checkbox['checked'] = true;
@@ -254,29 +218,68 @@ function fillFoodTable() {
 
 }
 
-function submitSelectedFoods() {
-	selectedFood = []
-	selectedFood = [
-		{ "day": 1, "foods": [0, 9] },
-		{ "day": 2, "foods": [1, 8] },
-		{ "day": 3, "foods": [5, 8, 9] },
-		{ "day": 6, "foods": [7, 9] },
-		{ "day": 7, "foods": [4] },
-		{ "day": 11, "foods": [1, 8] },
-		{ "day": 12, "foods": [2, 8] },
-		{ "day": 13, "foods": [3, 9] },
-		{ "day": 16, "foods": [0, 10] }
-	]
-
-	const table = $('#foodTable')[0]
-	const tableRows = table.rows
-	for (let i = 1; i < tableRows.length; i++) {
-		const row = tableRows[i];
-
+async function getFoodData() {
+	const url = `/hours/api/order_food/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+	try{
+		let res = await fetch(url);
+		return await res.json();
 	}
-	tableRows.forEach(row => {
+	catch (err){
+		jSuites.notification({
+			error: 1,
+			name: 'Error',
+			title: "Fetching Projects",
+			message: err,
+			timeout: 6000,
+		});
+	}
+}
 
+async function submitSelectedFoods() {
+	const currentWeekSelectedFood = getSelectedFoodsFromTable();
+
+    saveFoodData(currentWeekSelectedFood);
+}
+
+
+function saveFoodData(data){
+	const url = `/hours/api/order_food/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+
+	fetch(url, {
+		method: 'post',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': window.CSRF_TOKEN,
+		},
+		body: JSON.stringify({"data": data, "index": ACTIVE_WEEK_INDEX}),
+	})
+	.then(res => res.json())
+	.catch(err => {
+		jSuites.notification({
+			error: 1,
+			name: 'Error',
+			title: "Updating Sheet",
+			message: err,
+		});
 	});
+}
+
+
+function getSelectedFoodsFromTable() {
+	let currentWeekSelectedFood = [];
+	const [headerRow, ...bodyRows] = $('#foodTable tr');
+
+	for (const row of bodyRows) {
+		let selectedFoodsInRow = [];
+		const [day, ...checkboxes] = row.cells;
+		checkboxes.forEach((c, i) => {
+			if (c.querySelector('input[type="checkbox"]').checked) {
+				selectedFoodsInRow.push(i);
+			}
+		});
+		currentWeekSelectedFood.push({ "day": day.value, "foods": [...selectedFoodsInRow] });
+	}
+	return currentWeekSelectedFood;
 }
 
 function handleChangeWeek() {
@@ -318,8 +321,7 @@ $("document").ready(async function () {
 		$this.find('.cell-checkbox').prop('checked', !$this.find('.cell-checkbox').prop('checked'));
 	});
 
-	$("#submitFood").on("click", function () {
-		selectedFoodObject = submitSelectedFoods()
-		alert("Button clicked!");
+	$("#submitFood").on("click", async function () {
+		await submitSelectedFoods()
 	});
 });

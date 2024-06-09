@@ -63,7 +63,7 @@ class SheetApiView(APIView):
             sheet, created = Sheet.objects.get_or_create(
                 user=user, year=year, month=month
             )
-            if(created):
+            if created:
                 sheet.user_name = user.get_full_name()
                 sheet.wage = user.wage
                 sheet.base_payment = user.base_payment
@@ -268,7 +268,7 @@ class MonthlyReportApiView(APIView):
             sheet_sum = cls.get_sum(sheet)
             sheet_sum = projects_empty.add(sheet_sum, fill_value=0)
             projects_sum = projects_sum.add(sheet_sum, fill_value=0)
-            full_name = sheet.user.get_full_name() if sheet.user else 'Deleted User'
+            full_name = sheet.user.get_full_name() if sheet.user else "Deleted User"
             hours[full_name] = sheet_sum.apply(cls.minute_formatter).to_dict()
             wage = sheet.user.wage if sheet.user else 0
             payments[full_name] = sheet_sum.apply(
@@ -385,3 +385,20 @@ class AlterPaymentApiView(APIView):
         currentSheet.save()
 
         return Response(currentSheet.get_payment_info(), status=status.HTTP_200_OK)
+
+
+class OrderFoodApiView(APIView):
+
+    def get(self, request, year: str, month: str):
+        sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
+        sheet_food_data = sheet.food_data
+
+        return Response(sheet_food_data, status=status.HTTP_200_OK)
+
+    def post(self, request, year: str, month: str):
+        data = request.data["data"]
+        index = int(request.data["index"])
+        sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
+        sheet.food_data[index] = data
+        sheet.save()
+        return  Response(sheet.food_data, status=status.HTTP_200_OK)

@@ -73,4 +73,9 @@ urlpatterns = [
         api_views.AlterPaymentApiView.as_view(),
         name="api_alter_payment",
     ),
+    path(
+        "api/order_food/<str:year>/<str:month>",
+        api_views.OrderFoodApiView.as_view(),
+        name="api_order_food",
+    ),
 ]
