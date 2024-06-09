@@ -46,41 +46,45 @@ function fillWeeks(year, month) {
 	let weeks = getWeeksOfMonth(year, month)
 	$("#week").empty();
 	for (let i = 0; i < weeks.length; i++) {
-		$("#week").append($("<option>").text(`week${i + 1} (${weeks[i].from} --> ${weeks[i].to})`));
+		$("#week").append($("<option>").text(`week${i + 1} (${weeks[i]['0'].format('MM/DD')} --> ${weeks[i]['6'].format('MM/DD')})`));
 	}
 }
 
 function getWeeksOfMonth(year, month) {
 	const totalDaysInMonth = JDate.daysInMonth(year, month);
 
-	let weeks = [];
-
+	let weeksDate = []
+	shouldbreak = false;
 	for (let i = 1; i <= totalDaysInMonth; i++) {
+		if (shouldbreak) {
+			break;
+		}
 		let startDate = new JDate(year, month, i);
 		if (startDate.getDay() === 6) {
-			//if current date is shanbe
-			weeks.push({
-				from: startDate.format('MM/DD'),
-			});
-			i = i + 6;
-			if (i > totalDaysInMonth) {
-				month += 1;
-				if (month > 12) {
-					year += 1
-					month = 1
+			weeksDate.push({
+				0: startDate
+			})
+			for (let j = 1; j < 7; j++) {
+				i = i+1
+				if (i > totalDaysInMonth) {
+					month += 1;
+					if (month > 12) {
+						year += 1
+						month = 1
+					}
+					i = 1;
+					startDate = new JDate(year, month, i);
+
+					weeksDate[weeksDate.length - 1][j] = startDate;
+					shouldbreak = true;
+					continue;
 				}
-				i -= totalDaysInMonth;
 				startDate = new JDate(year, month, i);
-
-				weeks[weeks.length - 1]['to'] = startDate.format('MM/DD');
-				break;
+				weeksDate[weeksDate.length - 1][j] = startDate;
 			}
-			startDate = new JDate(year, month, i);
-
-			weeks[weeks.length - 1]['to'] = startDate.format('MM/DD');
 		}
 	}
-	return weeks;
+	return weeksDate;
 }
 
 function fillFoodTable() {
@@ -125,22 +129,22 @@ function fillFoodTablebody() {
 function getSelectedFoods() {
 	selectedFood = []
 	selectedFood = [
-		{day:0, selectedFoods:[0]},
-		{day:1, selectedFoods:[1, 2]},
-		{day:2, selectedFoods:[5]},
-		{day:3, selectedFoods:[]},
-		{day:4, selectedFoods:[4]},
-		{day:6, selectedFoods:[1, 5]},
+		{ day: 0, selectedFoods: [0] },
+		{ day: 1, selectedFoods: [1, 2] },
+		{ day: 2, selectedFoods: [5] },
+		{ day: 3, selectedFoods: [] },
+		{ day: 4, selectedFoods: [4] },
+		{ day: 6, selectedFoods: [1, 5] },
 	]
 
 	const table = $('#foodTable')[0]
 	const tableRows = table.rows
 	for (let i = 1; i < tableRows.length; i++) {
 		const row = tableRows[i];
-		
+
 	}
 	tableRows.forEach(row => {
-		
+
 	});
 }
 
