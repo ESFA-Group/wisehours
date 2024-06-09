@@ -156,6 +156,9 @@ function handleChangeWeek() {
 	fillFoodTable();
 }
 
+function addFoodRow() {
+}
+
 $("document").ready(async function () {
 	fillYears(ACTIVE_YEAR);
 	fillWeeks();
