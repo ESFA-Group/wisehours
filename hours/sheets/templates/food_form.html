@@ -92,21 +92,15 @@
         <br>
         <div class="container d-flex justify-content-start align-items-center">
             <div class="text-center">
-                <button id="submitFood" type="button" class="btn btn-primary">
-                    submit
+                <button id="submitFoodBtn"
+                        type="button"
+                        class="btn btn-primary  d-flex justify-content-around align-items-center">
+                    <div id="submit-food-spinner" class="spinner-border text-light me-2 d-none">
+                    </div>
+                    <span>submit</span>
                 </button>
             </div>
         </div>
-
-
-        <div class="col col-12 col-lg-8"
-             style="overflow-x: auto;
-                    border-left: 1px solid;
-                    padding-left: 10px">
-            <div id="spreadsheet">
-            </div>
-        </div>
-
     </div>
 
     <script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>

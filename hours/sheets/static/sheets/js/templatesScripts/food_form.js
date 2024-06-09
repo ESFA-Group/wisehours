@@ -172,7 +172,7 @@ function fillFoodTableHeader() {
 
 
 	foods.forEach(function (food) {
-		headersRow.append($("<th>", { dataField: food.name }).text(food.name));
+		headersRow.append($("<th>", { dataField: food.name }).html(`${food.name}<br>${food.price.toLocaleString('en-US')}`));
 	});
 	$("#foodTable thead").append(headersRow);
 }
@@ -199,7 +199,7 @@ function fillFoodTablebody() {
 async function fillFoodTable() {
 
 	const food_data = await getFoodData()
-	
+
 
 	let activeWeek_food_data = food_data[ACTIVE_WEEK_INDEX]
 	const [header, ...rows] = $('#foodTable tr')
@@ -220,11 +220,11 @@ async function fillFoodTable() {
 
 async function getFoodData() {
 	const url = `/hours/api/order_food/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
-	try{
+	try {
 		let res = await fetch(url);
 		return await res.json();
 	}
-	catch (err){
+	catch (err) {
 		jSuites.notification({
 			error: 1,
 			name: 'Error',
@@ -236,13 +236,15 @@ async function getFoodData() {
 }
 
 async function submitSelectedFoods() {
+	$("#submit-food-spinner").removeClass('d-none');
+	$("#submitFoodBtn").prop('disabled', true)
 	const currentWeekSelectedFood = getSelectedFoodsFromTable();
 
-    saveFoodData(currentWeekSelectedFood);
+	saveFoodData(currentWeekSelectedFood);
 }
 
 
-function saveFoodData(data){
+function saveFoodData(data) {
 	const url = `/hours/api/order_food/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
 
 	fetch(url, {
@@ -251,17 +253,21 @@ function saveFoodData(data){
 			'Content-Type': 'application/json',
 			'X-CSRFToken': window.CSRF_TOKEN,
 		},
-		body: JSON.stringify({"data": data, "index": ACTIVE_WEEK_INDEX}),
+		body: JSON.stringify({ "data": data, "index": ACTIVE_WEEK_INDEX }),
 	})
-	.then(res => res.json())
-	.catch(err => {
-		jSuites.notification({
-			error: 1,
-			name: 'Error',
-			title: "Updating Sheet",
-			message: err,
+		.then(res => res.json())
+		.then(() => {
+			$("#submit-food-spinner").addClass('d-none');
+			$("#submitFoodBtn").prop('disabled', false);
+		})
+		.catch(err => {
+			jSuites.notification({
+				error: 1,
+				name: 'Error',
+				title: "Updating Sheet",
+				message: err,
+			});
 		});
-	});
 }
 
 
@@ -321,7 +327,7 @@ $("document").ready(async function () {
 		$this.find('.cell-checkbox').prop('checked', !$this.find('.cell-checkbox').prop('checked'));
 	});
 
-	$("#submitFood").on("click", async function () {
+	$("#submitFoodBtn").on("click", async function () {
 		await submitSelectedFoods()
 	});
 });
