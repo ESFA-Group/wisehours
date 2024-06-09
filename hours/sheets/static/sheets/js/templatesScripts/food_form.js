@@ -17,65 +17,63 @@ var ACTIVE_WEEK = CURRENT_WEEK
 var ACTIVE_WEEK_INDEX = CURRENT_WEEK_INDEX
 
 
-
-
-const foods = [
-	{
-		num: 0,
-		name: "باقالی پلو",
-		price: 1400000,
-	},
-	{
-		num: 1,
-		name: "چلو کباب کوبیده",
-		price: 1400000,
-	},
-	{
-		num: 2,
-		name: "چلو جوجه کباب",
-		price: 1400000,
-	},
-	{
-		num: 3,
-		name: "چلو قیمه",
-		price: 1400000,
-	},
-	{
-		num: 4,
-		name: "چلو قورمه",
-		price: 1400000,
-	},
-	{
-		num: 5,
-		name: "زرشک پلو با مرغ",
-		price: 1400000,
-	},
-	{
-		num: 6,
-		name: "خوراک",
-		price: 1400000
-	},
-	{
-		num: 7,
-		name: "الویه",
-		price: 1400000
-	},
-	{
-		num: 8,
-		name: "کشک بادمجان",
-		price: 1400000
-	},
-	{
-		num: 9,
-		name: "ماست",
-		price: 1400000
-	},
-	{
-		num: 10,
-		name: "زیتون",
-		price: 1400000
-	},
-]
+// const foods = [
+// 	{
+// 		num: 0,
+// 		name: "باقالی پلو",
+// 		price: 1400000,
+// 	},
+// 	{
+// 		num: 1,
+// 		name: "چلو کباب کوبیده",
+// 		price: 1400000,
+// 	},
+// 	{
+// 		num: 2,
+// 		name: "چلو جوجه کباب",
+// 		price: 1400000,
+// 	},
+// 	{
+// 		num: 3,
+// 		name: "چلو قیمه",
+// 		price: 1400000,
+// 	},
+// 	{
+// 		num: 4,
+// 		name: "چلو قورمه",
+// 		price: 1400000,
+// 	},
+// 	{
+// 		num: 5,
+// 		name: "زرشک پلو با مرغ",
+// 		price: 1400000,
+// 	},
+// 	{
+// 		num: 6,
+// 		name: "خوراک",
+// 		price: 1400000
+// 	},
+// 	{
+// 		num: 7,
+// 		name: "الویه",
+// 		price: 1400000
+// 	},
+// 	{
+// 		num: 8,
+// 		name: "کشک بادمجان",
+// 		price: 1400000
+// 	},
+// 	{
+// 		num: 9,
+// 		name: "ماست",
+// 		price: 1400000
+// 	},
+// 	{
+// 		num: 10,
+// 		name: "زیتون",
+// 		price: 1400000
+// 	},
+// ]
 
 const weekdays = [
 	'شنبه',
@@ -87,6 +85,27 @@ const weekdays = [
 	'جمعه',
 ]
 // ********************************************************
+
+async function getRequest(url) {
+	try {
+		let response = await fetch(url);
+		return await response.json();
+	}
+	catch (err) {
+		jSuites.notification({
+			error: 1,
+			name: 'Error',
+			title: "Fetching This month's Sheet",
+			message: err,
+		});
+	}
+}
+
+async function getFoodDataDBT(year = ACTIVE_YEAR, month = ACTIVE_MONTH) {
+	const url = `/hours/api/FoodManagement/${year}/${month}`;
+	return await getRequest(url)
+}
+
 
 function fillYears() {
 	for (let i = window.START_YEAR; i <= ACTIVE_YEAR; i++) {
@@ -158,15 +177,17 @@ function getDayDiff(JDate1, JDate2) {
 	return Math.round(diff / (1000 * 60 * 60 * 24));
 }
 
-function initializeFoodTable() {
+async function initializeFoodTable() {
 	$("#foodTable tbody").empty();
 	$("#foodTable thead tr").remove();
+	let foods = await getFoodDataDBT()
 
-	fillFoodTableHeader()
+	fillFoodTableHeader(foods[0].data)
 	fillFoodTablebody()
 }
 
-function fillFoodTableHeader() {
+function fillFoodTableHeader(foods) {
+
 	var headersRow = $("<tr>");
 	headersRow.append($("<th>").text("غذا \\ روز"));
 
@@ -181,16 +202,17 @@ function fillFoodTablebody() {
 		var row = $("<tr>");
 
 		// Add day cell
-		row.append($("<td>").text(day.format("dddd")).val(day.date[2]));
+        row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]));
 
-		foods.forEach(food => {
+		const headerCount = $("#foodTable thead tr th").length
+        for (let i = 1; i < headerCount; i++) {
 			var cellContent = $("<span>");
 			cellContent.append($("<input>", {
 				type: "checkbox",
 				class: "cell-checkbox",
 			}));
 			row.append($("<td>").append(cellContent));
-		})
+		}
 
 		$("#foodTable tbody").append(row);
 	}
