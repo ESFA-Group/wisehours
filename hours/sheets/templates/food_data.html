@@ -84,16 +84,27 @@
             </div>
         </div>
         <hr>
-        <br>
 
-
-        <br>
-        <div class="container d-flex justify-content-start align-items-center">
-            <div class="text-center">
-                <button id="submitFood" type="button" class="btn btn-primary">
-                    submit
-                </button>
-            </div>
+        <div class="container mt-5">
+            <h2>Food and Price Input Form</h2>
+            <form>
+                <div id="dynamicInputFields">
+                    <!-- Initial row(s) go here -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="food1">Food Item 1:</label>
+                            <input type="text" class="form-control" id="food1" placeholder="Enter food item">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="price1">Price:</label>
+                            <input type="number" class="form-control" id="price1" placeholder="Enter price">
+                        </div>
+                    </div>
+                    <!-- Additional rows will be appended here -->
+                </div>
+                <button type="button" class="btn btn-success mt-3" onclick="addRow()">+</button>
+                <button type="submit" class="btn btn-primary mt-3 ml-2">Submit</button>
+            </form>
         </div>
 
     </div>
@@ -103,5 +114,5 @@
     <script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
     <script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
     <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
-    <script src="{% static 'sheets/js/templatesScripts/food_form.js' %}"></script>
+    <script src="{% static 'sheets/js/templatesScripts/food_data.js' %}"></script>
 {% endblock body %}
