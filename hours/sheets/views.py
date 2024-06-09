@@ -389,6 +389,8 @@ class PaymentExcelExportView(View):
 
         payments_info = []
         for sheet in sheets:
+            if sheet.user == None:
+                continue
             payment_info = {
                 "userID": sheet.user_id,
                 "user": sheet.user.get_full_name(),
