@@ -52,7 +52,7 @@
 
             <div class="row">
 
-                <div class="col col-12 col-lg-4 mb-2 card-container">
+                <div class="col col-12 col-lg-3 mb-2 card-container">
                     <a href="{% url 'sheets:hours' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -67,7 +67,22 @@
                     </a>
                 </div>
 
-                <div class="col col-12 col-lg-4 mb-2 card-container">
+                <div class="col col-12 col-lg-3 mb-2 card-container">
+                    <a href="{% url 'sheets:food_form' %}" class="card-link">
+                        <div class="card mx-3" style="width: 19rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    Food
+                                </h5>
+                                <p class="card-text">
+                                    Get food delivered
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col col-12 col-lg-3 mb-2 card-container">
                     <a href="{% url 'sheets:hours_info' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -82,7 +97,7 @@
                     </a>
                 </div>
 
-                <div class="col col-12 col-lg-4 mb-2 card-container">
+                <div class="col col-12 col-lg-3 mb-2 card-container">
                     <a href="{% url 'sheets:personal_info' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -113,8 +128,8 @@
                        href="{% url 'sheets:alter_payment' %}"
                        style="width: 200px">Alter Payments</a>
                     <a class="btn btn-info"
-                       href="{% url 'sheets:food_form' %}"
-                       style="width: 200px">Food</a>
+                       href="{% url 'sheets:food_data' %}"
+                       style="width: 200px">Food Data</a>
                 </div>
             {% endif %}
 

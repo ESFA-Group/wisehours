@@ -152,9 +152,12 @@ class AlterPaymentHandleView(BaseView):
     template_name = "alter_payment.html"
 
 
-@method_decorator([staff_member_required], name="dispatch")
 class FoodFormView(BaseView):
     template_name = "food_form.html"
+
+@method_decorator([staff_member_required], name="dispatch")
+class FoodDataView(BaseView):
+    template_name = "food_data.html"
 
 
 @method_decorator([staff_member_required], name="dispatch")
