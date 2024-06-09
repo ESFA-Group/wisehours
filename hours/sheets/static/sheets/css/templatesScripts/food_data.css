@@ -18,4 +18,18 @@
     --active_color: #007aff;
 }
 
-#
+.modal-dialog {
+    max-width: 40%; 
+}
+.modal-content {
+    height: 60vh; 
+}
+.modal-body {
+    overflow-y: auto;
+}
+.modal-body .row {
+    margin-bottom: 1rem;
+}
+.btn-danger {
+    margin-left: 10px;
+}

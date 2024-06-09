@@ -72,16 +72,16 @@ const foods = [
 
 // ********************************************************
 
-function fillYears() {
-	for (let i = window.START_YEAR; i <= ACTIVE_YEAR; i++) {
+function fillYears(year = ACTIVE_YEAR) {
+	for (let i = window.START_YEAR; i <= year; i++) {
 		$("#year").append($("<option>").text(i));
 	}
 }
 
-async function getDBTable(url) {
+async function getRequest(url) {
 	try {
-		let res = await fetch(url);
-		return await res.json();
+		let response = await fetch(url);
+		return await response.json();
 	}
 	catch (err) {
 		jSuites.notification({
@@ -93,30 +93,70 @@ async function getDBTable(url) {
 	}
 }
 
+async function postRequest(url, data) {
+	try {
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': window.CSRF_TOKEN,
+			},
+			body: JSON.stringify(data)
+		});
+		return await response.json()
+	} catch (err) {
+		jSuites.notification({
+			error: 1,
+			name: 'Error',
+			title: "Updating Sheet",
+			message: err,
+		});
+	}
+}
+
+async function putRequest(url, data) {
+	try {
+		const response = await fetch(url, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': window.CSRF_TOKEN,
+			},
+			body: JSON.stringify(data)
+		});
+		return await response.json()
+	} catch (err) {
+		jSuites.notification({
+			error: 1,
+			name: 'Error',
+			title: "Updating Sheet",
+			message: err,
+		});
+	}
+}
+
 async function getSheetDBT(year, month) {
 	const url = `/hours/api/sheets/${year}/${month}`;
-	return await getDBTable(url)
+	return await getRequest(url)
 }
 
 
-async function getFoodDataDBT(year, month) {
+async function getFoodDataDBT(year = ACTIVE_YEAR, month = ACTIVE_MONTH) {
 	const url = `/hours/api/FoodManagement/${year}/${month}`;
-	return await getDBTable(url)
-	// return [
-	// 	{ "day": 1, "data": [{ "id": 0, "name": "steakd", "price": 250 }, { "id": 1, "name": "kebab", "price": 100 }, { "id": 2, "name": "chicken", "price": 80 }, { "id": 3, "name": "coca", "price": 10 }] },
-	// 	{ "day": 17, "data": [{ "id": 0, "name": "steakd", "price": 500 }, { "id": 1, "name": "kebab", "price": 222 }, { "id": 2, "name": "chicken", "price": 150 }, { "id": 3, "name": "coca", "price": 21 }] }
-	// ];
+	return await getRequest(url)
 }
 
-function saveFoodDataDBT(fooddata){
-	
+async function saveFoodDataDBT(fooddata) {
+	const url = `/hours/api/FoodManagement/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+
+	let res = await putRequest(url, fooddata);
 }
 
 async function renderSheet(food_data) {
 	resetFoodSheet();
 
 	let foodColumns = []
-	if (typeof food_data[0] === 'object' && food_data[0].hasOwnProperty('data')){
+	if (typeof food_data[0] === 'object' && food_data[0].hasOwnProperty('data')) {
 		foodColumns = food_data[0].data.map(foodItem => ({
 			type: 'numeric',
 			title: foodItem.name,
@@ -155,7 +195,7 @@ async function renderSheet(food_data) {
 				cell.style.color = 'red';
 			}
 
-			const todayIndex = TODAY.getDate() - 1; // Example: disable rows 1, 3, and 5
+			const todayIndex = TODAY.getDate() - 1;
 			if (y < todayIndex) {
 				cell.classList.add('readonly');
 				cell.setAttribute('readonly', 'readonly');
@@ -183,20 +223,21 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 	const day = +y + 1;
 
 	let index;
+	let foodDataLastIndex = food_data.length - 1
 	if ((index = food_data.findIndex(item => item.day === day)) !== -1) {
-		let last_data = food_data.at(index).data;
-		last_data[foodid].price = +value;
+		updateFoodsPrice();
 		removeDuplicates(food_data)
-		saveFoodDataDBT(fooddata);
+		saveFoodDataDBT(food_data);
 		renderSheet(food_data);
 	}
 	else if (day < food_data.at(-1).day) {
-		const newItem = findAndCopyLastLessThan(food_data, day);
+		const [newIndex, newItem] = findAndCopyLastLessThan(food_data, day);
 		newItem.day = day;
 		newItem.data[foodid].price = +value;
-		food_data.push(newItem)
-		food_data.sort((a, b) => a.day - b.day);
-		saveFoodDataDBT(fooddata);
+		food_data.splice(newIndex, 0, newItem);
+		index = newIndex+1;
+		updateFoodsPrice()
+		saveFoodDataDBT(food_data);
 		renderSheet(food_data);
 	}
 	else {
@@ -204,8 +245,15 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 		new_data.day = day;
 		new_data.data[foodid].price = +value;
 		food_data.push(new_data);
-		saveFoodDataDBT(fooddata);
+		saveFoodDataDBT(food_data);
 		renderSheet(food_data);
+	}
+
+	function updateFoodsPrice() {
+		do {
+			food_data.at(index).data[foodid].price = (+value);
+			index += 1;
+		} while (index<= foodDataLastIndex && food_data.at(index).data[foodid].price < +value);
 	}
 }
 
@@ -233,7 +281,7 @@ function findAndCopyLastLessThan(array, newDay) {
 		const item = array[i];
 
 		if (item.day < newDay) {
-			return JSON.parse(JSON.stringify(item));
+			return [i+1, JSON.parse(JSON.stringify(item))];
 		}
 	}
 	return null;
@@ -284,17 +332,89 @@ function mergeMonthDataWithFoodData(monthData, foodData) {
 }
 
 
+function editFoodsClick() {
+	fillEditFoodsFormFromDB()
+	$("#foodNamesModal").modal('show')
+}
+
+async function fillEditFoodsFormFromDB() {
+	let res = await getFoodDataDBT()
+	if (typeof res[0] === 'object' && res[0].hasOwnProperty('data')) {
+		$('#dynamicInputFields').empty();
+		for (let food of res[0].data) {
+			foodItemCount = food.id
+			addEmptyFoodRow()
+			fillFoodRow(food.id, food.name)
+		}
+	}
+}
+
+var foodItemCount = 1;
+function addEmptyFoodRow() {
+	const newRow = `
+	<div class="d-flex align-items-end mx-1" id="row${foodItemCount}">
+		<div class="flex-grow-1">
+			<label for="food${foodItemCount}">Food Item ${foodItemCount}:</label>
+			<input type="text" class="form-control" id="food${foodItemCount}" placeholder="Enter food item">
+		</div>
+		<div class="ml-2">
+			<button type="button" class="btn btn-danger" onclick="deleteFoodRow(${foodItemCount})">—</button>
+		</div>
+	</div>
+	`;
+
+
+	$('#dynamicInputFields').append(newRow);
+	foodItemCount++;
+}
+
+function fillFoodRow(id, name) {
+	$(`#food${id}`).val(name);
+}
+
+function deleteFoodRow(rowId) {
+	$(`#row${rowId}`).remove();
+}
+
+async function updateFoodClick() {
+	const url = `/hours/api/FoodManagement/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+	const data = getModalFormFoodData()
+
+	let res = await postRequest(url, data);
+	renderSheet(res)
+}
+
+function getModalFormFoodData() {
+	let foodData = {};
+
+	for (let i = 1; i <= foodItemCount; i++) {
+		let foodInput = document.getElementById(`food${i}`);
+
+		if (foodInput) {
+			let foodValue = foodInput.value;
+
+			foodData[i] = foodValue;
+		}
+	}
+
+	return foodData;
+}
+
+
 
 $("document").ready(async function () {
-	fillYears(ACTIVE_YEAR);
-	const food_data = await getFoodDataDBT(ACTIVE_YEAR, ACTIVE_MONTH)
+	fillYears();
+	const food_data = await getFoodDataDBT()
 	renderSheet(food_data)
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
 
 
-	$("#year, #month").change(function () {
+	$("#year, #month").change(async function () {
 		ACTIVE_YEAR = $("#year").val()
 		ACTIVE_MONTH = $("#month").val()
+
+		const food_data = await getFoodDataDBT()
+		renderSheet(food_data)
 	});
 });

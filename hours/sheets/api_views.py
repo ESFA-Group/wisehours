@@ -409,30 +409,66 @@ class FoodManagementApiView(APIView):
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
 
         if created:
-            try:
-                last_food_data = Food_data.objects.last()
-                food_data.data = last_food_data.data
-            except Food_data.DoesNotExist:
-                print("error")
-                # Handle the case where there is no last data
-                # food_data.data = [
-                #     {
-                #         "day": 1,
-                #         "data": [
-                #             {"id": 0, "name": "زرشک پلو با مرغ", "price": 1290000},
-                #             {"id": 1, "name": "چلوکباب لقمه", "price": 1190000},
-                #             {"id": 2, "name": "چلوجوجه سینه", "price": 1190000},
-                #             {"id": 3, "name": "چلوخورشت قیمه سیب زمینی", "price": 1190000},
-                #             {"id": 4, "name": "چلوخورشت قورمه سبزی", "price": 1190000},
-                #             {"id": 5, "name": "خوراک لقمه با دورچین", "price": 1190000},
-                #             {"id": 6, "name": "خوراک جوجه با دورچین", "price": 1190000},
-                #             {"id": 7, "name": "خوراک مرغ با دورچین", "price": 1190000},
-                #         ],
-                #     }
-                # ]
+            last_food_data = Food_data.objects.last()
+            food_data.data = last_food_data.data
 
-        # Return the data as a JSON response
         return Response(food_data.data, status=status.HTTP_200_OK)
 
     def post(self, request, year: str, month: str):
-        return HttpResponse("POST request!")
+        submittedFoodNames = request.data
+        food_data = Food_data.objects.get(year=year, month=month)
+
+        if not food_data.data:
+            food_data.data = [
+                {
+                    "day": 1,
+                    "data": [
+                        {"id": int(key), "name": name, "price": 0}
+                        for key, name in submittedFoodNames.items()
+                    ],
+                }
+            ]
+        else:
+            submitted_ids = {int(key) for key in submittedFoodNames.keys()}
+
+            for db_record in food_data.data:
+                existing_items = {item["id"]: item for item in db_record["data"]}
+
+                for key, name in submittedFoodNames.items():
+                    food_id = int(key)
+                    existing_item = existing_items.get(food_id)
+                    if existing_item:
+                        existing_item["name"] = name
+                    else:
+                        db_record["data"].append(
+                            {"id": food_id, "name": name, "price": 0}
+                        )
+
+                # Remove items from the database that are not in the submitted data
+                db_record["data"] = [
+                    item for item in db_record["data"] if item["id"] in submitted_ids
+                ]
+
+        food_data.save()
+
+        return Response(food_data.data, status=status.HTTP_200_OK)
+
+    def put(self, request, year: str, month: str):
+        submittedFooddata = request.data
+        food_data = Food_data.objects.get(year=year, month=month)
+
+        if not food_data.data:
+            food_data.data = [
+                {
+                    "day": 1,
+                    "data": [
+                        {"id": int(key), "name": name, "price": 0}
+                        for key, name in submittedFooddata.items()
+                    ],
+                }
+            ]
+        else:
+            food_data.data = submittedFooddata
+        food_data.save()
+
+        return Response(food_data.data, status=status.HTTP_200_OK)
