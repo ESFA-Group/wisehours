@@ -231,7 +231,9 @@ function fillFoodTablebody() {
 async function fillFoodTable() {
 
 	const food_data = await getFoodData()
-
+	if (food_data.length == 0) {
+		return;
+	}
 
 	let activeWeek_food_data = food_data[ACTIVE_WEEK_INDEX]
 	const [header, ...rows] = $('#foodTable tr')
@@ -247,7 +249,6 @@ async function fillFoodTable() {
 			}
 		}
 	});
-
 }
 
 async function getFoodData() {
@@ -293,6 +294,9 @@ function saveFoodData(data) {
 			$("#submitFoodBtn").prop('disabled', false);
 		})
 		.catch(err => {
+			$("#submit-food-spinner").addClass('d-none');
+			$("#submitFoodBtn").prop('disabled', false);
+			
 			jSuites.notification({
 				error: 1,
 				name: 'Error',
@@ -351,12 +355,11 @@ $("document").ready(async function () {
 		handleChangeWeek();
 	});
 
-	$('.cell-checkbox').parent().parent().click(function (e) {
-		if ($(e.target).is('.cell-checkbox')) {
-			return;
+	$("#foodTable tbody").on("click", "td", function(e) {
+		if (!$(e.target).is('.cell-checkbox')) {
+			var $checkbox = $(this).find('.cell-checkbox');
+			$checkbox.prop('checked', !$checkbox.prop('checked'));
 		}
-		var $this = $(this);
-		$this.find('.cell-checkbox').prop('checked', !$this.find('.cell-checkbox').prop('checked'));
 	});
 
 	$("#submitFoodBtn").on("click", async function () {

@@ -399,9 +399,14 @@ class OrderFoodApiView(APIView):
         data = request.data["data"]
         index = int(request.data["index"])
         sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
-        sheet.food_data[index] = data
-        sheet.save()
+        self.updateSheetFoodData(data, index, sheet)
         return Response(sheet.food_data, status=status.HTTP_200_OK)
+
+    def updateSheetFoodData(self, data, i, sheet):
+        while len(sheet.food_data) < i:
+            sheet.food_data.append([])
+        sheet.food_data[i] = data
+        sheet.save()
 
 
 class FoodManagementApiView(APIView):
