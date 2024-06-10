@@ -182,8 +182,18 @@ async function initializeFoodTable() {
 	$("#foodTable thead tr").remove();
 	let foods = await getFoodDataDBT()
 
-	fillFoodTableHeader(foods[0].data)
+	let foodData = findLastFoodPriceDataOfTheWeek(foods)
+	fillFoodTableHeader(foodData.data)
 	fillFoodTablebody()
+}
+
+function findLastFoodPriceDataOfTheWeek(dailyFoodsData) {
+	let currentWeekFirstDay = ACTIVE_WEEK[0].getDate();
+	for (let i = dailyFoodsData.length - 1; i >= 0; i--) {
+		const foodData = dailyFoodsData[i];
+		if( foodData.day <= currentWeekFirstDay)
+			return foodData;
+	}
 }
 
 function fillFoodTableHeader(foods) {
@@ -202,10 +212,10 @@ function fillFoodTablebody() {
 		var row = $("<tr>");
 
 		// Add day cell
-        row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]));
+		row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]));
 
 		const headerCount = $("#foodTable thead tr th").length
-        for (let i = 1; i < headerCount; i++) {
+		for (let i = 1; i < headerCount; i++) {
 			var cellContent = $("<span>");
 			cellContent.append($("<input>", {
 				type: "checkbox",

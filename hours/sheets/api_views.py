@@ -406,11 +406,14 @@ class OrderFoodApiView(APIView):
 
 class FoodManagementApiView(APIView):
     def get(self, request, year: str, month: str):
+        last_food_data = Food_data.objects.last()
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
 
-        if created:
-            last_food_data = Food_data.objects.last()
-            food_data.data = last_food_data.data
+        if created and last_food_data is not None and len(last_food_data.data) > 0:
+            newfooddata = last_food_data.data[-1]
+            newfooddata["day"] = 1
+            food_data.data = [newfooddata]
+            food_data.save()
 
         return Response(food_data.data, status=status.HTTP_200_OK)
 
