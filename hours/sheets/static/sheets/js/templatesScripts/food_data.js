@@ -332,9 +332,14 @@ function mergeMonthDataWithFoodData(monthData, foodData) {
 }
 
 
-function editFoodsClick() {
+function editFoodsBtnClick() {
 	fillEditFoodsFormFromDB()
 	$("#foodNamesModal").modal('show')
+}
+
+function FoodsOrderBtnClick() {
+	fillFoodsOrderFromDB()
+	$("#foodsOrderModal").modal('show')
 }
 
 async function fillEditFoodsFormFromDB() {
@@ -346,6 +351,42 @@ async function fillEditFoodsFormFromDB() {
 			addEmptyFoodRow()
 			fillFoodRow(food.id, food.name)
 		}
+	}
+}
+
+async function fillFoodsOrderFromDB() {
+	$("#orderList tbody").empty();
+	// let data = [
+	// 	{
+	// 		name: "قیمه",
+	// 		count: 2
+	// 	},
+	// 	{
+	// 		name: "قورمه",
+	// 		count: 1
+	// 	},
+	// 	{
+	// 		name: "کباب",
+	// 		count: 1
+	// 	},
+	// 	{
+	// 		name: "ماست",
+	// 		count: 3
+	// 	}
+	// ]
+
+	const url = `/hours/api/daily_foods_order/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${TODAY.getDate()}`;
+	const data = await getRequest(url);
+
+
+	for (let item of data) {
+		var newRow =`
+			<tr>
+				<td>${item.name}</td>
+				<td>${item.count}</td>
+			</tr>
+		`;
+		$("#orderList tbody").append(newRow);
 	}
 }
 

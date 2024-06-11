@@ -33,3 +33,6 @@
 .btn-danger {
     margin-left: 10px;
 }
+.table th {
+    border-bottom: 2px solid black !important;
+}

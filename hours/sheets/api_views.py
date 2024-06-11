@@ -480,3 +480,22 @@ class FoodManagementApiView(APIView):
         food_data.save()
 
         return Response(food_data.data, status=status.HTTP_200_OK)
+
+
+class DailyFoodsOrder(APIView):
+
+    def get(self, request, year: str, month: str, day: str):
+        from django.db.models import Q
+
+        sheets = Sheet.objects.filter(year=year, month=month).exclude(food_data=[])
+        food_data = Food_data.objects.get(year=year, month=month)
+        food_data = food_data.data[0]['data']
+
+        
+        d = [
+            {"id": 0, "name": "قیمه", "count": 2},
+            {"id": 2, "name": "قورمه", "count": 1},
+            {"id": 3, "name": "کباب", "count": 1},
+            {"id": 5, "name": "ماست", "count": 3},
+        ]
+        return Response(d, status=status.HTTP_200_OK)
