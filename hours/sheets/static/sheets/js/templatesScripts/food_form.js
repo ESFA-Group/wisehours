@@ -191,7 +191,7 @@ function findLastFoodPriceDataOfTheWeek(dailyFoodsData) {
 	let currentWeekFirstDay = ACTIVE_WEEK[0].getDate();
 	for (let i = dailyFoodsData.length - 1; i >= 0; i--) {
 		const foodData = dailyFoodsData[i];
-		if( foodData.day <= currentWeekFirstDay)
+		if (foodData.day <= currentWeekFirstDay)
 			return foodData;
 	}
 }
@@ -203,7 +203,14 @@ function fillFoodTableHeader(foods) {
 
 
 	foods.forEach(function (food) {
-		headersRow.append($("<th>", { dataField: food.name }).html(`${food.name}<br>${food.price.toLocaleString('en-US')}`));
+		headersRow.append(`
+			<th data-id="${food.id}">
+				<div class="d-flex flex-column">
+					<span>${food.name}</span>
+					<span>${food.price.toLocaleString('en-US')}</span>
+				</div>
+			</th>`
+		);
 	});
 	$("#foodTable thead").append(headersRow);
 }
@@ -242,8 +249,8 @@ async function fillFoodTable() {
 		const matchingRow = rows.filter(r => r.cells[0].value == dayfood.day)[0];
 		if (matchingRow !== undefined) {
 			const [day, ...checkboxes] = matchingRow.cells;
-			for (const food of dayfood.foods) {
-				var checkbox = checkboxes[food].querySelector('input[type="checkbox"]');
+			for (const foodId of dayfood.foods) {
+				var checkbox = checkboxes.find((c, i) => $(header.cells[i + 1]).attr('data-id') === foodId).querySelector('input[type="checkbox"]');
 				checkbox['checked'] = true;
 				continue;
 			}
@@ -296,7 +303,7 @@ function saveFoodData(data) {
 		.catch(err => {
 			$("#submit-food-spinner").addClass('d-none');
 			$("#submitFoodBtn").prop('disabled', false);
-			
+
 			jSuites.notification({
 				error: 1,
 				name: 'Error',
@@ -316,7 +323,9 @@ function getSelectedFoodsFromTable() {
 		const [day, ...checkboxes] = row.cells;
 		checkboxes.forEach((c, i) => {
 			if (c.querySelector('input[type="checkbox"]').checked) {
-				selectedFoodsInRow.push(i);
+				let headerCell = headerRow.cells[i + 1]; // Adjusted index to skip day column
+				let foodId = $(headerCell).attr('data-id');
+				selectedFoodsInRow.push(foodId);
 			}
 		});
 		currentWeekSelectedFood.push({ "day": day.value, "foods": [...selectedFoodsInRow] });
@@ -355,7 +364,7 @@ $("document").ready(async function () {
 		handleChangeWeek();
 	});
 
-	$("#foodTable tbody").on("click", "td", function(e) {
+	$("#foodTable tbody").on("click", "td", function (e) {
 		if (!$(e.target).is('.cell-checkbox')) {
 			var $checkbox = $(this).find('.cell-checkbox');
 			$checkbox.prop('checked', !$checkbox.prop('checked'));
