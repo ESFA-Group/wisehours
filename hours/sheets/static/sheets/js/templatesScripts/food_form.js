@@ -335,26 +335,23 @@ function getSelectedFoodsFromTable() {
 	return currentWeekSelectedFood;
 }
 
-function handleChangeWeek() {
+async function handleChangeWeek() {
 	ACTIVE_WEEK_INDEX = $("#week").val();
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
-	initializeFoodTable()
-	fillFoodTable();
+	await initializeFoodTable()
+	await fillFoodTable();
 }
 
 $("document").ready(async function () {
 
 	fillYears(ACTIVE_YEAR);
 	fillWeeks();
-	initializeFoodTable()
-	fillFoodTable()
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
 	$("#week").val(CURRENT_WEEK_INDEX);
+	handleChangeWeek()
 
 	$("#current-sheet-date").text(`${ACTIVE_YEAR}/${ACTIVE_MONTH}`);
-
-
 
 	$("#year, #month").change(function () {
 		ACTIVE_YEAR = $("#year").val()
@@ -362,6 +359,7 @@ $("document").ready(async function () {
 		fillWeeks();
 		handleChangeWeek()
 	});
+	
 	$("#week").change(function () {
 		handleChangeWeek();
 	});
