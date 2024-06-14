@@ -85,7 +85,7 @@ urlpatterns = [
         name="api_order_food",
     ),
     path(
-        "api/daily_foods_order/<str:year>/<str:month>/<str:day>",
+        "api/daily_foods_order/<str:year>/<str:month>/<str:weekIndex>/<str:day>",
         api_views.DailyFoodsOrder.as_view(),
         name="api_daily_foods_order",
     ),

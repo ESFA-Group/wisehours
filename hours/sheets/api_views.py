@@ -391,20 +391,20 @@ class OrderFoodApiView(APIView):
 
     def get(self, request, year: str, month: str):
         sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
-        sheet_food_data = sheet.food_data
-
-        return Response(sheet_food_data, status=status.HTTP_200_OK)
+        return Response(sheet.food_data, status=status.HTTP_200_OK)
 
     def post(self, request, year: str, month: str):
+        print("called_________")
         data = request.data["data"]
         index = int(request.data["index"])
         sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
+        print(f"before updateSheetFoodData: {len(sheet.food_data)}")
         self.updateSheetFoodData(data, index, sheet)
         return Response(sheet.food_data, status=status.HTTP_200_OK)
 
     def updateSheetFoodData(self, data, i, sheet):
-        while len(sheet.food_data) < i:
-            sheet.food_data.append([])
+        if i >= len(sheet.food_data):
+            sheet.food_data.extend([None] * (i + 1 - len(sheet.food_data)))
         sheet.food_data[i] = data
         sheet.save()
 
@@ -484,18 +484,24 @@ class FoodManagementApiView(APIView):
 
 class DailyFoodsOrder(APIView):
 
-    def get(self, request, year: str, month: str, day: str):
-        from django.db.models import Q
-
+    def get(self, request, year: str, month: str, weekIndex: str, day: str):
         sheets = Sheet.objects.filter(year=year, month=month).exclude(food_data=[])
         food_data = Food_data.objects.get(year=year, month=month)
-        food_data = food_data.data[0]['data']
+        food_data = food_data.data[0]["data"]
 
-        
-        d = [
-            {"id": 0, "name": "قیمه", "count": 2},
-            {"id": 2, "name": "قورمه", "count": 1},
-            {"id": 3, "name": "کباب", "count": 1},
-            {"id": 5, "name": "ماست", "count": 3},
-        ]
+        d = [{"id": item["id"], "name": item["name"], "count": 0} for item in food_data]
+
+        for sh in sheets:
+            if sh.food_data is not []:
+                TargetWeekFoodData = sh.food_data[int(weekIndex)]
+                selectedFoods = next(
+                    item for item in TargetWeekFoodData if item["day"] == day
+                )
+                self.update_counts(d, selectedFoods["foods"])
+
         return Response(d, status=status.HTTP_200_OK)
+
+    def update_counts(self, items, ids):
+        for item in items:
+            if item["id"] in ids:
+                item["count"] += 1

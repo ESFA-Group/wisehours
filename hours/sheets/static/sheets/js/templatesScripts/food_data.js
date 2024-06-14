@@ -1,7 +1,7 @@
 "use strict";
 //CONSTANTS************************************************
 const TODAY = new JDate();
-// const TODAY = new JDate(1403, 2, 22);
+TODAY._d.setHours(0, 0, 0, 0)
 
 
 const CURRENT_YEAR = TODAY.getFullYear();
@@ -10,65 +10,9 @@ var ACTIVE_YEAR = CURRENT_YEAR;
 const CURRENT_MONTH = TODAY.getMonth();
 var ACTIVE_MONTH = CURRENT_MONTH
 
+const CURRENT_MONTH_WEEKS = getWeeksOfMonth()
 
-
-const foods = [
-	{
-		num: 0,
-		name: "باقالی پلو",
-		price: 1400000,
-	},
-	{
-		num: 1,
-		name: "چلو کباب کوبیده",
-		price: 1400000,
-	},
-	{
-		num: 2,
-		name: "چلو جوجه کباب",
-		price: 1400000,
-	},
-	{
-		num: 3,
-		name: "چلو قیمه",
-		price: 1400000,
-	},
-	{
-		num: 4,
-		name: "چلو قورمه",
-		price: 1400000,
-	},
-	{
-		num: 5,
-		name: "زرشک پلو با مرغ",
-		price: 1400000,
-	},
-	{
-		num: 6,
-		name: "خوراک",
-		price: 1400000
-	},
-	{
-		num: 7,
-		name: "الویه",
-		price: 1400000
-	},
-	{
-		num: 8,
-		name: "کشک بادمجان",
-		price: 1400000
-	},
-	{
-		num: 9,
-		name: "ماست",
-		price: 1400000
-	},
-	{
-		num: 10,
-		name: "زیتون",
-		price: 1400000
-	},
-]
+const [CURRENT_WEEK, CURRENT_WEEK_INDEX] = getCurrentWeek()
 
 // ********************************************************
 
@@ -76,6 +20,60 @@ function fillYears(year = ACTIVE_YEAR) {
 	for (let i = window.START_YEAR; i <= year; i++) {
 		$("#year").append($("<option>").text(i));
 	}
+}
+
+function getWeeksOfMonth() {
+	let year = ACTIVE_YEAR
+	let month = ACTIVE_MONTH
+	const totalDaysInMonth = JDate.daysInMonth(year, month);
+
+	let weeksDate = []
+	let shouldbreak = false;
+	for (let i = 1; i <= totalDaysInMonth; i++) {
+		if (shouldbreak) {
+			break;
+		}
+		let startDate = new JDate(year, month, i);
+		if (startDate.getDay() === 6) {
+			weeksDate.push({
+				0: startDate
+			})
+			for (let j = 1; j < 7; j++) {
+				i = i + 1
+				if (i > totalDaysInMonth) {
+					month += 1;
+					if (month > 12) {
+						year += 1
+						month = 1
+					}
+					i = 1;
+					startDate = new JDate(year, month, i);
+
+					weeksDate[weeksDate.length - 1][j] = startDate;
+					shouldbreak = true;
+					continue;
+				}
+				startDate = new JDate(year, month, i);
+				weeksDate[weeksDate.length - 1][j] = startDate;
+			}
+		}
+	}
+	return weeksDate;
+}
+
+function getCurrentWeek() {
+	for (const [index, week] of Object.entries(CURRENT_MONTH_WEEKS)) {
+		let startweekday = week[0]
+		let dayDiff = getDayDiff(TODAY, startweekday)
+		if (dayDiff <= 0 && dayDiff >= -6) {
+			return [week, index];
+		}
+	};
+}
+
+function getDayDiff(JDate1, JDate2) {
+	let diff = JDate2._d.getTime() - JDate1._d.getTime()
+	return Math.round(diff / (1000 * 60 * 60 * 24));
 }
 
 async function getRequest(url) {
@@ -356,26 +354,8 @@ async function fillEditFoodsFormFromDB() {
 
 async function fillFoodsOrderFromDB() {
 	$("#orderList tbody").empty();
-	// let data = [
-	// 	{
-	// 		name: "قیمه",
-	// 		count: 2
-	// 	},
-	// 	{
-	// 		name: "قورمه",
-	// 		count: 1
-	// 	},
-	// 	{
-	// 		name: "کباب",
-	// 		count: 1
-	// 	},
-	// 	{
-	// 		name: "ماست",
-	// 		count: 3
-	// 	}
-	// ]
 
-	const url = `/hours/api/daily_foods_order/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${TODAY.getDate()}`;
+	const url = `/hours/api/daily_foods_order/${CURRENT_YEAR}/${CURRENT_MONTH}/${CURRENT_WEEK_INDEX}/${TODAY.getDate()}`;
 	const data = await getRequest(url);
 
 

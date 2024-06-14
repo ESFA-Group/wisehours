@@ -2,6 +2,8 @@
 //CONSTANTS************************************************
 // const TODAY = new JDate(1403, 2, 22);
 const TODAY = new JDate();
+TODAY._d.setHours(0, 0, 0, 0)
+
 
 const CURRENT_YEAR = TODAY.getFullYear();
 var ACTIVE_YEAR = CURRENT_YEAR;
@@ -250,7 +252,7 @@ async function fillFoodTable() {
 		if (matchingRow !== undefined) {
 			const [day, ...checkboxes] = matchingRow.cells;
 			for (const foodId of dayfood.foods) {
-				var checkbox = checkboxes.find((c, i) => $(header.cells[i + 1]).attr('data-id') === foodId).querySelector('input[type="checkbox"]');
+				var checkbox = checkboxes.find((c, i) => $(header.cells[i + 1]).attr('data-id') == foodId).querySelector('input[type="checkbox"]');
 				checkbox['checked'] = true;
 				continue;
 			}
@@ -325,7 +327,7 @@ function getSelectedFoodsFromTable() {
 			if (c.querySelector('input[type="checkbox"]').checked) {
 				let headerCell = headerRow.cells[i + 1]; // Adjusted index to skip day column
 				let foodId = $(headerCell).attr('data-id');
-				selectedFoodsInRow.push(foodId);
+				selectedFoodsInRow.push(parseInt(foodId));
 			}
 		});
 		currentWeekSelectedFood.push({ "day": day.value, "foods": [...selectedFoodsInRow] });
