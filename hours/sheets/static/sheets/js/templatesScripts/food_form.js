@@ -185,7 +185,12 @@ async function initializeFoodTable() {
 	let foods = await getFoodDataDBT()
 
 	let foodData = findLastFoodPriceDataOfTheWeek(foods)
-	fillFoodTableHeader(foodData.data)
+	if(foodData === undefined){
+		fillFoodTableHeader([])
+	}
+	else{
+		fillFoodTableHeader(foodData.data)
+	}
 	fillFoodTablebody()
 }
 
@@ -238,7 +243,6 @@ function fillFoodTablebody() {
 }
 
 async function fillFoodTable() {
-
 	const food_data = await getFoodData()
 	if (food_data.length == 0) {
 		return;
@@ -340,6 +344,42 @@ async function handleChangeWeek() {
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
 	await initializeFoodTable()
 	await fillFoodTable();
+	desablePreviousDays()
+}
+
+function desablePreviousDays() {
+	let tableRows = $("#foodTable tbody tr")
+	let mode = "desableWholeWeek"
+
+	let diff = ACTIVE_WEEK[0]._d - CURRENT_WEEK[0]._d;
+
+	if(diff === 0){//current week
+		if (mode == "desableWholeWeek") {
+			disableWeekChechboxes(tableRows);
+		}
+		else {
+			let today = new Date();
+			let disableUntil = today.getDay() + 1;  // Get the current day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+			if (today.getHours() >= 12) {  // Check if the current hour is 12 PM or later
+				disableUntil += 1;
+			}
+	
+	
+			for (let i = 0; i < disableUntil; i++) {
+				let checkboxes = $(tableRows[i]).find("input[type='checkbox']");
+				checkboxes.prop("disabled", true);
+			}
+		}
+	}
+	else if(diff < 0){//past weeks
+		disableWeekChechboxes(tableRows)
+	}
+}
+function disableWeekChechboxes(tableRows) {
+	for (const row of tableRows) {
+		let checkboxes = $(row).find("input[type='checkbox']");
+		checkboxes.prop("disabled", true);
+	}
 }
 
 $("document").ready(async function () {
@@ -356,10 +396,11 @@ $("document").ready(async function () {
 	$("#year, #month").change(function () {
 		ACTIVE_YEAR = $("#year").val()
 		ACTIVE_MONTH = $("#month").val()
+		ACTIVE_MONTH_WEEKS = getWeeksOfMonth()
 		fillWeeks();
 		handleChangeWeek()
 	});
-	
+
 	$("#week").change(function () {
 		handleChangeWeek();
 	});
@@ -367,7 +408,8 @@ $("document").ready(async function () {
 	$("#foodTable tbody").on("click", "td", function (e) {
 		if (!$(e.target).is('.cell-checkbox')) {
 			var $checkbox = $(this).find('.cell-checkbox');
-			$checkbox.prop('checked', !$checkbox.prop('checked'));
+			if (!$checkbox.prop("disabled"))
+				$checkbox.prop('checked', !$checkbox.prop('checked'));
 		}
 	});
 

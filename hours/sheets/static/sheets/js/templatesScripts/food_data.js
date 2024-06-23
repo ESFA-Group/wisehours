@@ -193,15 +193,19 @@ async function renderSheet(food_data) {
 				cell.style.color = 'red';
 			}
 
-			const todayIndex = TODAY.getDate() - 1;
-			if (y < todayIndex) {
-				cell.classList.add('readonly');
-				cell.setAttribute('readonly', 'readonly');
-			}
+			// makePreviousDaysReadonly(y, cell);
 		}
 	});
 	window.spreadTable.hideIndex();
 
+}
+
+function makePreviousDaysReadonly(y, cell) {
+	const todayIndex = TODAY.getDate() - 1;
+	if (y < todayIndex) {
+		cell.classList.add('readonly');
+		cell.setAttribute('readonly', 'readonly');
+	}
 }
 
 function resetFoodSheet() {

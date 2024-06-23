@@ -390,7 +390,7 @@ class AlterPaymentApiView(APIView):
 class OrderFoodApiView(APIView):
 
     def get(self, request, year: str, month: str):
-        sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
+        sheet, created = Sheet.objects.get_or_create(user=self.request.user, year=year, month=month)
         return Response(sheet.food_data, status=status.HTTP_200_OK)
 
     def post(self, request, year: str, month: str):
@@ -404,7 +404,7 @@ class OrderFoodApiView(APIView):
 
     def updateSheetFoodData(self, data, i, sheet):
         if i >= len(sheet.food_data):
-            sheet.food_data.extend([None] * (i + 1 - len(sheet.food_data)))
+            sheet.food_data.extend([[]] * (i + 1 - len(sheet.food_data)))
         sheet.food_data[i] = data
         sheet.save()
 
