@@ -226,7 +226,10 @@ function fillFoodTablebody() {
 		var row = $("<tr>");
 
 		// Add day cell
-		row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]));
+		// row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]));
+		row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]).attr({
+			'data-month': day.date[1]
+		}));
 
 		const headerCount = $("#foodTable thead tr th").length
 		for (let i = 1; i < headerCount; i++) {
@@ -334,7 +337,7 @@ function getSelectedFoodsFromTable() {
 				selectedFoodsInRow.push(parseInt(foodId));
 			}
 		});
-		currentWeekSelectedFood.push({ "day": day.value, "foods": [...selectedFoodsInRow] });
+		currentWeekSelectedFood.push({ "month": day.getAttribute("data-month"), "day": day.value, "foods": [...selectedFoodsInRow] });
 	}
 	return currentWeekSelectedFood;
 }

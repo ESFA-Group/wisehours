@@ -394,12 +394,11 @@ class OrderFoodApiView(APIView):
         return Response(sheet.food_data, status=status.HTTP_200_OK)
 
     def post(self, request, year: str, month: str):
-        print("called_________")
         data = request.data["data"]
         index = int(request.data["index"])
         sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
-        print(f"before updateSheetFoodData: {len(sheet.food_data)}")
         self.updateSheetFoodData(data, index, sheet)
+        self.updateSheetReduction1(sheet, year, month)
         return Response(sheet.food_data, status=status.HTTP_200_OK)
 
     def updateSheetFoodData(self, data, i, sheet):
@@ -407,6 +406,48 @@ class OrderFoodApiView(APIView):
             sheet.food_data.extend([[]] * (i + 1 - len(sheet.food_data)))
         sheet.food_data[i] = data
         sheet.save()
+        
+    def updateSheetReduction1(self, sheet, year, month):
+        food_data, created = Food_data.objects.get_or_create(year=year, month=month)
+
+        flat_list = [item for sublist in sheet.food_data for item in sublist]
+        order_data = filtered_list = [item for item in flat_list if item['month'] == month and len(item['foods'])>0]
+
+        sheet.reduction1 = self.calculateSheetFoodPrice(order_data, food_data.data)
+        sheet.save()
+        
+    def calculateSheetFoodPrice(self, order_data, food_data):
+        food_price_map = {}
+        
+        # Iterate over the food data and map prices based on the day ranges
+        for food_entry in food_data:
+            day = food_entry['day']
+            for food_item in food_entry['data']:
+                food_id = food_item['id']
+                price = food_item['price']
+                food_price_map[(day, food_id)] = price
+        
+        # Step 2: Calculate total price
+        total_price = 0
+        
+        for order in order_data:
+            order_day = int(order['day'])
+            foods = order['foods']
+            
+            # Determine the applicable day for pricing
+            applicable_day = 1
+            for day in food_data:
+                if day['day'] <= order_day:
+                    applicable_day = day['day']
+                else:
+                    break
+            
+            for food_id in foods:
+                food_price_key = (applicable_day, food_id)
+                if food_price_key in food_price_map:
+                    total_price += food_price_map[food_price_key]
+        
+        return total_price
 
 
 class FoodManagementApiView(APIView):
@@ -487,6 +528,8 @@ class DailyFoodsOrder(APIView):
     def get(self, request, year: str, month: str, weekIndex: str, day: str):
         sheets = Sheet.objects.filter(year=year, month=month).exclude(food_data=[])
         food_data = Food_data.objects.get(year=year, month=month)
+        if len(food_data.data) == 0:
+            return Response([], status=status.HTTP_200_OK)
         food_data = food_data.data[0]["data"]
 
         d = [{"id": item["id"], "name": item["name"], "count": 0} for item in food_data]
@@ -495,9 +538,11 @@ class DailyFoodsOrder(APIView):
             if sh.food_data is not []:
                 TargetWeekFoodData = sh.food_data[int(weekIndex)]
                 selectedFoods = next(
-                    item for item in TargetWeekFoodData if item["day"] == day
+                    (item for item in TargetWeekFoodData if item["day"] == day),
+                    None
                 )
-                self.update_counts(d, selectedFoods["foods"])
+                if selectedFoods:
+                    self.update_counts(d, selectedFoods["foods"])
 
         return Response(d, status=status.HTTP_200_OK)
 
