@@ -3,6 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.db.models import QuerySet, Sum
+from sheets import customPermissions
+
 
 import jdatetime as jdt
 import pandas as pd
@@ -451,6 +453,8 @@ class OrderFoodApiView(APIView):
 
 
 class FoodManagementApiView(APIView):
+    permission_classes = [customPermissions.IsFoodManager]
+    
     def get(self, request, year: str, month: str):
         last_food_data = Food_data.objects.last()
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)

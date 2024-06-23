@@ -1,9 +1,8 @@
 from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse, JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
-from django.urls import reverse_lazy
+from sheets.customDecorators import decorators,food_manager_required
 from django.db.models import QuerySet
 
 import pandas as pd
@@ -15,7 +14,6 @@ import jdatetime as jdt
 from sheets.models import Sheet, User
 from sheets.api_views import AlterPaymentApiView, MonthlyReportApiView
 
-decorators = [login_required(login_url=reverse_lazy("sheets:login"))]
 
 
 class JSONResponseMixin:
@@ -155,7 +153,7 @@ class AlterPaymentHandleView(BaseView):
 class FoodFormView(BaseView):
     template_name = "food_form.html"
 
-@method_decorator([staff_member_required], name="dispatch")
+@method_decorator([food_manager_required], name="dispatch")
 class FoodDataView(BaseView):
     template_name = "food_data.html"
 
