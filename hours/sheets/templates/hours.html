@@ -395,6 +395,7 @@
         .then(data => {
             if(data.success){
                 handleSubmit(true);
+                initTable()
                 return
             }
             else if(data.flaw){
@@ -581,16 +582,16 @@
             td.scrollIntoView();
     }
 
-    async function constructTable(data){
+    async function constructTable(data, readOnlyAll = false){
         
         const columns = [
             {type: 'text', title: 'Day', width: 80, readOnly: true},
             {type: 'text', title: 'WeekDay', width: 130, readOnly: true},
-            {type: 'numeric', title: 'Hours', mask: 'hh:mm', width: 120},
+            {type: 'numeric', title: 'Hours', mask: 'hh:mm', width: 120, readOnly: readOnlyAll},
         ];
 
         for(const prj of getTableProjects(data)){
-            columns.push({type: 'numeric', title: prj, mask: '#,##0.00 %', width: 100});
+            columns.push({type: 'numeric', title: prj, mask: '#,##0.00 %', width: 100, readOnly: readOnlyAll});
         }
 
         window.spreadTable = jspreadsheet(document.getElementById('spreadsheet'), {
@@ -608,12 +609,12 @@
             onselection: onselectionHandler,
             tableOverflow: true,
             tableHeight: "100vh",
-            // tableWidth: "500px",
+            //tableWidth: "500px",
             updateTable: function(el, cell, x, y, source, value, id) {
                 if(value == "Fri"){
                     cell.style.color = 'red';
                 }
-            } 
+            }
         });
         window.spreadTable.hideIndex();
     }
@@ -685,7 +686,7 @@
         
         handleSubmit(sheet.submitted);
         toggleSubmit();
-        constructTable(sheet.data);
+        constructTable(sheet.data, sheet.submitted);
         onChangeHandler();
     }
 
