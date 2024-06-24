@@ -126,7 +126,7 @@ def current_mont_days(month: int, isleap: bool) -> int:
         days_num += 1
     return days_num
 
-
+    
 class Sheet(models.Model):
     payment_status_choices = [
         (0, 'Not Paid'),

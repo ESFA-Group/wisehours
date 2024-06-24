@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load connector_template_filters %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'sheets/css/jspreadsheet.css' %}">
@@ -63,42 +64,7 @@
                                         style="min-width: 100px;
                                                border-radius: 5px;
                                                height: 35px">
-                                    <option value="1">
-                                        Farvardin
-                                    </option>
-                                    <option value="2">
-                                        Ordibehest
-                                    </option>
-                                    <option value="3">
-                                        Khordad
-                                    </option>
-                                    <option value="4">
-                                        Tir
-                                    </option>
-                                    <option value="5">
-                                        Mordad
-                                    </option>
-                                    <option value="6">
-                                        Shahrivar
-                                    </option>
-                                    <option value="7">
-                                        Mehr
-                                    </option>
-                                    <option value="8">
-                                        Aban
-                                    </option>
-                                    <option value="9">
-                                        Azar
-                                    </option>
-                                    <option value="10">
-                                        Dey
-                                    </option>
-                                    <option value="11">
-                                        Bahman
-                                    </option>
-                                    <option value="12">
-                                        Esfand
-                                    </option>
+                                    {{ 1|render_month_options }}
                                 </select>
                             </div>
                         </div>
