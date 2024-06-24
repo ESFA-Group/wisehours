@@ -104,7 +104,7 @@ async function getRequest(url) {
 }
 
 async function getFoodDataDBT(year = ACTIVE_YEAR, month = ACTIVE_MONTH) {
-	const url = `/hours/api/FoodManagement/${year}/${month}`;
+	const url = `/hours/api/FoodData/${year}/${month}`;
 	return await getRequest(url)
 }
 
@@ -353,7 +353,7 @@ async function handleChangeModalWeek() {
 function desablePreviousDays() {
 	let tableRows = $("#foodTable tbody tr")
 	const modes = ["disableWholeWeek", "disablePastDays", "free"]
-	let mode = modes[0]
+	let mode = modes[2]
 
 	let diff = ACTIVE_WEEK[0]._d - CURRENT_WEEK[0]._d;
 

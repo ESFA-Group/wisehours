@@ -152,7 +152,7 @@ async function getSheetDBT(year, month) {
 
 
 async function getFoodDataDBT(year = ACTIVE_YEAR, month = ACTIVE_MONTH) {
-	const url = `/hours/api/FoodManagement/${year}/${month}`;
+	const url = `/hours/api/FoodData/${year}/${month}`;
 	return await getRequest(url)
 }
 

@@ -80,6 +80,11 @@ urlpatterns = [
         name="api_FoodManagement",
     ),
     path(
+        "api/FoodData/<str:year>/<str:month>",
+        api_views.FoodDataApiView.as_view(),
+        name="api_FoodData",
+    ),
+    path(
         "api/order_food/<str:year>/<str:month>",
         api_views.OrderFoodApiView.as_view(),
         name="api_order_food",

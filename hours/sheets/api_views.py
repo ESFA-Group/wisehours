@@ -459,10 +459,8 @@ class OrderFoodApiView(APIView):
 
         return total_price
 
-
-class FoodManagementApiView(APIView):
-    permission_classes = [customPermissions.IsFoodManager]
-
+class FoodDataApiView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     def get(self, request, year: str, month: str):
         last_food_data = Food_data.objects.last()
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
@@ -474,6 +472,9 @@ class FoodManagementApiView(APIView):
             food_data.save()
 
         return Response(food_data.data, status=status.HTTP_200_OK)
+
+class FoodManagementApiView(APIView):
+    permission_classes = [customPermissions.IsFoodManager]
 
     def post(self, request, year: str, month: str):
         submittedFoodNames = request.data
