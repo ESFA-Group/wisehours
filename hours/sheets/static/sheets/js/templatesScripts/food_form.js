@@ -352,15 +352,16 @@ async function handleChangeModalWeek() {
 
 function desablePreviousDays() {
 	let tableRows = $("#foodTable tbody tr")
-	let mode = "desableWholeWeek"
+	const modes = ["disableWholeWeek", "disablePastDays", "free"]
+	let mode = modes[0]
 
 	let diff = ACTIVE_WEEK[0]._d - CURRENT_WEEK[0]._d;
 
 	if (diff === 0) {//current week
-		if (mode == "desableWholeWeek") {
+		if (mode == modes[0]) {
 			disableWeekChechboxes(tableRows);
 		}
-		else {
+		else if(mode == modes[1]) {
 			let today = new Date();
 			let disableUntil = today.getDay() + 1;  // Get the current day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 			if (today.getHours() >= 12) {  // Check if the current hour is 12 PM or later
