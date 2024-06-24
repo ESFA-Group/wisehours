@@ -187,6 +187,7 @@ async function renderSheet(food_data) {
 			type: 'numeric',
 			title: foodItem.name,
 			width: 130,
+			mask: '#,##0',
 			readOnly: false
 		}));
 	}
@@ -215,17 +216,14 @@ async function renderSheet(food_data) {
 		ondeletecolumn: onChangeHandler,
 		onselection: onselectionHandler,
 		tableOverflow: true,
-		tableHeight: "100vh",
+		tableHeight: "100%",
 		updateTable: function (el, cell, x, y, source, value, id) {
 			if (value == "Fri") {
 				cell.style.color = 'red';
 			}
-
-			// makePreviousDaysReadonly(y, cell);
 		}
 	});
 	window.spreadTable.hideIndex();
-
 }
 
 function makePreviousDaysReadonly(y, cell) {
@@ -246,7 +244,8 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 	const rawData = window.spreadTable.getJson();
 	const tableData = convertTableData(rawData);
 	const currentValue = foodSheetData[y][food_data[0].data[x - 2].name];
-	if (+value === currentValue) {
+	value = removeCommasAndConvertToNumber(value)
+	if (value === currentValue) {
 		return;
 	}
 	const foodid = x - 2;
@@ -263,7 +262,7 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 	else if (day < food_data.at(-1).day) {
 		const [newIndex, newItem] = findAndCopyLastLessThan(food_data, day);
 		newItem.day = day;
-		newItem.data[foodid].price = +value;
+		newItem.data[foodid].price = value;
 		food_data.splice(newIndex, 0, newItem);
 		index = newIndex + 1;
 		updateFoodsPrice()
@@ -273,7 +272,7 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 	else {
 		let new_data = JSON.parse(JSON.stringify(food_data.at(-1)));
 		new_data.day = day;
-		new_data.data[foodid].price = +value;
+		new_data.data[foodid].price = value;
 		food_data.push(new_data);
 		saveFoodDataDBT(food_data);
 		renderSheet(food_data);
@@ -285,6 +284,14 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 			index += 1;
 		} while (index <= foodDataLastIndex && food_data.at(index).data[foodid].price < +value);
 	}
+}
+
+function removeCommasAndConvertToNumber(inputString) {
+    let cleanedString = inputString.replace(/,/g, '');
+
+    let numberValue = Number(cleanedString);
+
+    return numberValue;
 }
 
 function removeDuplicates(data) {
