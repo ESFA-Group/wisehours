@@ -4,10 +4,12 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.db.models import QuerySet, Sum
 from sheets import customPermissions
+from django.http import HttpResponse
 
 
 import jdatetime as jdt
 import pandas as pd
+import io
 import re
 
 from sheets.models import Project, Sheet, User, Food_data
@@ -392,7 +394,9 @@ class AlterPaymentApiView(APIView):
 class OrderFoodApiView(APIView):
 
     def get(self, request, year: str, month: str):
-        sheet, created = Sheet.objects.get_or_create(user=self.request.user, year=year, month=month)
+        sheet, created = Sheet.objects.get_or_create(
+            user=self.request.user, year=year, month=month
+        )
         return Response(sheet.food_data, status=status.HTTP_200_OK)
 
     def post(self, request, year: str, month: str):
@@ -408,53 +412,57 @@ class OrderFoodApiView(APIView):
             sheet.food_data.extend([[]] * (i + 1 - len(sheet.food_data)))
         sheet.food_data[i] = data
         sheet.save()
-        
+
     def updateSheetReduction1(self, sheet, year, month):
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
 
         flat_list = [item for sublist in sheet.food_data for item in sublist]
-        order_data = filtered_list = [item for item in flat_list if item['month'] == month and len(item['foods'])>0]
+        order_data = filtered_list = [
+            item
+            for item in flat_list
+            if item["month"] == month and len(item["foods"]) > 0
+        ]
 
         sheet.reduction1 = self.calculateSheetFoodPrice(order_data, food_data.data)
         sheet.save()
-        
+
     def calculateSheetFoodPrice(self, order_data, food_data):
         food_price_map = {}
-        
+
         # Iterate over the food data and map prices based on the day ranges
         for food_entry in food_data:
-            day = food_entry['day']
-            for food_item in food_entry['data']:
-                food_id = food_item['id']
-                price = food_item['price']
+            day = food_entry["day"]
+            for food_item in food_entry["data"]:
+                food_id = food_item["id"]
+                price = food_item["price"]
                 food_price_map[(day, food_id)] = price
-        
+
         # Step 2: Calculate total price
         total_price = 0
-        
+
         for order in order_data:
-            order_day = int(order['day'])
-            foods = order['foods']
-            
+            order_day = int(order["day"])
+            foods = order["foods"]
+
             # Determine the applicable day for pricing
             applicable_day = 1
             for day in food_data:
-                if day['day'] <= order_day:
-                    applicable_day = day['day']
+                if day["day"] <= order_day:
+                    applicable_day = day["day"]
                 else:
                     break
-            
+
             for food_id in foods:
                 food_price_key = (applicable_day, food_id)
                 if food_price_key in food_price_map:
                     total_price += food_price_map[food_price_key]
-        
+
         return total_price
 
 
 class FoodManagementApiView(APIView):
     permission_classes = [customPermissions.IsFoodManager]
-    
+
     def get(self, request, year: str, month: str):
         last_food_data = Food_data.objects.last()
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
@@ -542,13 +550,62 @@ class DailyFoodsOrder(APIView):
             if sh.food_data is not []:
                 TargetWeekFoodData = sh.food_data[int(weekIndex)]
                 selectedFoods = next(
-                    (item for item in TargetWeekFoodData if item["day"] == day),
-                    None
+                    (item for item in TargetWeekFoodData if item["day"] == day), None
                 )
                 if selectedFoods:
                     self.update_counts(d, selectedFoods["foods"])
 
         return Response(d, status=status.HTTP_200_OK)
+
+    def post(self, request, year: str, month: str, weekIndex: str, day: str):
+        sheets = Sheet.objects.filter(year=year, month=month).exclude(food_data=[])
+        food_data_obj = Food_data.objects.filter(year=year, month=month).first()
+        if not food_data_obj or not food_data_obj.data:
+            return Response([], status=status.HTTP_200_OK)
+
+        food_data = food_data_obj.data[0]["data"]
+        d = [
+            [{"id": item["id"], "name": item["name"], "count": 0} for item in food_data]
+            for _ in range(7)
+        ]
+
+        for sh in sheets:
+            TargetWeekFoodData = sh.food_data[int(weekIndex)]
+            for index, item in enumerate(TargetWeekFoodData):
+                self.update_counts(d[index], item["foods"])
+
+        unique_food_names = {item["name"] for item in food_data}
+        weekdays = [
+            "شنبه",
+            "یکشنبه",
+            "دوشنبه",
+            "سه شنبه",
+            "چهارشنبه",
+            "پنچ شنبه",
+            "جمعه",
+        ]
+
+        data_dict = {name: [0] * 7 for name in unique_food_names}
+        data_dict["روز/غذا"] = weekdays
+
+        for day_idx, day_data in enumerate(d):
+            food_count_map = {item["name"]: item["count"] for item in day_data}
+            for name in unique_food_names:
+                data_dict[name][day_idx] = food_count_map.get(name, 0)
+
+        df = pd.DataFrame(data_dict)
+        buffer = io.BytesIO()
+        with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Sheet1", index=False)
+
+        response = HttpResponse(
+            buffer.getvalue(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = (
+            f"attachment; filename=food_order_{year}_{month}_week{weekIndex}.xlsx"
+        )
+        return response
 
     def update_counts(self, items, ids):
         for item in items:

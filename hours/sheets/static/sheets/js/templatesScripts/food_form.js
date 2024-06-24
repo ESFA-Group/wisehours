@@ -185,10 +185,10 @@ async function initializeFoodTable() {
 	let foods = await getFoodDataDBT()
 
 	let foodData = findLastFoodPriceDataOfTheWeek(foods)
-	if(foodData === undefined){
+	if (foodData === undefined) {
 		fillFoodTableHeader([])
 	}
-	else{
+	else {
 		fillFoodTableHeader(foodData.data)
 	}
 	fillFoodTablebody()
@@ -342,7 +342,7 @@ function getSelectedFoodsFromTable() {
 	return currentWeekSelectedFood;
 }
 
-async function handleChangeWeek() {
+async function handleChangeModalWeek() {
 	ACTIVE_WEEK_INDEX = $("#week").val();
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
 	await initializeFoodTable()
@@ -356,7 +356,7 @@ function desablePreviousDays() {
 
 	let diff = ACTIVE_WEEK[0]._d - CURRENT_WEEK[0]._d;
 
-	if(diff === 0){//current week
+	if (diff === 0) {//current week
 		if (mode == "desableWholeWeek") {
 			disableWeekChechboxes(tableRows);
 		}
@@ -366,15 +366,15 @@ function desablePreviousDays() {
 			if (today.getHours() >= 12) {  // Check if the current hour is 12 PM or later
 				disableUntil += 1;
 			}
-	
-	
+
+
 			for (let i = 0; i < disableUntil; i++) {
 				let checkboxes = $(tableRows[i]).find("input[type='checkbox']");
 				checkboxes.prop("disabled", true);
 			}
 		}
 	}
-	else if(diff < 0){//past weeks
+	else if (diff < 0) {//past weeks
 		disableWeekChechboxes(tableRows)
 	}
 }
@@ -392,7 +392,7 @@ $("document").ready(async function () {
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
 	$("#week").val(CURRENT_WEEK_INDEX);
-	handleChangeWeek()
+	handleChangeModalWeek()
 
 	$("#current-sheet-date").text(`${ACTIVE_YEAR}/${ACTIVE_MONTH}`);
 
@@ -401,11 +401,11 @@ $("document").ready(async function () {
 		ACTIVE_MONTH = $("#month").val()
 		ACTIVE_MONTH_WEEKS = getWeeksOfMonth()
 		fillWeeks();
-		handleChangeWeek()
+		handleChangeModalWeek()
 	});
 
 	$("#week").change(function () {
-		handleChangeWeek();
+		handleChangeModalWeek();
 	});
 
 	$("#foodTable tbody").on("click", "td", function (e) {

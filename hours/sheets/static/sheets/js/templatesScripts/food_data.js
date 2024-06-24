@@ -11,14 +11,26 @@ const CURRENT_MONTH = TODAY.getMonth();
 var ACTIVE_MONTH = CURRENT_MONTH
 
 const CURRENT_MONTH_WEEKS = getWeeksOfMonth()
+var ACTIVE_MONTH_WEEKS = CURRENT_MONTH_WEEKS
 
 const [CURRENT_WEEK, CURRENT_WEEK_INDEX] = getCurrentWeek()
-
+var ACTIVE_WEEK = CURRENT_WEEK
+var ACTIVE_WEEK_INDEX = CURRENT_WEEK_INDEX
 // ********************************************************
 
-function fillYears(year = ACTIVE_YEAR) {
+function fillYears(yearId, year = ACTIVE_YEAR) {
 	for (let i = window.START_YEAR; i <= year; i++) {
-		$("#year").append($("<option>").text(i));
+		$(yearId).append($("<option>").text(i));
+	}
+}
+
+function fillWeeks() {
+	let weeks = getWeeksOfMonth()
+	$("#modal_week").empty();
+	for (let i = 0; i < weeks.length; i++) {
+		$("#modal_week").append($("<option>")
+			.text(`week${i + 1} (${weeks[i]['0'].format('MM/DD')} --> ${weeks[i]['6'].format('MM/DD')})`)
+			.val(i));
 	}
 }
 
@@ -150,6 +162,22 @@ async function saveFoodDataDBT(fooddata) {
 	let res = await putRequest(url, fooddata);
 }
 
+async function getFoodOrderSummaryDBT(day = TODAY.getDate(), weekIndex = CURRENT_WEEK_INDEX, month = CURRENT_MONTH, year = CURRENT_YEAR) {
+	const url = `/hours/api/daily_foods_order/${year}/${month}/${weekIndex}/${day}`;
+	const data = await getRequest(url);
+	return data;
+}
+
+async function getFoodOrderSummaryExcelDBT(weekIndex = CURRENT_WEEK_INDEX, month = CURRENT_MONTH, year = CURRENT_YEAR) {
+	const url = `/hours/api/daily_foods_order/${year}/${month}/${weekIndex}/0`;
+
+	const $form = $("<form>", { action: url, method: "POST" });
+	$form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val( window.CSRF_TOKEN));
+	$("body").append($form);
+	$form.submit();
+
+}
+
 async function renderSheet(food_data) {
 	resetFoodSheet();
 
@@ -237,7 +265,7 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 		newItem.day = day;
 		newItem.data[foodid].price = +value;
 		food_data.splice(newIndex, 0, newItem);
-		index = newIndex+1;
+		index = newIndex + 1;
 		updateFoodsPrice()
 		saveFoodDataDBT(food_data);
 		renderSheet(food_data);
@@ -255,7 +283,7 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 		do {
 			food_data.at(index).data[foodid].price = (+value);
 			index += 1;
-		} while (index<= foodDataLastIndex && food_data.at(index).data[foodid].price < +value);
+		} while (index <= foodDataLastIndex && food_data.at(index).data[foodid].price < +value);
 	}
 }
 
@@ -283,7 +311,7 @@ function findAndCopyLastLessThan(array, newDay) {
 		const item = array[i];
 
 		if (item.day < newDay) {
-			return [i+1, JSON.parse(JSON.stringify(item))];
+			return [i + 1, JSON.parse(JSON.stringify(item))];
 		}
 	}
 	return null;
@@ -340,6 +368,7 @@ function editFoodsBtnClick() {
 }
 
 function FoodsOrderBtnClick() {
+	fillFoodOrderDates()
 	fillFoodsOrderFromDB()
 	$("#foodsOrderModal").modal('show')
 }
@@ -356,15 +385,23 @@ async function fillEditFoodsFormFromDB() {
 	}
 }
 
+function fillFoodOrderDates() {
+	fillYears("#modal_year")
+	fillWeeks();
+	$("#modal_year").val(CURRENT_YEAR);
+	$("#modal_month").val(CURRENT_MONTH);
+	$("#modal_week").val(CURRENT_WEEK_INDEX);
+
+}
+
 async function fillFoodsOrderFromDB() {
 	$("#orderList tbody").empty();
 
-	const url = `/hours/api/daily_foods_order/${CURRENT_YEAR}/${CURRENT_MONTH}/${CURRENT_WEEK_INDEX}/${TODAY.getDate()}`;
-	const data = await getRequest(url);
+	const data = await getFoodOrderSummaryDBT();
 
 
 	for (let item of data) {
-		var newRow =`
+		var newRow = `
 			<tr>
 				<td>${item.name}</td>
 				<td>${item.count}</td>
@@ -373,6 +410,15 @@ async function fillFoodsOrderFromDB() {
 		$("#orderList tbody").append(newRow);
 	}
 }
+
+async function export_excel_click() {
+	const year = $("#modal_year").val();
+	const month = $("#modal_month").val();
+	const week_index = $("#modal_week").val();
+	const week = CURRENT_MONTH_WEEKS[week_index]
+	await getFoodOrderSummaryExcelDBT(ACTIVE_WEEK_INDEX)
+}
+
 
 var foodItemCount = 1;
 function addEmptyFoodRow() {
@@ -425,10 +471,13 @@ function getModalFormFoodData() {
 	return foodData;
 }
 
-
+function handleChangeModalWeek() {
+	ACTIVE_WEEK_INDEX = $("#modal_week").val();
+	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
+}
 
 $("document").ready(async function () {
-	fillYears();
+	fillYears("#year");
 	const food_data = await getFoodDataDBT()
 	renderSheet(food_data)
 	$("#year").val(ACTIVE_YEAR);
@@ -441,5 +490,8 @@ $("document").ready(async function () {
 
 		const food_data = await getFoodDataDBT()
 		renderSheet(food_data)
+	});
+	$("#modal_year, #modal_month, #modal_week").change(async function () {
+		handleChangeModalWeek()
 	});
 });
