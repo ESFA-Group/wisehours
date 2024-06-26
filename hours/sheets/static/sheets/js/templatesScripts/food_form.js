@@ -306,7 +306,20 @@ function saveFoodData(data) {
 	})
 		.then(res => res.json())
 		.then(() => {
+			return new Promise(resolve => setTimeout(resolve, 300)); // Wait for 1 second
+		})
+		.then(() => {
 			$("#submit-food-spinner").addClass('d-none');
+			$("#submit-food-check").removeClass('d-none').fadeIn(500, function () {
+				// After fade in, fade out after a delay
+				setTimeout(() => {
+					$("#submit-food-check").fadeOut(500, function () {
+						$(this).addClass('d-none').css('display', '');
+					});
+				}, 1000); // Delay before fading out
+			});
+		})
+		.then(() => {
 			$("#submitFoodBtn").prop('disabled', false);
 		})
 		.catch(err => {
@@ -361,7 +374,7 @@ function desablePreviousDays() {
 		if (mode == modes[0]) {
 			disableWeekChechboxes(tableRows);
 		}
-		else if(mode == modes[1]) {
+		else if (mode == modes[1]) {
 			let today = new Date();
 			let disableUntil = today.getDay() + 1;  // Get the current day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 			if (today.getHours() >= 12) {  // Check if the current hour is 12 PM or later

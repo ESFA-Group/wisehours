@@ -59,7 +59,7 @@
         </table>
 
         <br>
-        <div class="container d-flex justify-content-start align-items-center">
+        {% comment %} <div class="container d-flex justify-content-start align-items-center">
             <div class="text-center">
                 <button id="submitFoodBtn"
                         type="button"
@@ -67,9 +67,20 @@
                     <div id="submit-food-spinner" class="spinner-border text-light me-2 d-none">
                     </div>
                     <span>submit</span>
+                    <div id="submit-food-check" class="text-success ms-2 d-none">
+                        ✅
+                    </div>
                 </button>
             </div>
-        </div>
+        </div> {% endcomment %}
+        
+        <button id="submitFoodBtn" class="btn btn-primary d-flex justify-content-center align-items-center position-relative" type="button">
+            <span id="submit-food-spinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+            <span>submit</span>
+            <div id="submit-food-check" class="bg-primary d-none" desabled>
+                ✅
+            </div>
+        </button>        
     </div>
 
     <script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
