@@ -404,7 +404,7 @@ class OrderFoodApiView(APIView):
         index = int(request.data["index"])
         sheet = Sheet.objects.get(user=self.request.user, year=year, month=month)
         self.updateSheetFoodData(data, index, sheet)
-        self.updateSheetReduction1(sheet, year, month)
+        self.updateSheetReduction3(sheet, year, month)
         return Response(sheet.food_data, status=status.HTTP_200_OK)
 
     def updateSheetFoodData(self, data, i, sheet):
@@ -413,7 +413,7 @@ class OrderFoodApiView(APIView):
         sheet.food_data[i] = data
         sheet.save()
 
-    def updateSheetReduction1(self, sheet, year, month):
+    def updateSheetReduction3(self, sheet, year, month):
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
 
         flat_list = [item for sublist in sheet.food_data for item in sublist]
@@ -423,7 +423,7 @@ class OrderFoodApiView(APIView):
             if item["month"] == month and len(item["foods"]) > 0
         ]
 
-        sheet.reduction1 = self.calculateSheetFoodPrice(order_data, food_data.data)
+        sheet.reduction3 = self.calculateSheetFoodPrice(order_data, food_data.data)
         sheet.save()
 
     def calculateSheetFoodPrice(self, order_data, food_data):
@@ -532,9 +532,20 @@ class FoodManagementApiView(APIView):
         else:
             food_data.data = submittedFooddata
         food_data.save()
-
+        self.updateAllReduction1(year, month)
         return Response(food_data.data, status=status.HTTP_200_OK)
-
+        
+    def updateAllReduction1(self, year, month):
+        OrderFoodApiObject = OrderFoodApiView()
+        
+        sheets = Sheet.objects.filter(year=year, month=month)
+        
+        for sheet in sheets:
+            sheet.reduction3 = 0
+            if sheet.food_data != []:
+                OrderFoodApiObject.updateSheetReduction3(sheet, year, month)
+        
+        return
 
 class DailyFoodsOrder(APIView):
 
