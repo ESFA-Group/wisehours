@@ -17,6 +17,7 @@ class User(AbstractUser):
     reduction1 = models.IntegerField("reduction1", default=0)
     reduction2 = models.IntegerField("reduction2", default=0)
     reduction3 = models.IntegerField("reduction3", default=0)
+    food_reduction = models.IntegerField("food_reduction", default=0)
     addition1 = models.IntegerField("addition", default=0)
     addition2 = models.IntegerField("addition2", default=0)
     comment = models.TextField("comment", default="", blank=True)
@@ -103,6 +104,7 @@ class User(AbstractUser):
             "reduction1": self.reduction1,
             "reduction2": self.reduction2,
             "reduction3": self.reduction3,
+            "food_reduction": self.food_reduction,
             "addition1": self.addition1,
             "addition2": self.addition2,
         }
@@ -159,6 +161,7 @@ class Sheet(models.Model):
     reduction1 = models.IntegerField("reduction1", default=0)
     reduction2 = models.IntegerField("reduction2", default=0)
     reduction3 = models.IntegerField("reduction3", default=0)
+    food_reduction = models.IntegerField("food_reduction", default=0)
     addition1 = models.IntegerField("addition", default=0)
     addition2 = models.IntegerField("addition2", default=0)
 
@@ -251,7 +254,7 @@ class Sheet(models.Model):
         total_payment = self.get_total_payment()
         final_payment = (
             total_payment
-            - (self.reduction1 + self.reduction2 + self.reduction3)
+            - (self.reduction1 + self.reduction2 + self.reduction3 + self.food_reduction)
             + (self.addition1 + self.addition2)
         )
         return final_payment
@@ -268,6 +271,7 @@ class Sheet(models.Model):
             "reduction1": self.reduction1,
             "reduction2": self.reduction2,
             "reduction3": self.reduction3,
+            "food_reduction": self.food_reduction,
             "addition1": self.addition1,
             "addition2": self.addition2,
             "finalPayment": self.get_final_payment(),

@@ -453,6 +453,7 @@ class PaymentExcelImportView(View):
             current_sheet.reduction1 = row["reduction1"]
             current_sheet.reduction2 = row["reduction2"]
             current_sheet.reduction3 = row["reduction3"]
+            current_sheet.food_reduction = row["food_reduction"]
             current_sheet.addition1 = row["addition1"]
             current_sheet.addition2 = row["addition2"]
             current_sheet.payment_status = row["paymentStatus"]
