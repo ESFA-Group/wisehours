@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load static %}
+{% load connector_template_filters %}
+
+
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/bootstrap-table.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/bootstrap-editable.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/templatesScripts/food_form.css' %}">
+    <link rel="stylesheet" href="{% static 'sheets/css/jspreadsheet.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/jspreadsheet.datatables.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'sheets/css/jspreadsheet.theme.css' %}">
+    <link rel="stylesheet" href="{% static 'sheets/css/templatesScripts/food_data.css' %}">
+{% endblock extra_css %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row mt-2">
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Year</strong>
+                <div class="mt-1">
+                    <select name="year"
+                            id="year"
+                            style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                    </select>
+                </div>
+            </div>
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Month</strong>
+                <div class="mt-1">
+                    <select name="month"
+                            id="month"
+                            style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                        {{ 1|render_month_options }}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col col-6 col-md-4 col-lg-3">
+                <button id="editFoodsBtn"
+                        class="btn btn-primary d-flex align-items-center justify-content-around"
+                        onclick="editFoodsBtnClick()"
+                        style="width: 120px;
+                               position: relative;
+                               top: 27px">
+                    <i class="fa fa-file-export"></i>
+                    <span>Edit Foods</span>
+                </button>
+            </div>
+            <div class="col col-6 col-md-4 col-lg-3">
+                <button id="FoodsOrderBtn"
+                        class="btn btn-primary d-flex align-items-center justify-content-around"
+                        onclick="FoodsOrderBtnClick()"
+                        style="width: 180px;
+                               position: relative;
+                               top: 27px">
+                    <i class="fa fa-file-export"></i>
+                    <span>Today Foods order</span>
+                </button>
+            </div>
+        </div>
+        <hr>
+
+        <div class="row">
+            <div class="col col-12 col-lg-8"
+                style="overflow-x: auto;
+                        border-left: 1px solid;
+                        padding-left: 10px">
+                <div id="spreadsheet">
+                </div>
+            </div>
+        </div>
+
+
+        
+        <div class="modal fade"
+             id="foodNamesModal"
+             data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            Edit Food List
+                        </h5>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <form id="foodPriceForm">
+                            <div id="dynamicInputFields">                               
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                            <button type="button" class="btn btn-success" onclick="addEmptyFoodRow()">+ add new row</button>
+                        <button type="button"
+                                class="btn btn-primary"
+                                data-bs-dismiss="modal"
+                                onclick="updateFoodClick()"
+                                id="update_food">
+                            update
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade"
+             id="foodsOrderModal"
+             data-bs-keyboard="false">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            Today Order List
+                        </h5>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div class="row mt-2">
+                            <div class="col-md-6 col-xxl-2">
+                                <strong>Year</strong>
+                                <div class="mt-1">
+                                    <select name="modal_year"
+                                            id="modal_year"
+                                            style="min-width: 120px;
+                                                   border-radius: 5px;
+                                                   height: 35px">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xxl-2">
+                                <strong>Month</strong>
+                                <div class="mt-1">
+                                    <select name="modal_month"
+                                            id="modal_month"
+                                            style="min-width: 120px;
+                                                   border-radius: 5px;
+                                                   height: 35px">
+                                        {{ None|render_month_options }}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xxl-5">
+                                <strong>Week</strong>
+                                <div class="mt-1">
+                                    <select name="modal_week"
+                                            id="modal_week"
+                                            style="min-width: 220px;
+                                                   border-radius: 5px;
+                                                   height: 35px">
+                                    </select>
+                                </div>
+                            </div>
+                            {% comment %} <div class="col col-6 col-md-4 col-lg-3">
+                                <strong>Day</strong>
+                                <div class="mt-1">
+                                    <select name="modal_month"
+                                            id="modal_month"
+                                            style="min-width: 180px;
+                                                   border-radius: 5px;
+                                                   height: 35px">
+                                        {% for i in 12|get_days_in_month:"True" %}
+                                            <option>{{ i }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div> {% endcomment %}
+                            <div class="col-md-6 col-xxl-3">
+                                <button id="export-excel"
+                                        class="btn btn-success d-flex align-items-center justify-content-around"
+                                        onclick="export_excel_click()"
+                                        style="width: 150px;
+                                               position: relative;
+                                               top: 27px">
+                                    <i class="fa fa-file-export"></i>
+                                    <span>Export Excel</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <table id="orderList" class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Item Name</th>
+                                    <th scope="col">Quantity Ordered</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-primary"
+                                data-bs-dismiss="modal">
+                            ok
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
+    <script src="{% static 'sheets/js/tableExport.min.js' %}"></script>
+    <script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
+    <script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
+    <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
+    <script src="{% static 'sheets/js/templatesScripts/food_data.js' %}"></script>
+    <script src="{% static 'sheets/js/plotly-basic.min.js' %}"></script>
+    <script src="{% static 'sheets/js/jspreadsheet.min.js' %}"></script>
+{% endblock body %}

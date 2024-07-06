@@ -16,6 +16,8 @@ urlpatterns = [
     path("personal_info", views.PersonalInfoView.as_view(), name="personal_info"),
     path("payment", views.PaymentHandleView.as_view(), name="payment"),
     path("alter_payment", views.AlterPaymentHandleView.as_view(), name="alter_payment"),
+    path("order_food_form", views.FoodFormView.as_view(), name="food_form"),
+    path("alter_food_data", views.FoodDataView.as_view(), name="food_data"),
     path("reports", views.ReportsView.as_view(), name="reports"),
     path("detailed_report", views.DetailedReportView.as_view(), name="detailed_report"),
     path("main_report", views.MainReportView.as_view(), name="main_report"),
@@ -71,5 +73,25 @@ urlpatterns = [
         "api/alter_payment/<str:year>/<str:month>",
         api_views.AlterPaymentApiView.as_view(),
         name="api_alter_payment",
+    ),
+    path(
+        "api/FoodManagement/<str:year>/<str:month>",
+        api_views.FoodManagementApiView.as_view(),
+        name="api_FoodManagement",
+    ),
+    path(
+        "api/FoodData/<str:year>/<str:month>",
+        api_views.FoodDataApiView.as_view(),
+        name="api_FoodData",
+    ),
+    path(
+        "api/order_food/<str:year>/<str:month>",
+        api_views.OrderFoodApiView.as_view(),
+        name="api_order_food",
+    ),
+    path(
+        "api/daily_foods_order/<str:year>/<str:month>/<str:weekIndex>/<str:day>",
+        api_views.DailyFoodsOrder.as_view(),
+        name="api_daily_foods_order",
     ),
 ]

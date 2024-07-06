@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load connector_template_filters %}
 
 {% block extra_css %}
     <link rel="stylesheet"
@@ -35,44 +36,9 @@
                             style="min-width: 180px;
                                    border-radius: 5px;
                                    height: 35px">
-                        <option value="1">
-                            Farvardin
-                        </option>
-                        <option value="2">
-                            Ordibehest
-                        </option>
-                        <option value="3">
-                            Khordad
-                        </option>
-                        <option value="4">
-                            Tir
-                        </option>
-                        <option value="5">
-                            Mordad
-                        </option>
-                        <option value="6">
-                            Shahrivar
-                        </option>
-                        <option value="7">
-                            Mehr
-                        </option>
-                        <option value="8">
-                            Aban
-                        </option>
-                        <option value="9">
-                            Azar
-                        </option>
-                        <option value="10">
-                            Dey
-                        </option>
-                        <option value="11">
-                            Bahman
-                        </option>
-                        <option value="12">
-                            Esfand
-                        </option>
+                        {{ 1|render_month_options }}
                     </select>
-                </div>
+            </div>
             </div>
             <div class="col col-12 col-md-4 col-lg-3">
                 <button id="export-excel"
@@ -263,6 +229,14 @@
                         data-width-unit="%"
                         data-formatter="moneyFormatter">
                         Reduction3 (R)
+                    </th>
+                    <th scope="col"
+                        data-field="food_reduction"
+                        data-editable="true"
+                        data-width="8"
+                        data-width-unit="%"
+                        data-formatter="moneyFormatter">
+                        food_reduction (R)
                     </th>
                     <th scope="col"
                         data-field="addition1"
@@ -499,7 +473,7 @@
         $('#import-excel-spinner').show();
         $('#import-excel-icon').hide()
     }
-    
+
     function excelImmportLoadingDone(){
         $('#import-excel').prop("disabled", false);
         $('#import-excel-spinner').hide()

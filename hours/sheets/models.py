@@ -17,12 +17,14 @@ class User(AbstractUser):
     reduction1 = models.IntegerField("reduction1", default=0)
     reduction2 = models.IntegerField("reduction2", default=0)
     reduction3 = models.IntegerField("reduction3", default=0)
+    food_reduction = models.IntegerField("food_reduction", default=0)
     addition1 = models.IntegerField("addition", default=0)
     addition2 = models.IntegerField("addition2", default=0)
     comment = models.TextField("comment", default="", blank=True)
 
     # personal info
     is_active = models.BooleanField("is_active",  default=True)
+    is_FoodManager = models.BooleanField("is_FoodManager",  default=False)
     national_ID = models.CharField("national_ID", max_length=10, blank=True, default="")
     mobile1 = models.CharField("mobile1", max_length=11, blank=True, default="")
     mobile2 = models.CharField("mobile2", max_length=11, blank=True, default="")
@@ -102,6 +104,7 @@ class User(AbstractUser):
             "reduction1": self.reduction1,
             "reduction2": self.reduction2,
             "reduction3": self.reduction3,
+            "food_reduction": self.food_reduction,
             "addition1": self.addition1,
             "addition2": self.addition2,
         }
@@ -125,7 +128,7 @@ def current_mont_days(month: int, isleap: bool) -> int:
         days_num += 1
     return days_num
 
-
+    
 class Sheet(models.Model):
     payment_status_choices = [
         (0, 'Not Paid'),
@@ -146,6 +149,7 @@ class Sheet(models.Model):
     year = models.PositiveIntegerField("year", default=current_year)
     month = models.PositiveIntegerField("month", default=current_month)
     data = models.JSONField(default=list)
+    food_data = models.JSONField(default=list)
     mean = models.PositiveIntegerField("mean", default=0)  # in minutes
     total = models.PositiveIntegerField("total", default=0)  # in minutes
     submitted = models.BooleanField("submitted", default=False)
@@ -157,6 +161,7 @@ class Sheet(models.Model):
     reduction1 = models.IntegerField("reduction1", default=0)
     reduction2 = models.IntegerField("reduction2", default=0)
     reduction3 = models.IntegerField("reduction3", default=0)
+    food_reduction = models.IntegerField("food_reduction", default=0)
     addition1 = models.IntegerField("addition", default=0)
     addition2 = models.IntegerField("addition2", default=0)
 
@@ -249,7 +254,7 @@ class Sheet(models.Model):
         total_payment = self.get_total_payment()
         final_payment = (
             total_payment
-            - (self.reduction1 + self.reduction2 + self.reduction3)
+            - (self.reduction1 + self.reduction2 + self.reduction3 + self.food_reduction)
             + (self.addition1 + self.addition2)
         )
         return final_payment
@@ -266,6 +271,7 @@ class Sheet(models.Model):
             "reduction1": self.reduction1,
             "reduction2": self.reduction2,
             "reduction3": self.reduction3,
+            "food_reduction": self.food_reduction,
             "addition1": self.addition1,
             "addition2": self.addition2,
             "finalPayment": self.get_final_payment(),
@@ -305,3 +311,9 @@ class Project(models.Model):
 
     def __str__(self):
         return f"{self.family.name}-{self.name}"
+
+
+class Food_data(models.Model):
+    year = models.PositiveIntegerField("year", default=current_year)
+    month = models.PositiveIntegerField("month", default=current_month)
+    data = models.JSONField(default=list)
