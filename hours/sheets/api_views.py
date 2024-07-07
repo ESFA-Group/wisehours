@@ -474,7 +474,7 @@ class FoodDataApiView(APIView):
             food_data.data = [newfooddata]
             food_data.save()
 
-        return Response(food_data.data, status=status.HTTP_200_OK)
+        return Response([food_data.data, food_data.order_mode], status=status.HTTP_200_OK)
 
 class FoodManagementApiView(APIView):
     permission_classes = [customPermissions.IsFoodManager]
@@ -519,26 +519,38 @@ class FoodManagementApiView(APIView):
         return Response(food_data.data, status=status.HTTP_200_OK)
 
     def put(self, request, year: str, month: str):
-        submittedFooddata = request.data
+        requestTargetType = request.data['type']
         food_data = Food_data.objects.get(year=year, month=month)
+        if requestTargetType == "order_mode":
+            mode = request.data["data"]
+            return self.updateOrderMode(food_data, mode)
+        if requestTargetType == "food_data":
+            submittedFoodData = request.data["data"]
+            return self.updateFoodsPrice(year, month, submittedFoodData, food_data)
 
+    def updateOrderMode(self, food_data, mode):
+        food_data.order_mode = mode
+        food_data.save()
+        return Response({}, status=status.HTTP_200_OK)
+
+    def updateFoodsPrice(self, year, month, submittedFoodData, food_data):
         if not food_data.data:
             food_data.data = [
                 {
                     "day": 1,
                     "data": [
                         {"id": int(key), "name": name, "price": 0}
-                        for key, name in submittedFooddata.items()
+                        for key, name in submittedFoodData.items()
                     ],
                 }
             ]
         else:
-            food_data.data = submittedFooddata
+            food_data.data = submittedFoodData
         food_data.save()
-        self.update_all_food_reductions(year, month)
+        self.update_all_foodReductions(year, month)
         return Response(food_data.data, status=status.HTTP_200_OK)
         
-    def update_all_food_reductions(self, year, month):
+    def update_all_foodReductions(self, year, month):
         OrderFoodApiObject = OrderFoodApiView()
         
         sheets = Sheet.objects.filter(year=year, month=month)

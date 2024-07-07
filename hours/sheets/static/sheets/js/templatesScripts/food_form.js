@@ -19,64 +19,6 @@ var ACTIVE_WEEK = CURRENT_WEEK
 var ACTIVE_WEEK_INDEX = CURRENT_WEEK_INDEX
 
 
-// const foods = [
-// 	{
-// 		num: 0,
-// 		name: "باقالی پلو",
-// 		price: 1400000,
-// 	},
-// 	{
-// 		num: 1,
-// 		name: "چلو کباب کوبیده",
-// 		price: 1400000,
-// 	},
-// 	{
-// 		num: 2,
-// 		name: "چلو جوجه کباب",
-// 		price: 1400000,
-// 	},
-// 	{
-// 		num: 3,
-// 		name: "چلو قیمه",
-// 		price: 1400000,
-// 	},
-// 	{
-// 		num: 4,
-// 		name: "چلو قورمه",
-// 		price: 1400000,
-// 	},
-// 	{
-// 		num: 5,
-// 		name: "زرشک پلو با مرغ",
-// 		price: 1400000,
-// 	},
-// 	{
-// 		num: 6,
-// 		name: "خوراک",
-// 		price: 1400000
-// 	},
-// 	{
-// 		num: 7,
-// 		name: "الویه",
-// 		price: 1400000
-// 	},
-// 	{
-// 		num: 8,
-// 		name: "کشک بادمجان",
-// 		price: 1400000
-// 	},
-// 	{
-// 		num: 9,
-// 		name: "ماست",
-// 		price: 1400000
-// 	},
-// 	{
-// 		num: 10,
-// 		name: "زیتون",
-// 		price: 1400000
-// 	},
-// ]
-
 const weekdays = [
 	'شنبه',
 	'یک‌شنبه',
@@ -182,7 +124,7 @@ function getDayDiff(JDate1, JDate2) {
 async function initializeFoodTable() {
 	$("#foodTable tbody").empty();
 	$("#foodTable thead tr").remove();
-	let foods = await getFoodDataDBT()
+	let [foods, order_mode] = await getFoodDataDBT()
 
 	let foodData = findLastFoodPriceDataOfTheWeek(foods)
 	if (foodData === undefined) {
@@ -192,6 +134,7 @@ async function initializeFoodTable() {
 		fillFoodTableHeader(foodData.data)
 	}
 	fillFoodTablebody()
+	desablePreviousDays(order_mode)
 }
 
 function findLastFoodPriceDataOfTheWeek(dailyFoodsData) {
@@ -221,15 +164,34 @@ function fillFoodTableHeader(foods) {
 	});
 	$("#foodTable thead").append(headersRow);
 }
-function fillFoodTablebody() {
-	for (const [index, day] of Object.entries(ACTIVE_WEEK)) {
-		var row = $("<tr>");
 
+async function GetHolidays(year, month1, month2) {
+	let holidays = {}
+	holidays[month1] = await EsfaPersianHolidays.getHolidays(year, month1)
+	if (month1 != month2) {
+		holidays[month2] = await EsfaPersianHolidays.getHolidays(year, month2)
+	}
+
+    return holidays;
+}
+
+async function fillFoodTablebody() {
+	let week_days = Object.entries(ACTIVE_WEEK)
+	let Holiday = await GetHolidays(ACTIVE_YEAR ,week_days[0][1].date[1], week_days[6][1].date[1])
+
+	for (const [index, day] of week_days) {
+		var row = $("<tr>");
+		// let IsHoliday = await EsfaPersianHolidays.IsHoliday(ACTIVE_YEAR, day.date[1], day.date[2])
+		let isHoliday = Holiday[day.date[1]].includes(day.date[2])
 		// Add day cell
-		// row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]));
-		row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]).attr({
+		let cell = $(`<td>${day.format("dddd")}</td>`).val(day.date[2]).attr({
 			'data-month': day.date[1]
-		}));
+		})
+		if (isHoliday) {
+			cell.addClass("holiday-row")
+		}
+		// row.append($(`<td>${day.format("dddd")}</td>`).val(day.date[2]));
+		row.append(cell);
 
 		const headerCount = $("#foodTable thead tr th").length
 		for (let i = 1; i < headerCount; i++) {
@@ -360,21 +322,22 @@ async function handleChangeModalWeek() {
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
 	await initializeFoodTable()
 	await fillFoodTable();
-	desablePreviousDays()
 }
 
-function desablePreviousDays() {
+function desablePreviousDays(order_mode) {
 	let tableRows = $("#foodTable tbody tr")
-	const modes = ["disableWholeWeek", "disablePastDays", "free"]
-	let mode = modes[2]
+	// modes:
+	//     0 -->  disablePastDays
+	//     1 -->  free
+	//     2 -->  disableWholeWeek
 
 	let diff = ACTIVE_WEEK[0]._d - CURRENT_WEEK[0]._d;
 
 	if (diff === 0) {//current week
-		if (mode == modes[0]) {
+		if (order_mode == 2) {
 			disableWeekChechboxes(tableRows);
 		}
-		else if (mode == modes[1]) {
+		else if (order_mode == 0) {
 			let today = new Date();
 			let disableUntil = today.getDay() + 1;  // Get the current day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 			if (today.getHours() >= 12) {  // Check if the current hour is 12 PM or later

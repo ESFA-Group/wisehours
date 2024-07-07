@@ -19,3 +19,7 @@ table{
     border-radius: 10%;
     z-index: 3;
 }
+
+.holiday-row{
+    color: red;
+}

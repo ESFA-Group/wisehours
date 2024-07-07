@@ -85,9 +85,15 @@ async function getHolidays(year, month) {
     return holidays;
 }
 
+async function IsHoliday(year, month, day) {
+    holidays = await getHolidays(year, month)
+    
+    return false;
+}
 
 const esfa_persian_holidays = {
-    getHolidays: getHolidays
+    getHolidays: getHolidays,
+    IsHoliday: IsHoliday
 };
 
-module.exports = esfa_persian_holidays;
+export { esfa_persian_holidays };

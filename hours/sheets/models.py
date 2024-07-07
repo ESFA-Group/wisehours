@@ -314,6 +314,12 @@ class Project(models.Model):
 
 
 class Food_data(models.Model):
+    food_order_mode = [
+        (0, 'disablePastDays'),
+        (1, 'free'),
+        (2, 'disableWholeWeek'),
+    ]
     year = models.PositiveIntegerField("year", default=current_year)
     month = models.PositiveIntegerField("month", default=current_month)
+    order_mode = models.IntegerField("order_mode", choices=food_order_mode, default=0)
     data = models.JSONField(default=list)
