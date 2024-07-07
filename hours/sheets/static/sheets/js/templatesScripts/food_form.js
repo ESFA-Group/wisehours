@@ -182,7 +182,7 @@ function getDayDiff(JDate1, JDate2) {
 async function initializeFoodTable() {
 	$("#foodTable tbody").empty();
 	$("#foodTable thead tr").remove();
-	let foods = await getFoodDataDBT()
+	let [foods, order_mode] = await getFoodDataDBT()
 
 	let foodData = findLastFoodPriceDataOfTheWeek(foods)
 	if (foodData === undefined) {
@@ -192,6 +192,7 @@ async function initializeFoodTable() {
 		fillFoodTableHeader(foodData.data)
 	}
 	fillFoodTablebody()
+	desablePreviousDays(order_mode)
 }
 
 function findLastFoodPriceDataOfTheWeek(dailyFoodsData) {
@@ -360,21 +361,22 @@ async function handleChangeModalWeek() {
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
 	await initializeFoodTable()
 	await fillFoodTable();
-	desablePreviousDays()
 }
 
-function desablePreviousDays() {
+function desablePreviousDays(order_mode) {
 	let tableRows = $("#foodTable tbody tr")
-	const modes = ["disableWholeWeek", "disablePastDays", "free"]
-	let mode = modes[2]
+	// modes:
+    //     0 -->  disablePastDays
+    //     1 -->  free
+    //     2 -->  disableWholeWeek
 
 	let diff = ACTIVE_WEEK[0]._d - CURRENT_WEEK[0]._d;
 
 	if (diff === 0) {//current week
-		if (mode == modes[0]) {
+		if (order_mode == 2) {
 			disableWeekChechboxes(tableRows);
 		}
-		else if (mode == modes[1]) {
+		else if (order_mode == 0) {
 			let today = new Date();
 			let disableUntil = today.getDay() + 1;  // Get the current day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 			if (today.getHours() >= 12) {  // Check if the current hour is 12 PM or later

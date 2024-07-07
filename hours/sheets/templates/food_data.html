@@ -21,7 +21,7 @@
 {% block body %}
     <div class="container-fluid">
         <div class="row mt-2">
-            <div class="col col-6 col-md-4 col-lg-3">
+            <div class="col col-6 col-md-4 col-lg-2">
                 <strong>Year</strong>
                 <div class="mt-1">
                     <select name="year"
@@ -32,7 +32,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col col-6 col-md-4 col-lg-3">
+            <div class="col col-6 col-md-4 col-lg-2">
                 <strong>Month</strong>
                 <div class="mt-1">
                     <select name="month"
@@ -45,7 +45,21 @@
                 </div>
             </div>
 
-            <div class="col col-6 col-md-4 col-lg-3">
+            <div class="col col-6 col-md-4 col-lg-4">
+                <strong>Order limitation mode</strong>
+                <br/>
+                <div class="btn-group" role="group" style="position: relative; top: 3px" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="desableDaysRadioBtn" valueNumber=0 autocomplete="off">
+                    <label class="btn btn-outline-primary" for="desableDaysRadioBtn">Disable past days</label>
+                  
+                    <input type="radio" class="btn-check" name="btnradio" id="freeModeRadioBtn" valueNumber=1 autocomplete="off">
+                    <label class="btn btn-outline-primary" for="freeModeRadioBtn">Free mode</label>
+                  
+                    <input type="radio" class="btn-check" name="btnradio" id="desableWeekRadioBtn" valueNumber=2 autocomplete="off">
+                    <label class="btn btn-outline-primary" for="desableWeekRadioBtn">Disable entire week</label>
+                </div>
+            </div>
+            <div class="col col-6 col-md-4 col-lg-1">
                 <button id="editFoodsBtn"
                         class="btn btn-primary d-flex align-items-center justify-content-around"
                         onclick="editFoodsBtnClick()"
@@ -56,7 +70,7 @@
                     <span>Edit Foods</span>
                 </button>
             </div>
-            <div class="col col-6 col-md-4 col-lg-3">
+            <div class="col col-6 col-md-4 col-lg-2">
                 <button id="FoodsOrderBtn"
                         class="btn btn-primary d-flex align-items-center justify-content-around"
                         onclick="FoodsOrderBtnClick()"
@@ -71,7 +85,7 @@
         <hr>
 
         <div class="row">
-            <div class="col col-12 col-lg-8"
+            <div class="col col-12"
                 style="overflow-x: auto;
                         border-left: 1px solid;
                         padding-left: 10px">

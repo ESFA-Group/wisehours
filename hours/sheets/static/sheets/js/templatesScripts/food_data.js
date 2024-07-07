@@ -159,7 +159,13 @@ async function getFoodDataDBT(year = ACTIVE_YEAR, month = ACTIVE_MONTH) {
 async function saveFoodDataDBT(fooddata) {
 	const url = `/hours/api/FoodManagement/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
 
-	let res = await putRequest(url, fooddata);
+	let res = await putRequest(url, {type: "food_data", data: fooddata});
+}
+
+async function saveFoodOrderModeDBT(mode) {
+	const url = `/hours/api/FoodManagement/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+
+	await putRequest(url, {type: "order_mode", data: mode});
 }
 
 async function getFoodOrderSummaryDBT(day = TODAY.getDate(), weekIndex = CURRENT_WEEK_INDEX, month = CURRENT_MONTH, year = CURRENT_YEAR) {
@@ -172,10 +178,26 @@ async function getFoodOrderSummaryExcelDBT(weekIndex = CURRENT_WEEK_INDEX, month
 	const url = `/hours/api/daily_foods_order/${year}/${month}/${weekIndex}/0`;
 
 	const $form = $("<form>", { action: url, method: "POST" });
-	$form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val( window.CSRF_TOKEN));
+	$form.append($("<input type='hidden' name='csrfmiddlewaretoken'>").val(window.CSRF_TOKEN));
 	$("body").append($form);
 	$form.submit();
 
+}
+
+function InitializeFoodOrderMode(mode) {
+	switch (mode) {
+		case 0:
+			$("#desableDaysRadioBtn").prop('checked', true).change();
+			break;
+		case 1:
+			$('#freeModeRadioBtn').prop('checked', true).change();
+			break;
+		case 2:
+			$('#desableWeekRadioBtn').prop('checked', true).change();
+			break;
+		default:
+			break;
+	}
 }
 
 async function renderSheet(food_data) {
@@ -287,11 +309,11 @@ function onChangeHandler(worksheet, cell, x, y, value, foodSheetData, food_data)
 }
 
 function removeCommasAndConvertToNumber(inputString) {
-    let cleanedString = inputString.replace(/,/g, '');
+	let cleanedString = inputString.replace(/,/g, '');
 
-    let numberValue = Number(cleanedString);
+	let numberValue = Number(cleanedString);
 
-    return numberValue;
+	return numberValue;
 }
 
 function removeDuplicates(data) {
@@ -485,7 +507,8 @@ function handleChangeModalWeek() {
 
 $("document").ready(async function () {
 	fillYears("#year");
-	const food_data = await getFoodDataDBT()
+	const [food_data, mode] = await getFoodDataDBT()
+	InitializeFoodOrderMode(mode)
 	renderSheet(food_data)
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
@@ -500,5 +523,10 @@ $("document").ready(async function () {
 	});
 	$("#modal_year, #modal_month, #modal_week").change(async function () {
 		handleChangeModalWeek()
+	});
+
+	$('input[name="btnradio"]').change(async function () {
+		var selectedRadioId = $('input[name="btnradio"]:checked').attr('valueNumber');
+		await saveFoodOrderModeDBT(parseInt(selectedRadioId))
 	});
 });
