@@ -403,10 +403,10 @@ function FoodsOrderBtnClick() {
 }
 
 async function fillEditFoodsFormFromDB() {
-	let res = await getFoodDataDBT()
-	if (typeof res[0] === 'object' && res[0].hasOwnProperty('data')) {
+	let [food_data, mode] = await getFoodDataDBT()
+	if (typeof food_data[0] === 'object' && food_data[0].hasOwnProperty('data')) {
 		$('#dynamicInputFields').empty();
-		for (let food of res[0].data) {
+		for (let food of food_data[0].data) {
 			foodItemCount = food.id
 			addEmptyFoodRow()
 			fillFoodRow(food.id, food.name)
@@ -518,7 +518,7 @@ $("document").ready(async function () {
 		ACTIVE_YEAR = $("#year").val()
 		ACTIVE_MONTH = $("#month").val()
 
-		const food_data = await getFoodDataDBT()
+		const [food_data, mode] = await getFoodDataDBT()
 		renderSheet(food_data)
 	});
 	$("#modal_year, #modal_month, #modal_week").change(async function () {
