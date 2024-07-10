@@ -564,6 +564,7 @@ class FoodManagementApiView(APIView):
         return
 
 class DailyFoodsOrder(APIView):
+    permission_classes = [customPermissions.IsFoodManager]
 
     def get(self, request, year: str, month: str, weekIndex: str, day: str):
         sheets = Sheet.objects.filter(year=year, month=month).exclude(food_data=[])
@@ -575,7 +576,7 @@ class DailyFoodsOrder(APIView):
         d = [{"id": item["id"], "name": item["name"], "count": 0} for item in food_data]
 
         for sh in sheets:
-            if sh.food_data is not []:
+            if sh.food_data is not [] and len(sh.food_data) > int(weekIndex):
                 TargetWeekFoodData = sh.food_data[int(weekIndex)]
                 selectedFoods = next(
                     (item for item in TargetWeekFoodData if item["day"] == day), None

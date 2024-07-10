@@ -133,7 +133,7 @@ async function initializeFoodTable() {
 	else {
 		fillFoodTableHeader(foodData.data)
 	}
-	fillFoodTablebody()
+	await fillFoodTablebody()
 	desablePreviousDays(order_mode)
 }
 
@@ -330,6 +330,10 @@ function desablePreviousDays(order_mode) {
 	//     0 -->  disablePastDays
 	//     1 -->  free
 	//     2 -->  disableWholeWeek
+
+	if (order_mode == 1) {
+		return;
+	}
 
 	let diff = ACTIVE_WEEK[0]._d - CURRENT_WEEK[0]._d;
 
