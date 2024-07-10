@@ -5,6 +5,7 @@ from rest_framework import status, permissions
 from django.db.models import QuerySet, Sum
 from sheets import customPermissions
 from django.http import HttpResponse
+from collections import OrderedDict
 
 
 import jdatetime as jdt
@@ -599,11 +600,12 @@ class DailyFoodsOrder(APIView):
         ]
 
         for sh in sheets:
-            TargetWeekFoodData = sh.food_data[int(weekIndex)]
-            for index, item in enumerate(TargetWeekFoodData):
-                self.update_counts(d[index], item["foods"])
+            if sh.food_data is not [] and len(sh.food_data) > int(weekIndex):
+                TargetWeekFoodData = sh.food_data[int(weekIndex)]
+                for index, item in enumerate(TargetWeekFoodData):
+                    self.update_counts(d[index], item["foods"])
 
-        unique_food_names = {item["name"] for item in food_data}
+        unique_food_names = list(OrderedDict.fromkeys(item["name"] for item in food_data))
         weekdays = [
             "شنبه",
             "یکشنبه",
@@ -613,14 +615,15 @@ class DailyFoodsOrder(APIView):
             "پنچ شنبه",
             "جمعه",
         ]
-
-        data_dict = {name: [0] * 7 for name in unique_food_names}
-        data_dict["روز/غذا"] = weekdays
-
+        data_dict = {"روز/غذا": weekdays}
+        data_dict.update({name: [0] * 7 for name in unique_food_names})
+        data_dict.update({"مجموع" : [0] * 7})
         for day_idx, day_data in enumerate(d):
             food_count_map = {item["name"]: item["count"] for item in day_data}
             for name in unique_food_names:
                 data_dict[name][day_idx] = food_count_map.get(name, 0)
+                data_dict["مجموع"][day_idx] += food_count_map.get(name, 0)
+                continue
 
         df = pd.DataFrame(data_dict)
         buffer = io.BytesIO()
