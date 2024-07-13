@@ -448,6 +448,8 @@ class OrderFoodApiView(APIView):
             order_day = int(order["day"])
             foods = order["foods"]
 
+            total_price += self.get_delivery_price(order_day)
+            
             # Determine the applicable day for pricing
             applicable_day = 1
             for day in food_data:
@@ -460,8 +462,14 @@ class OrderFoodApiView(APIView):
                 food_price_key = (applicable_day, food_id)
                 if food_price_key in food_price_map:
                     total_price += food_price_map[food_price_key]
+                else:
+                    raise KeyError("food key error in OrderFoodApi.calculateSjeetFoodData")
+                    continue
 
         return total_price
+
+    def get_delivery_price(self, day):
+        return 50000
 
 class FoodDataApiView(APIView):
     permission_classes = [permissions.IsAuthenticated]
