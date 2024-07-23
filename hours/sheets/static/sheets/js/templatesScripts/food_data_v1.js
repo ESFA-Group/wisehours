@@ -243,7 +243,7 @@ async function renderSheet(food_data) {
 		ondeletecolumn: onChangeHandler,
 		onselection: onselectionHandler,
 		tableOverflow: true,
-		tableHeight: "100%",
+		tableHeight: "150%",
 		updateTable: function (el, cell, x, y, source, value, id) {
 			if (value == "Fri") {
 				cell.style.color = 'red';
