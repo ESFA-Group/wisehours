@@ -34,7 +34,7 @@ function fillWeeks() {
 	}
 }
 
-function getWeeksOfMonth() {
+function getWeeksOfMonth() {	
 	let year = ACTIVE_YEAR
 	let month = ACTIVE_MONTH
 	const totalDaysInMonth = JDate.daysInMonth(year, month);
