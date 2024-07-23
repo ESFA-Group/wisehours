@@ -449,7 +449,7 @@ class OrderFoodApiView(APIView):
             foods = order["foods"]
 
             total_price += self.get_delivery_price(order_day)
-            
+
             # Determine the applicable day for pricing
             applicable_day = 1
             for day in food_data:
@@ -463,7 +463,9 @@ class OrderFoodApiView(APIView):
                 if food_price_key in food_price_map:
                     total_price += food_price_map[food_price_key]
                 else:
-                    raise KeyError("food key error in OrderFoodApi.calculateSjeetFoodData")
+                    raise KeyError(
+                        "food key error in OrderFoodApi.calculateSjeetFoodData"
+                    )
                     continue
 
         return total_price
@@ -471,8 +473,10 @@ class OrderFoodApiView(APIView):
     def get_delivery_price(self, day):
         return 50000
 
+
 class FoodDataApiView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request, year: str, month: str):
         last_food_data = Food_data.objects.last()
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
@@ -483,7 +487,10 @@ class FoodDataApiView(APIView):
             food_data.data = [newfooddata]
             food_data.save()
 
-        return Response([food_data.data, food_data.order_mode], status=status.HTTP_200_OK)
+        return Response(
+            [food_data.data, food_data.order_mode], status=status.HTTP_200_OK
+        )
+
 
 class FoodManagementApiView(APIView):
     permission_classes = [customPermissions.IsFoodManager]
@@ -528,7 +535,7 @@ class FoodManagementApiView(APIView):
         return Response(food_data.data, status=status.HTTP_200_OK)
 
     def put(self, request, year: str, month: str):
-        requestTargetType = request.data['type']
+        requestTargetType = request.data["type"]
         food_data = Food_data.objects.get(year=year, month=month)
         if requestTargetType == "order_mode":
             mode = request.data["data"]
@@ -558,19 +565,20 @@ class FoodManagementApiView(APIView):
         food_data.save()
         self.update_all_foodReductions(year, month)
         return Response(food_data.data, status=status.HTTP_200_OK)
-        
+
     def update_all_foodReductions(self, year, month):
         OrderFoodApiObject = OrderFoodApiView()
-        
+
         sheets = Sheet.objects.filter(year=year, month=month)
-        
+
         for sheet in sheets:
             sheet.food_reduction = 0
             if sheet.food_data != []:
                 OrderFoodApiObject.update_sheet_food_reduction(sheet, year, month)
             sheet.save()
-        
+
         return
+
 
 class DailyFoodsOrder(APIView):
     permission_classes = [customPermissions.IsFoodManager]
@@ -613,7 +621,9 @@ class DailyFoodsOrder(APIView):
                 for index, item in enumerate(TargetWeekFoodData):
                     self.update_counts(d[index], item["foods"])
 
-        unique_food_names = list(OrderedDict.fromkeys(item["name"] for item in food_data))
+        unique_food_names = list(
+            OrderedDict.fromkeys(item["name"] for item in food_data)
+        )
         weekdays = [
             "شنبه",
             "یکشنبه",
@@ -625,7 +635,7 @@ class DailyFoodsOrder(APIView):
         ]
         data_dict = {"روز/غذا": weekdays}
         data_dict.update({name: [0] * 7 for name in unique_food_names})
-        data_dict.update({"مجموع" : [0] * 7})
+        data_dict.update({"مجموع": [0] * 7})
         for day_idx, day_data in enumerate(d):
             food_count_map = {item["name"]: item["count"] for item in day_data}
             for name in unique_food_names:

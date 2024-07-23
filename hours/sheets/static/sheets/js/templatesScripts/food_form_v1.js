@@ -14,7 +14,7 @@ var ACTIVE_MONTH = CURRENT_MONTH
 const CURRENT_MONTH_WEEKS = getWeeksOfMonth()
 var ACTIVE_MONTH_WEEKS = CURRENT_MONTH_WEEKS
 
-const [CURRENT_WEEK, CURRENT_WEEK_INDEX] = getCurrentWeek()
+const [CURRENT_WEEK, CURRENT_WEEK_INDEX] = getCurrentWeek(CURRENT_MONTH_WEEKS)
 var ACTIVE_WEEK = CURRENT_WEEK
 var ACTIVE_WEEK_INDEX = CURRENT_WEEK_INDEX
 
@@ -106,14 +106,18 @@ function getWeeksOfMonth() {
 	return weeksDate;
 }
 
-function getCurrentWeek() {
-	for (const [index, week] of Object.entries(CURRENT_MONTH_WEEKS)) {
+function getCurrentWeek(current_week) {
+	for (var [index, week] of Object.entries(current_week)) {
 		let startweekday = week[0]
 		let dayDiff = getDayDiff(TODAY, startweekday)
 		if (dayDiff <= 0 && dayDiff >= -6) {
 			return [week, index];
 		}
 	};
+	// try searching the previous month
+	ACTIVE_MONTH = CURRENT_MONTH-1
+	ACTIVE_MONTH_WEEKS = getWeeksOfMonth()
+	return getCurrentWeek(ACTIVE_MONTH_WEEKS)
 }
 
 function getDayDiff(JDate1, JDate2) {

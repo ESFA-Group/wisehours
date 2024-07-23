@@ -107,7 +107,6 @@ function getWeeksOfMonth() {
 }
 
 function getCurrentWeek(current_week) {
-	var aaaaa = current_week[0][0]
 	for (var [index, week] of Object.entries(current_week)) {
 		let startweekday = week[0]
 		let dayDiff = getDayDiff(TODAY, startweekday)
@@ -118,7 +117,6 @@ function getCurrentWeek(current_week) {
 	// try searching the previous month
 	ACTIVE_MONTH = CURRENT_MONTH-1
 	ACTIVE_MONTH_WEEKS = getWeeksOfMonth()
-	var bbbbbb = ACTIVE_MONTH_WEEKS[0][0]
 	return getCurrentWeek(ACTIVE_MONTH_WEEKS)
 }
 
