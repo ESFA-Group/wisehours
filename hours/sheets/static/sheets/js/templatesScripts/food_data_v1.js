@@ -173,7 +173,7 @@ async function saveFoodOrderModeDBT(mode) {
 	await putRequest(url, { type: "order_mode", data: mode });
 }
 
-async function getFoodOrderSummaryDBT(day = TODAY.getDate(), weekIndex = CURRENT_WEEK_INDEX, month = CURRENT_MONTH, year = CURRENT_YEAR) {
+async function getFoodOrderSummaryDBT(day = TODAY.getDate(), weekIndex = ACTIVE_WEEK_INDEX, month = ACTIVE_MONTH, year = ACTIVE_YEAR) {
 	const url = `/hours/api/daily_foods_order/${year}/${month}/${weekIndex}/${day}`;
 	const data = await getRequest(url);
 	return data;
@@ -423,7 +423,7 @@ function fillFoodOrderDates() {
 	fillYears("#modal_year")
 	fillWeeks();
 	$("#modal_year").val(CURRENT_YEAR);
-	$("#modal_month").val(CURRENT_MONTH);
+	$("#modal_month").val(ACTIVE_MONTH);
 	$("#modal_week").val(CURRENT_WEEK_INDEX);
 
 }
