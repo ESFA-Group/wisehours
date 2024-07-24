@@ -10,10 +10,9 @@ def update_sheets(apps, schema_editor):
     correct_weekdays_dict = {entry['Day']: entry['WeekDay'] for entry in correct_weekdays}
     
     # Step 2: Update the week days in sheet.data
-    for sheet in Sheet.objects.all():
+    for sheet in Sheet.objects.filter(year=1403, month=5):
         for entry in sheet.data:
-            if entry['Day'] in correct_weekdays_dict:
-                entry['WeekDay'] = correct_weekdays_dict[entry['Day']]
+            entry['WeekDay'] = correct_weekdays_dict[entry['Day']]
 
 class Migration(migrations.Migration):
 
