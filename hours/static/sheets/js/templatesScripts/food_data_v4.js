@@ -179,7 +179,7 @@ async function getFoodOrderSummaryDBT(day = TODAY.getDate(), weekIndex = ACTIVE_
 	return data;
 }
 
-async function getFoodOrderSummaryExcelDBT(weekIndex = ACTIVE_WEEK_INDEX, month = ACTIVE_MONTH, year = Act) {
+async function getFoodOrderSummaryExcelDBT(weekIndex = ACTIVE_WEEK_INDEX, month = ACTIVE_MONTH, year = ACTIVE_YEAR) {
 	const url = `/hours/api/daily_foods_order/${year}/${month}/${weekIndex}/0`;
 
 	const $form = $("<form>", { action: url, method: "POST" });
