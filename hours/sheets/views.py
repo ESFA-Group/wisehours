@@ -1,5 +1,7 @@
 from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse, JsonResponse
+from rest_framework.response import Response
+from rest_framework import status
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
 from sheets.customDecorators import decorators,food_manager_required
