@@ -179,7 +179,7 @@ async function getFoodOrderSummaryDBT(day = TODAY.getDate(), weekIndex = ACTIVE_
 	return data;
 }
 
-async function getFoodOrderSummaryExcelDBT(weekIndex = CURRENT_WEEK_INDEX, month = CURRENT_MONTH, year = CURRENT_YEAR) {
+async function getFoodOrderSummaryExcelDBT(weekIndex = ACTIVE_WEEK_INDEX, month = ACTIVE_MONTH, year = Act) {
 	const url = `/hours/api/daily_foods_order/${year}/${month}/${weekIndex}/0`;
 
 	const $form = $("<form>", { action: url, method: "POST" });
@@ -449,7 +449,7 @@ async function export_excel_click() {
 	const year = $("#modal_year").val();
 	const month = $("#modal_month").val();
 	const week_index = $("#modal_week").val();
-	const week = CURRENT_MONTH_WEEKS[week_index]
+	const week = ACTIVE_MONTH_WEEKS[week_index]
 	await getFoodOrderSummaryExcelDBT(ACTIVE_WEEK_INDEX)
 }
 
