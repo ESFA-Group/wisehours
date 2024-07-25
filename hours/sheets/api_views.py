@@ -470,14 +470,18 @@ class FoodDataApiView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, year: str, month: str):
-        last_food_data = Food_data.objects.last()
+        last_food_data = (
+            Food_data.objects.exclude(data__exact=[])
+            .order_by("-year", "-month")
+            .first()
+        )
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
-
-        if created and last_food_data is not None and len(last_food_data.data) > 0:
-            newfooddata = last_food_data.data[-1]
-            newfooddata["day"] = 1
-            food_data.data = [newfooddata]
-            food_data.save()
+        if created or food_data.data == []:
+            if last_food_data is not None and len(last_food_data.data) > 0:
+                newfooddata = last_food_data.data[-1]
+                newfooddata["day"] = 1
+                food_data.data = [newfooddata]
+                food_data.save()
 
         return Response(
             [food_data.data, food_data.order_mode], status=status.HTTP_200_OK

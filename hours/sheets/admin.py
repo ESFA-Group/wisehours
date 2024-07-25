@@ -18,3 +18,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     ordering = ["family__name"]
+
+@admin.register(Food_data)
+class Food_dataAdmin(admin.ModelAdmin):
+    ordering = ["year", "month"]
