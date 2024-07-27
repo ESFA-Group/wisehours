@@ -115,7 +115,7 @@ function getCurrentWeek(current_week) {
 		}
 	};
 	// try searching the previous month
-	ACTIVE_MONTH = CURRENT_MONTH-1
+	ACTIVE_MONTH = CURRENT_MONTH - 1
 	ACTIVE_MONTH_WEEKS = getWeeksOfMonth()
 	return getCurrentWeek(ACTIVE_MONTH_WEEKS)
 }
@@ -176,12 +176,12 @@ async function GetHolidays(year, month1, month2) {
 		holidays[month2] = await EsfaPersianHolidays.getHolidays(year, month2)
 	}
 
-    return holidays;
+	return holidays;
 }
 
 async function fillFoodTablebody() {
 	let week_days = Object.entries(ACTIVE_WEEK)
-	let Holiday = await GetHolidays(ACTIVE_YEAR ,week_days[0][1].date[1], week_days[6][1].date[1])
+	let Holiday = await GetHolidays(ACTIVE_YEAR, week_days[0][1].date[1], week_days[6][1].date[1])
 
 	for (const [index, day] of week_days) {
 		var row = $("<tr>");
@@ -347,7 +347,7 @@ function desablePreviousDays(order_mode) {
 		}
 		else if (order_mode == 0) {
 			let today = new Date();
-			let disableUntil = today.getDay() + 1;  // Get the current day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+			let disableUntil = (today.getDay() + 1) % 7;  // Get the current day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 			if (today.getHours() >= 12) {  // Check if the current hour is 12 PM or later
 				disableUntil += 1;
 			}
