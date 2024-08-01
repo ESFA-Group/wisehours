@@ -24,11 +24,11 @@ function fillYears(yearId, year = ACTIVE_YEAR) {
 	}
 }
 
-function fillWeeks() {
+function fillWeeks(weekId) {
 	let weeks = getWeeksOfMonth()
-	$("#modal_week").empty();
+	$(weekId).empty();
 	for (let i = 0; i < weeks.length; i++) {
-		$("#modal_week").append($("<option>")
+		$(weekId).append($("<option>")
 			.text(`week${i + 1} (${weeks[i]['0'].format('MM/DD')} --> ${weeks[i]['6'].format('MM/DD')})`)
 			.val(i));
 	}
@@ -155,9 +155,13 @@ async function getSheetDBT(year, month) {
 	return await getRequest(url)
 }
 
-
 async function getFoodDataDBT(year = ACTIVE_YEAR, month = ACTIVE_MONTH) {
 	const url = `/hours/api/FoodData/${year}/${month}`;
+	return await getRequest(url)
+}
+
+async function getCostTableDataDBT(year = ACTIVE_YEAR, month = ACTIVE_MONTH) {
+	const url = `/hours/api/food_cost_management/${year}/${month}`;
 	return await getRequest(url)
 }
 
@@ -402,9 +406,67 @@ function editFoodsBtnClick() {
 }
 
 function FoodsOrderBtnClick() {
-	fillFoodOrderDates()
+	fillFoodOrderDates("#modal_year", "#modal_month", "#modal_week")
 	fillFoodsOrderFromDB()
 	$("#foodsOrderModal").modal('show')
+}
+
+async function UpdatePricesTable() {
+	const [food_data, mode] = await getFoodDataDBT();
+	InitializeFoodOrderMode(mode);
+	renderSheet(food_data);
+}
+
+function UpdateCostsTable() {
+	fillFoodsOrderFromDB()
+	FillCostTable()
+	$("#CostModal").modal('show')
+}
+
+async function FillCostTable(year, month) {
+	$('#payment-table').bootstrapTable('removeAll');
+	const data = await getCostTableDataDBT(year, month);
+	for (const row of data) {
+		$('#payment-table').bootstrapTable('insertRow', {
+			index: $('#payment-table').bootstrapTable('getOptions').totalRows,
+			row: row,
+		});
+	}
+}
+
+function UpdatePaymentTable(year, month, rowData, idx) {
+	const url = `/hours/api/food_cost_management/${year}/${month}`;
+
+	return fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': window.CSRF_TOKEN,
+		},
+		body: JSON.stringify(
+			{
+				idx: idx, 
+				row: rowData,
+			}),
+	})
+		.then(res => res.json())
+		.then(res => {
+			UpdateCostsTable()
+			return true
+		})
+		.catch(err => {
+			jSuites.notification({
+				error: 1,
+				name: 'Error',
+				title: "Editing Row",
+				message: "Error occurred while changing data.",
+			});
+			return false
+		});
+}
+
+function moneyFormatter(value) {
+	return value.toLocaleString()
 }
 
 async function fillEditFoodsFormFromDB() {
@@ -419,13 +481,12 @@ async function fillEditFoodsFormFromDB() {
 	}
 }
 
-function fillFoodOrderDates() {
-	fillYears("#modal_year")
-	fillWeeks();
-	$("#modal_year").val(CURRENT_YEAR);
-	$("#modal_month").val(ACTIVE_MONTH);
-	$("#modal_week").val(CURRENT_WEEK_INDEX);
-
+function fillFoodOrderDates(yearId, monthId, weekId) {
+	fillYears(yearId)
+	fillWeeks(weekId);
+	$(yearId).val(CURRENT_YEAR);
+	$(monthId).val(ACTIVE_MONTH);
+	$(weekId).val(CURRENT_WEEK_INDEX);
 }
 
 async function fillFoodsOrderFromDB() {
@@ -511,21 +572,28 @@ function handleChangeModalWeek() {
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
 }
 
+function UpdateTablesStatus() {
+	if ($("#spreadsheet").is(":visible")) {
+		UpdatePricesTable();
+	}
+	else if ($("#payment-table").is(":visible")) {
+		UpdateCostsTable()
+	}
+}
+
 $("document").ready(async function () {
 	fillYears("#year");
-	const [food_data, mode] = await getFoodDataDBT()
-	InitializeFoodOrderMode(mode)
-	renderSheet(food_data)
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
-
+	const [food_data, mode] = await getFoodDataDBT();
+	InitializeFoodOrderMode(mode);
+	UpdateTablesStatus()
 
 	$("#year, #month").change(async function () {
 		ACTIVE_YEAR = $("#year").val()
 		ACTIVE_MONTH = $("#month").val()
 
-		const [food_data, mode] = await getFoodDataDBT()
-		renderSheet(food_data)
+		UpdatePricesTable()
 	});
 	$("#modal_year, #modal_month, #modal_week").change(async function () {
 		handleChangeModalWeek()
@@ -535,4 +603,36 @@ $("document").ready(async function () {
 		var selectedRadioId = $('input[name="btnradio"]:checked').attr('valueNumber');
 		await saveFoodOrderModeDBT(parseInt(selectedRadioId))
 	});
+
+	$("#toggleButton").click(function () {
+		$("#spreadsheet").toggle();
+		$("#payment-table").toggle();
+		UpdateTablesStatus()
+	});
+
+	$("#payment-table").on('editable-shown.bs.table', function (e, field, row) {
+		let value = row[field];
+		value = String(value).replaceAll(',', '');
+		$("div.editable-input input").val(value);
+	});
+
+	$("#payment-table").on('editable-save.bs.table', function (e, field, row, idx, oldValue) {
+		if (row[field] == oldValue) {
+			return;
+		}
+		let responsStatus = UpdatePaymentTable(ACTIVE_YEAR, ACTIVE_MONTH, row, idx)
+		if (responsStatus == false)
+			$("#payment-table").bootstrapTable('updateCell', { index: idx, field: field, value: oldValue });
+	});
+
+	$('#payment-table').on('change', '.form-select', function () {
+		const $table = $(this).closest('table');
+		let idx = $(this).closest('tr').data('index');
+		row = $table.bootstrapTable('getData')[idx];
+		row.paymentStatus = $(this).val()
+
+		const year = $("#year").val();
+		const month = $("#month").val();
+		UpdatePaymentTable(year, month, row, idx)
+	})
 });

@@ -323,3 +323,4 @@ class Food_data(models.Model):
     month = models.PositiveIntegerField("month", default=current_month)
     order_mode = models.IntegerField("order_mode", choices=food_order_mode, default=0)
     data = models.JSONField(default=list)
+    statistics_and_cost_data = models.JSONField(default=list)

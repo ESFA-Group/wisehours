@@ -420,7 +420,7 @@ class OrderFoodApiView(APIView):
         food_data, created = Food_data.objects.get_or_create(year=year, month=month)
 
         flat_list = [item for sublist in sheet.food_data for item in sublist]
-        order_data = filtered_list = [
+        order_data = [
             item
             for item in flat_list
             if item["month"] == month and len(item["foods"]) > 0
@@ -430,15 +430,7 @@ class OrderFoodApiView(APIView):
         sheet.save()
 
     def calculateSheetFoodPrice(self, order_data, food_data):
-        food_price_map = {}
-
-        # Iterate over the food data and map prices based on the day ranges
-        for food_entry in food_data:
-            day = food_entry["day"]
-            for food_item in food_entry["data"]:
-                food_id = food_item["id"]
-                price = food_item["price"]
-                food_price_map[(day, food_id)] = price
+        food_price_map = self.get_food_price_map(food_data)
 
         # Step 2: Calculate total price
         total_price = 0
@@ -469,6 +461,19 @@ class OrderFoodApiView(APIView):
 
         return total_price
 
+    @classmethod
+    def get_food_price_map(self, food_data):
+        food_price_map = {}
+
+        # Iterate over the food data and map prices based on the day ranges
+        for food_entry in food_data:
+            day = food_entry["day"]
+            for food_item in food_entry["data"]:
+                food_id = food_item["id"]
+                price = food_item["price"]
+                food_price_map[(day, food_id)] = price
+        return food_price_map
+
     def get_delivery_price(self, day):
         return 50000
 
@@ -477,6 +482,22 @@ class FoodDataApiView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, year: str, month: str):
+        food_data = FoodManagementApiView.get_or_create_food_data(year, month)
+        return Response(
+            [food_data.data, food_data.order_mode], status=status.HTTP_200_OK
+        )
+
+
+class FoodManagementApiView(APIView):
+    permission_classes = [customPermissions.IsFoodManager]
+    
+    def get(self, request, year: str, month: str):
+        food_data = self.get_or_create_food_data(year, month)
+
+        return Response([food_data.data, food_data.order_mode, food_data.statistics_and_cost_data], status=status.HTTP_200_OK)
+
+    @classmethod
+    def get_or_create_food_data(self, year, month):
         last_food_data = (
             Food_data.objects.exclude(data__exact=[])
             .order_by("-year", "-month")
@@ -489,19 +510,30 @@ class FoodDataApiView(APIView):
                 newfooddata["day"] = 1
                 food_data.data = [newfooddata]
                 food_data.save()
-
-        return Response(
-            [food_data.data, food_data.order_mode], status=status.HTTP_200_OK
-        )
-
-
-class FoodManagementApiView(APIView):
-    permission_classes = [customPermissions.IsFoodManager]
-
+        if food_data.statistics_and_cost_data == []:
+            if last_food_data.statistics_and_cost_data:
+                default_delivery_price = last_food_data.statistics_and_cost_data[-1]['delivery_cost']
+            else:
+                default_delivery_price = 20000
+            empty_sheet = Sheet.empty_sheet_data(int(year), int(month))
+            food_data.statistics_and_cost_data = [
+                {
+                    'day': item['Day'],
+                    'num_users_Ordered': 0,
+                    'delivery_cost': default_delivery_price,
+                    'calculated_amount': 0,
+                    'amount_paid': 0,
+                }
+                for item in empty_sheet
+            ]
+            food_data.save()
+        return food_data
+        
+    
     def post(self, request, year: str, month: str):
         submittedFoodNames = request.data
         food_data = Food_data.objects.get(year=year, month=month)
-
+        
         if not food_data.data:
             food_data.data = [
                 {
@@ -583,6 +615,76 @@ class FoodManagementApiView(APIView):
         return
 
 
+class FoodCostManagementApiView(APIView):
+    permission_classes = [customPermissions.IsFoodManager]
+    
+    def get(self, request, year: str, month: str):
+        food_data = FoodManagementApiView.get_or_create_food_data(year, month)
+        self.update_statistics_and_cost_data(food_data, year, month)
+        return Response(food_data.statistics_and_cost_data, status=status.HTTP_200_OK)
+  
+    
+    def post(self, request, year: str, month: str):
+        index, row_data = request.data.values()
+        food_data = Food_data.objects.get(year=year, month=month)
+        old_row_data = food_data.statistics_and_cost_data[index]
+        if old_row_data['delivery_cost'] == row_data['delivery_cost']:
+            row_data['amount_paid'] = int(row_data['amount_paid'])
+            food_data.statistics_and_cost_data[index] = row_data
+            food_data.save()
+        else:
+            self.update_foods_delivery_cost(food_data, index, row_data['delivery_cost'])
+        res = food_data.statistics_and_cost_data
+        return Response(res , status=status.HTTP_200_OK)
+
+    def update_foods_delivery_cost(self, food_data, idx, delivery_cost):
+        for i in range(idx, len(food_data.statistics_and_cost_data)):
+            food_data.statistics_and_cost_data[i]['delivery_cost'] = int(delivery_cost) 
+        food_data.save()
+
+    def update_statistics_and_cost_data(self, food_data: Food_data, year, month):
+        sheets = Sheet.objects.filter(year=year, month=month).exclude(food_data=[])
+
+        for item in food_data.statistics_and_cost_data:
+            item['calculated_amount'] = 0
+            item['num_users_Ordered'] = 0
+            # item['amount_paid'] = 0
+            
+        food_price_map = OrderFoodApiView.get_food_price_map(food_data.data)
+        for sh in sheets:
+            if sh.food_data:
+                result = {
+                    int(item['day']): item['foods']
+                    for sublist in sh.food_data
+                    for item in sublist
+                    if item["month"] == month and len(item["foods"]) > 0
+                }
+                for day, food_ids in result.items():
+                    food_data.statistics_and_cost_data[day-1]['num_users_Ordered'] += 1
+                    food_data.statistics_and_cost_data[day-1]['calculated_amount'] += self.get_order_price(food_price_map, food_data, food_ids, day)
+                        
+        food_data.save()
+    
+    @classmethod
+    def get_order_price(self, food_price_map, food_data: Food_data, food_ids, order_day):
+        applicable_day = 1
+        for day in food_data.data:
+            if day["day"] <= order_day:
+                applicable_day = day["day"]
+            else:
+                break
+        total_price = 0
+        for food_id in food_ids:
+            food_price_key = (applicable_day, food_id)
+            if food_price_key in food_price_map:
+                total_price += food_price_map[food_price_key]
+            else:
+                raise KeyError(
+                    "food key error in OrderFoodApi.calculateSjeetFoodData"
+                )
+                continue
+        return total_price
+
 class DailyFoodsOrder(APIView):
     permission_classes = [customPermissions.IsFoodManager]
 
@@ -615,7 +717,8 @@ class DailyFoodsOrder(APIView):
 
         food_data = food_data_obj.data[0]["data"]
         d = [
-            [{"id": item["id"], "name": item["name"], "count": 0} for item in food_data]
+            [{"id": item["id"], "name": item["name"], "count": 0, "users": []} for item in food_data]
+            
             for _ in range(7)
         ]
 
