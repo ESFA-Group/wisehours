@@ -439,6 +439,7 @@ async function fillFoodsOrderFromDB() {
 			<tr>
 				<td>${item.name}</td>
 				<td>${item.count}</td>
+		        <td>${item.users.join('<br>')}</td>
 			</tr>
 		`;
 		$("#orderList tbody").append(newRow);

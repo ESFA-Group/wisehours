@@ -593,7 +593,7 @@ class DailyFoodsOrder(APIView):
             return Response([], status=status.HTTP_200_OK)
         food_data = food_data.data[0]["data"]
 
-        d = [{"id": item["id"], "name": item["name"], "count": 0} for item in food_data]
+        d = [{"id": item["id"], "name": item["name"], "count": 0, "users": []} for item in food_data]
 
         for sh in sheets:
             if sh.food_data is not [] and len(sh.food_data) > int(weekIndex):
@@ -602,7 +602,8 @@ class DailyFoodsOrder(APIView):
                     (item for item in TargetWeekFoodData if item["day"] == day), None
                 )
                 if selectedFoods:
-                    self.update_counts(d, selectedFoods["foods"])
+                    name = sh.user_name
+                    self.update_counts(d, selectedFoods["foods"], name)
 
         return Response(d, status=status.HTTP_200_OK)
 
@@ -622,7 +623,7 @@ class DailyFoodsOrder(APIView):
             if sh.food_data is not [] and len(sh.food_data) > int(weekIndex):
                 TargetWeekFoodData = sh.food_data[int(weekIndex)]
                 for index, item in enumerate(TargetWeekFoodData):
-                    self.update_counts(d[index], item["foods"])
+                    self.update_counts(d[index], item["foods"], sh.user_name)
 
         unique_food_names = list(
             OrderedDict.fromkeys(item["name"] for item in food_data)
@@ -660,7 +661,8 @@ class DailyFoodsOrder(APIView):
         )
         return response
 
-    def update_counts(self, items, ids):
+    def update_counts(self, items, ids, user):
         for item in items:
             if item["id"] in ids:
                 item["count"] += 1
+                item["users"].append(user)
