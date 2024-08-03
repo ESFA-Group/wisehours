@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
-from sheets.customDecorators import decorators,food_manager_required
+from sheets.customDecorators import decorators, food_manager_required
 from django.db.models import QuerySet
 
 import pandas as pd
@@ -15,7 +15,6 @@ import jdatetime as jdt
 
 from sheets.models import Sheet, User
 from sheets.api_views import AlterPaymentApiView, MonthlyReportApiView
-
 
 
 class JSONResponseMixin:
@@ -154,6 +153,7 @@ class AlterPaymentHandleView(BaseView):
 
 class FoodFormView(BaseView):
     template_name = "food_form.html"
+
 
 @method_decorator([food_manager_required], name="dispatch")
 class FoodDataView(BaseView):
@@ -440,6 +440,7 @@ class PaymentExcelImportView(View):
             user_id = row["userID"]
             wage = row["wage"]
             base = row["basePayment"]
+            r1 = row["reduction1"]
             row = row.to_dict()
             try:
                 current_sheet = Sheet.objects.get(
@@ -452,7 +453,7 @@ class PaymentExcelImportView(View):
                 continue
             current_sheet.wage = wage
             current_sheet.base_payment = base
-            current_sheet.reduction1 = row["reduction1"]
+            current_sheet.reduction1 = r1
             current_sheet.reduction2 = row["reduction2"]
             current_sheet.reduction3 = row["reduction3"]
             current_sheet.food_reduction = row["food_reduction"]
@@ -464,12 +465,14 @@ class PaymentExcelImportView(View):
             user = User.objects.get(pk=user_id)
             user.wage = wage
             user.base_payment = base
+            user.reduction1 = r1
             user.save()
 
             user_sheets = Sheet.objects.filter(user=user, year=year, month__gte=month)
             for sheet in user_sheets:
                 sheet.wage = wage
                 sheet.base_payment = base
+                sheet.reduction1 = r1
                 sheet.save()
 
         response_data = {
