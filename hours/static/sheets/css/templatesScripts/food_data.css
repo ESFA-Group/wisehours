@@ -19,10 +19,10 @@
 }
 
 .modal-dialog {
-    max-width: 40%; 
+    max-width: 60%; 
 }
 .modal-content {
-    height: 60vh; 
+    height: 70vh; 
 }
 .modal-body {
     overflow-y: auto;
