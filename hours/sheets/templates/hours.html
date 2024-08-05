@@ -122,6 +122,10 @@
                             <strong>Payment 2:</strong>
                             <strong id="complimentary"></strong>
                         </p>
+                        <p class="d-flex justify-content-between">
+                            <strong>Foods cost:</strong>
+                            <strong id="food_reduction"></strong>
+                        </p>
                         <p class="d-flex justify-content-between d-none">
                             <strong>Refund:</strong>
                             <strong id="refund"></strong>
@@ -214,13 +218,14 @@
     // autoHide: true,
     // closeable: true,
 
-    const [ BASE_PAYMENT, COMPLIMENTARY, TOTAL ] = get_payment_holders_eleements();
+    const [ BASE_PAYMENT, COMPLIMENTARY, FOOD_REDUCTION, TOTAL ] = get_payment_holders_eleements();
 
     function get_payment_holders_eleements(){
         let base = document.getElementById('base-payment');
         let complimentary = document.getElementById('complimentary');
+        let food_reduction = document.getElementById('food_reduction');
         let total = document.getElementById('total-pay');
-        return [ base, complimentary, total ];
+        return [ base, complimentary, food_reduction, total ];
     }
     
     async function updatePaymentsValue(){
@@ -255,7 +260,8 @@
             updateBase(public_payment_info.basePayment, true);
             updateTotal(public_payment_info.complementaryPayment + public_payment_info.basePayment, true);
             handleRefund(public_payment_info.complementaryPayment, true)
-        }    
+        }
+        handleFoodReduction(public_payment_info.food_reduction);   
     }
     function updateBase(value, isPayed = false){
         value = value.toLocaleString('en-US');
@@ -287,6 +293,11 @@
             REFUND.classList.remove("redFont")
             REFUND_TEXT.textContent = ``;
         }
+    }
+    function handleFoodReduction(food_reduction){
+        value = (-food_reduction).toLocaleString('en-US');
+        FOOD_REDUCTION.parentNode.classList.remove('d-none');
+        FOOD_REDUCTION.textContent = value;
     }
 
     async function getPaymentsValue(){

@@ -284,6 +284,7 @@ class Sheet(models.Model):
         info = {
             "basePayment": self.get_base_payment(),
             "complementaryPayment": self.get_complementary_payment(),
+            "food_reduction": self.food_reduction,
             "paymentStatus": self.payment_status,
         }
         return info
