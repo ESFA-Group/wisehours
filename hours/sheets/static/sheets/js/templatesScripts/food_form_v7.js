@@ -86,10 +86,10 @@ function getWeeksOfMonth() {
 			for (let j = 1; j < 7; j++) {
 				i = i + 1
 				if (i > totalDaysInMonth) {
-					month += 1;
+					month = (parseInt(month) + 1).toString();
 					if (month > 12) {
-						year += 1
-						month = 1
+						year += (parseInt(year) + 1).toString();
+						month = '1'
 					}
 					i = 1;
 					startDate = new JDate(year, month, i);
