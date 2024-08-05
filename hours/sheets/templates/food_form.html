@@ -9,7 +9,7 @@
     <link rel="stylesheet"
           href="{% static 'sheets/css/bootstrap-editable.css' %}">
     <link rel="stylesheet"
-          href="{% static 'sheets/css/templatesScripts/food_form_v8.css' %}">
+          href="{% static 'sheets/css/templatesScripts/food_form.css' %}">
 {% endblock extra_css %}
 
 {% block body %}
@@ -57,30 +57,16 @@
 
         <table id="foodTable" data-toggle="table">
         </table>
-
-        <br>
-        {% comment %} <div class="container d-flex justify-content-start align-items-center">
-            <div class="text-center">
-                <button id="submitFoodBtn"
-                        type="button"
-                        class="btn btn-primary  d-flex justify-content-around align-items-center">
-                    <div id="submit-food-spinner" class="spinner-border text-light me-2 d-none">
-                    </div>
-                    <span>submit</span>
-                    <div id="submit-food-check" class="text-success ms-2 d-none">
-                        ✅
-                    </div>
-                </button>
-            </div>
-        </div> {% endcomment %}
         
+        <br>
+
         <button id="submitFoodBtn" class="btn btn-primary d-flex justify-content-center align-items-center position-relative" type="button">
             <span id="submit-food-spinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
             <span>submit</span>
             <div id="submit-food-check" class="bg-primary d-none" desabled>
                 ✅
             </div>
-        </button>        
+        </button>
     </div>
 
     <script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
@@ -89,5 +75,5 @@
     <script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
     <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
     <script src="{% static 'sheets/js/esfa_persian_holidays.min.js' %}"></script>
-    <script src="{% static 'sheets/js/templatesScripts/food_form_v8.js' %}"></script>
+    <script src="{% static 'sheets/js/templatesScripts/food_form.js' %}"></script>
 {% endblock body %}
