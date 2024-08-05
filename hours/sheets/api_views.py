@@ -432,11 +432,11 @@ class OrderFoodApiView(APIView):
             if item["month"] == month and len(item["foods"]) > 0
         ]
 
-        sheet.food_reduction = self.calculateSheetFoodPrice(order_data, food_data.data)
+        sheet.food_reduction = self.calculateSheetFoodPrice(order_data, food_data)
         sheet.save()
 
-    def calculateSheetFoodPrice(self, order_data, food_data):
-        food_price_map = self.get_food_price_map(food_data)
+    def calculateSheetFoodPrice(self, order_data, food_data: Food_data):
+        food_price_map = self.get_food_price_map(food_data.data)
 
         # Step 2: Calculate total price
         total_price = 0
@@ -444,12 +444,14 @@ class OrderFoodApiView(APIView):
         for order in order_data:
             order_day = int(order["day"])
             foods = order["foods"]
-
-            total_price += self.get_delivery_price(order_day)
+            today_price = 0
+            today_price += self.get_delivery_price(
+                food_data.statistics_and_cost_data, order_day
+            )
 
             # Determine the applicable day for pricing
             applicable_day = 1
-            for day in food_data:
+            for day in food_data.data:
                 if day["day"] <= order_day:
                     applicable_day = day["day"]
                 else:
@@ -458,12 +460,13 @@ class OrderFoodApiView(APIView):
             for food_id in foods:
                 food_price_key = (applicable_day, food_id)
                 if food_price_key in food_price_map:
-                    total_price += food_price_map[food_price_key]
+                    today_price += food_price_map[food_price_key]
                 else:
                     raise KeyError(
                         "food key error in OrderFoodApi.calculateSjeetFoodData"
                     )
                     continue
+            total_price += today_price
 
         return total_price
 
@@ -480,8 +483,10 @@ class OrderFoodApiView(APIView):
                 food_price_map[(day, food_id)] = price
         return food_price_map
 
-    def get_delivery_price(self, day):
-        return 50000
+    def get_delivery_price(self, cost_data, day):
+        num_users_ordered = cost_data[day - 1]["num_users_Ordered"]
+        whole_delivery_cost = cost_data[day - 1]["delivery_cost"]
+        return whole_delivery_cost / num_users_ordered
 
 
 class FoodDataApiView(APIView):
@@ -525,7 +530,7 @@ class FoodManagementApiView(APIView):
                     "delivery_cost"
                 ]
             else:
-                default_delivery_price = 20000
+                default_delivery_price = 200000
             empty_sheet = Sheet.empty_sheet_data(int(year), int(month))
             food_data.statistics_and_cost_data = [
                 {
@@ -610,7 +615,8 @@ class FoodManagementApiView(APIView):
         food_data.save()
         self.update_all_foodReductions(year, month)
         return Response(food_data.data, status=status.HTTP_200_OK)
-
+    
+    @classmethod
     def update_all_foodReductions(self, year, month):
         OrderFoodApiObject = OrderFoodApiView()
 
@@ -643,6 +649,8 @@ class FoodCostManagementApiView(APIView):
             food_data.save()
         else:
             self.update_foods_delivery_cost(food_data, index, row_data["delivery_cost"])
+            FoodManagementApiView.update_all_foodReductions(year, month)
+            
         res = food_data.statistics_and_cost_data
         return Response(res, status=status.HTTP_200_OK)
 
@@ -677,7 +685,7 @@ class FoodCostManagementApiView(APIView):
                     ] += self.get_order_price(food_price_map, food_data, food_ids, day)
 
         food_data.save()
-    
+
     @classmethod
     def get_now_and_previous_month_sheets(self, year, month):
         month = int(month)
@@ -687,10 +695,10 @@ class FoodCostManagementApiView(APIView):
 
         # Filter objects
         sheets = Sheet.objects.filter(
-            Q(year=year, month=month) |
-            Q(year=previous_month_year, month=previous_month)
+            Q(year=year, month=month)
+            | Q(year=previous_month_year, month=previous_month)
         ).exclude(food_data=[])
-        
+
         return sheets
 
     @classmethod
