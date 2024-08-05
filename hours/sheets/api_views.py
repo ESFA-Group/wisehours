@@ -791,7 +791,7 @@ class DailyFoodsOrder(APIView):
                 food_data_to_order[name][day_idx] = food_count_map.get(name, 0)
                 food_data_to_order["مجموع"][day_idx] += food_count_map.get(name, 0)
                 continue
-        
+
         food_user_data = {"*": {i: day for i, day in enumerate(weekdays)}}
         for list_index, sublist in enumerate(d):
             # Iterate through each item in the sublist
@@ -800,15 +800,19 @@ class DailyFoodsOrder(APIView):
                 for user in item["users"]:
                     if user not in food_user_data:
                         food_user_data[user] = {}
-                    food_user_data[user][list_index] = food_name
-        
+                    if list_index in food_user_data[user]:
+                        food_user_data[user][list_index] += f", {food_name}"
+                    else:
+                        food_user_data[user][list_index] = food_name
+
         df = pd.DataFrame(food_data_to_order)
         df2 = pd.DataFrame(food_user_data)
-        # df2 = pd.DataFrame.from_dict(food_user_data, orient="index").reset_index()
+        df_transposed = df2.transpose()
+
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
             df.to_excel(writer, sheet_name="Sheet1", index=False)
-            df2.to_excel(writer, sheet_name="Sheet12", index=False)
+            df_transposed.to_excel(writer, sheet_name="Sheet2", index=True)
 
         response = HttpResponse(
             buffer.getvalue(),
