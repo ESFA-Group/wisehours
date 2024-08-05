@@ -243,20 +243,7 @@
                                     </select>
                                 </div>
                             </div>
-                            {% comment %} <div class="col col-6 col-md-4 col-lg-3">
-                                <strong>Day</strong>
-                                <div class="mt-1">
-                                    <select name="modal_month"
-                                            id="modal_month"
-                                            style="min-width: 180px;
-                                                   border-radius: 5px;
-                                                   height: 35px">
-                                        {% for i in 12|get_days_in_month:"True" %}
-                                            <option>{{ i }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div> {% endcomment %}
+                            
                             <div class="col-md-6 col-xxl-3">
                                 <button id="export-excel"
                                         class="btn btn-success d-flex align-items-center justify-content-around"
@@ -267,6 +254,19 @@
                                     <i class="fa fa-file-export"></i>
                                     <span>Export Excel</span>
                                 </button>
+                            </div>
+                        </div>
+                        <div class="row mt-2 d-none">
+                            <div class="col-md-6 col-xxl-5">
+                                <strong>Day - work in progress...</strong>
+                                <div class="mt-1">
+                                    <select name="modal_day"
+                                            id="modal_day"
+                                            style="min-width: 220px;
+                                                   border-radius: 5px;
+                                                   height: 35px">
+                                    </select>
+                                </div>
                             </div>
                         </div>
 

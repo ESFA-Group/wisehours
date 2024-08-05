@@ -615,7 +615,7 @@ class FoodManagementApiView(APIView):
         food_data.save()
         self.update_all_foodReductions(year, month)
         return Response(food_data.data, status=status.HTTP_200_OK)
-    
+
     @classmethod
     def update_all_foodReductions(self, year, month):
         OrderFoodApiObject = OrderFoodApiView()
@@ -650,7 +650,7 @@ class FoodCostManagementApiView(APIView):
         else:
             self.update_foods_delivery_cost(food_data, index, row_data["delivery_cost"])
             FoodManagementApiView.update_all_foodReductions(year, month)
-            
+
         res = food_data.statistics_and_cost_data
         return Response(res, status=status.HTTP_200_OK)
 
@@ -782,20 +782,33 @@ class DailyFoodsOrder(APIView):
             "پنچ شنبه",
             "جمعه",
         ]
-        data_dict = {"روز/غذا": weekdays}
-        data_dict.update({name: [0] * 7 for name in unique_food_names})
-        data_dict.update({"مجموع": [0] * 7})
+        food_data_to_order = {"روز/غذا": weekdays}
+        food_data_to_order.update({name: [0] * 7 for name in unique_food_names})
+        food_data_to_order.update({"مجموع": [0] * 7})
         for day_idx, day_data in enumerate(d):
             food_count_map = {item["name"]: item["count"] for item in day_data}
             for name in unique_food_names:
-                data_dict[name][day_idx] = food_count_map.get(name, 0)
-                data_dict["مجموع"][day_idx] += food_count_map.get(name, 0)
+                food_data_to_order[name][day_idx] = food_count_map.get(name, 0)
+                food_data_to_order["مجموع"][day_idx] += food_count_map.get(name, 0)
                 continue
-
-        df = pd.DataFrame(data_dict)
+        
+        food_user_data = {"*": {i: day for i, day in enumerate(weekdays)}}
+        for list_index, sublist in enumerate(d):
+            # Iterate through each item in the sublist
+            for item in sublist:
+                food_name = item["name"]
+                for user in item["users"]:
+                    if user not in food_user_data:
+                        food_user_data[user] = {}
+                    food_user_data[user][list_index] = food_name
+        
+        df = pd.DataFrame(food_data_to_order)
+        df2 = pd.DataFrame(food_user_data)
+        # df2 = pd.DataFrame.from_dict(food_user_data, orient="index").reset_index()
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
             df.to_excel(writer, sheet_name="Sheet1", index=False)
+            df2.to_excel(writer, sheet_name="Sheet12", index=False)
 
         response = HttpResponse(
             buffer.getvalue(),
