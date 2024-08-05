@@ -411,9 +411,7 @@ function FoodsOrderBtnClick() {
 	$("#foodsOrderModal").modal('show')
 }
 
-async function UpdatePricesTable() {
-	const [food_data, mode] = await getFoodDataDBT();
-	InitializeFoodOrderMode(mode);
+async function UpdatePricesTable(food_data) {
 	renderSheet(food_data);
 }
 
@@ -572,9 +570,12 @@ function handleChangeModalWeek() {
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
 }
 
-function UpdateTablesStatus() {
+async function UpdateTablesStatus() {
+	const [food_data, mode] = await getFoodDataDBT();
+	InitializeFoodOrderMode(mode);
+	
 	if ($("#spreadsheet").is(":visible")) {
-		UpdatePricesTable();
+		UpdatePricesTable(food_data);
 	}
 	else if ($("#payment-table").is(":visible")) {
 		UpdateCostsTable()
@@ -585,15 +586,13 @@ $("document").ready(async function () {
 	fillYears("#year");
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
-	const [food_data, mode] = await getFoodDataDBT();
-	InitializeFoodOrderMode(mode);
 	UpdateTablesStatus()
 
 	$("#year, #month").change(async function () {
 		ACTIVE_YEAR = $("#year").val()
 		ACTIVE_MONTH = $("#month").val()
 
-		UpdatePricesTable()
+		UpdateTablesStatus()
 	});
 	$("#modal_year, #modal_month, #modal_week").change(async function () {
 		handleChangeModalWeek()
