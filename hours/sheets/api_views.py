@@ -663,7 +663,7 @@ class FoodCostManagementApiView(APIView):
         sheets = self.get_now_and_previous_month_sheets(year, month)
 
         for item in food_data.statistics_and_cost_data:
-            item["calculated_amount"] = 0
+            item["calculated_amount"] = item["delivery_cost"]
             item["num_users_Ordered"] = 0
             # item['amount_paid'] = 0
 
