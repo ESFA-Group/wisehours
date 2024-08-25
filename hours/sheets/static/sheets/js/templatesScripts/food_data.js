@@ -443,7 +443,7 @@ function UpdatePaymentTable(year, month, rowData, idx) {
 		},
 		body: JSON.stringify(
 			{
-				idx: idx, 
+				idx: idx,
 				row: rowData,
 			}),
 	})
@@ -573,7 +573,7 @@ function handleChangeModalWeek() {
 async function UpdateTablesStatus() {
 	const [food_data, mode] = await getFoodDataDBT();
 	InitializeFoodOrderMode(mode);
-	
+
 	if ($("#spreadsheet").is(":visible")) {
 		UpdatePricesTable(food_data);
 	}
@@ -606,6 +606,8 @@ $("document").ready(async function () {
 	$("#toggleButton").click(function () {
 		$("#spreadsheet").toggle();
 		$("#payment-table").toggle();
+		$("div.fixed-table-toolbar").toggle();
+
 		UpdateTablesStatus()
 	});
 
