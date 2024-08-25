@@ -82,7 +82,7 @@
                                position: relative;
                                top: 27px">
                     <i class="fa fa-file-export"></i>
-                    <span>Today Foods order</span>
+                    <span>Foods Order Report</span>
                 </button>
             </div>
         </div>
@@ -198,7 +198,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
-                            Today Order List
+                            Order List Data
                         </h5>
                         <button type="button"
                                 class="btn-close"
@@ -243,28 +243,28 @@
                                     </select>
                                 </div>
                             </div>
-                            
                             <div class="col-md-6 col-xxl-3">
                                 <button id="export-excel"
                                         class="btn btn-success d-flex align-items-center justify-content-around"
                                         onclick="export_excel_click()"
-                                        style="width: 150px;
+                                        style="width: 180px;
                                                position: relative;
                                                top: 27px">
                                     <i class="fa fa-file-export"></i>
-                                    <span>Export Excel</span>
+                                    <span>Get Weekly Report</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="row mt-2 d-none">
+                        <div class="row mt-2">
                             <div class="col-md-6 col-xxl-5">
-                                <strong>Day - work in progress...</strong>
+                                <strong>Day</strong>
                                 <div class="mt-1">
                                     <select name="modal_day"
                                             id="modal_day"
                                             style="min-width: 220px;
                                                    border-radius: 5px;
                                                    height: 35px">
+                                        {% comment %} {{ 1|render_day_options }} {% endcomment %}
                                     </select>
                                 </div>
                             </div>

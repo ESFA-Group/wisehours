@@ -1,7 +1,9 @@
 from django import template
 from django.utils.safestring import mark_safe
 import jdatetime as jdt
+
 register = template.Library()
+
 
 def current_mont_days(month: int, isleap: bool) -> int:
     """gets a month and returns that date's month days number with leap year consideration
@@ -12,15 +14,27 @@ def current_mont_days(month: int, isleap: bool) -> int:
         days_num += 1
     return days_num
 
+
 @register.filter(name="make_range")
 def make_range(num):
     return range(int(num))
 
 
 @register.filter(name="get_days_in_month")
-def get_days_in_month(monthNumber: int, isleap: bool=False):
+def get_days_in_month(monthNumber: int, isleap: bool = False):
     days = current_mont_days(monthNumber, isleap)
-    return range(1, days+1)
+    return range(1, days + 1)
+
+
+@register.filter(name="render_day_options")
+def render_day_options(monthNumber: int, year: int = 1403):
+    is_leap = jdt.date(year, monthNumber, 1).isleap()
+    days = current_mont_days(monthNumber, is_leap)
+    options_html = ""
+    for day in range(1, days + 1):
+        options_html += f'<option value="{day}">{day}</option>'
+    return mark_safe(options_html)
+
 
 @register.filter(name="render_month_options")
 def render_month_options(selected_month=None):

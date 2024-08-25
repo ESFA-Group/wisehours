@@ -16,9 +16,11 @@ var ACTIVE_MONTH_WEEKS = CURRENT_MONTH_WEEKS
 const [CURRENT_WEEK, CURRENT_WEEK_INDEX] = getCurrentWeek(CURRENT_MONTH_WEEKS)
 var ACTIVE_WEEK = CURRENT_WEEK
 var ACTIVE_WEEK_INDEX = CURRENT_WEEK_INDEX
+var ACTIVE_DAY;
 // ********************************************************
 
-function fillYears(yearId, year = ACTIVE_YEAR) {
+function fillYears(yearId, year = CURRENT_YEAR) {
+	$(yearId).empty();
 	for (let i = window.START_YEAR; i <= year; i++) {
 		$(yearId).append($("<option>").text(i));
 	}
@@ -407,8 +409,18 @@ function editFoodsBtnClick() {
 
 function FoodsOrderBtnClick() {
 	fillFoodOrderDates("#modal_year", "#modal_month", "#modal_week")
+	update_modal_dates_info(true);
 	fillFoodsOrderFromDB()
 	$("#foodsOrderModal").modal('show')
+}
+
+function update_modal_dates_info(isInit = false) {
+	handleChangeModalDropDowns();
+	update_selects_contents();
+	if (isInit) {
+		$("#modal_day").val(TODAY.getDate());
+		ACTIVE_DAY = $("#modal_day").val();
+	}
 }
 
 async function UpdatePricesTable(food_data) {
@@ -482,7 +494,7 @@ async function fillEditFoodsFormFromDB() {
 function fillFoodOrderDates(yearId, monthId, weekId) {
 	fillYears(yearId)
 	fillWeeks(weekId);
-	$(yearId).val(CURRENT_YEAR);
+	$(yearId).val(ACTIVE_YEAR);
 	$(monthId).val(ACTIVE_MONTH);
 	$(weekId).val(CURRENT_WEEK_INDEX);
 }
@@ -490,7 +502,9 @@ function fillFoodOrderDates(yearId, monthId, weekId) {
 async function fillFoodsOrderFromDB() {
 	$("#orderList tbody").empty();
 
-	const data = await getFoodOrderSummaryDBT();
+	let weekBasedOnActiveDay = 0
+	let week = ACTIVE_MONTH_WEEKS
+	const data = await getFoodOrderSummaryDBT(ACTIVE_DAY);
 
 
 	for (let item of data) {
@@ -506,10 +520,6 @@ async function fillFoodsOrderFromDB() {
 }
 
 async function export_excel_click() {
-	const year = $("#modal_year").val();
-	const month = $("#modal_month").val();
-	const week_index = $("#modal_week").val();
-	const week = ACTIVE_MONTH_WEEKS[week_index]
 	await getFoodOrderSummaryExcelDBT(ACTIVE_WEEK_INDEX)
 }
 
@@ -565,9 +575,29 @@ function getModalFormFoodData() {
 	return foodData;
 }
 
-function handleChangeModalWeek() {
+function handleChangeModalDropDowns() {
+	ACTIVE_YEAR = $("#modal_year").val();
+	ACTIVE_MONTH = $("#modal_month").val();
 	ACTIVE_WEEK_INDEX = $("#modal_week").val();
+	ACTIVE_DAY = $("#modal_day").val();
+	ACTIVE_MONTH_WEEKS = getWeeksOfMonth()
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
+}
+
+function update_selects_contents() {
+	fillFoodOrderDates("#modal_year", "#modal_month", "#modal_week")
+	update_days_modal();
+}
+
+function update_days_modal() {
+	let optionsHtml = "";
+	for (let day = 0; day <= 6; day++) {
+		optionsHtml += `<option value="${ACTIVE_WEEK[day].getDate()}">${ACTIVE_WEEK[day].getDate()}</option>`;
+	}
+
+	// Update the modal_day select element with the generated options
+	$("#modal_day").html(optionsHtml);
+	ACTIVE_DAY = $("#modal_day").val();
 }
 
 async function UpdateTablesStatus() {
@@ -594,13 +624,29 @@ $("document").ready(async function () {
 
 		UpdateTablesStatus()
 	});
-	$("#modal_year, #modal_month, #modal_week").change(async function () {
-		handleChangeModalWeek()
+
+	$("#modal_year, #modal_month").change(async function () {
+		update_modal_dates_info();
+	});
+
+	$("#modal_week").change(async function () {
+		handleChangeModalDropDowns();
+		update_days_modal()
+	});
+
+	$("#modal_day").change(async function () {
+		handleChangeModalDropDowns();
+		fillFoodsOrderFromDB()
 	});
 
 	$('input[name="btnradio"]').change(async function () {
 		var selectedRadioId = $('input[name="btnradio"]:checked').attr('valueNumber');
 		await saveFoodOrderModeDBT(parseInt(selectedRadioId))
+	});
+
+	$('#foodsOrderModal').on('hidden.bs.modal', function () {
+		ACTIVE_YEAR = $("#year").val()
+		ACTIVE_MONTH = $("#month").val()
 	});
 
 	$("#toggleButton").click(function () {
