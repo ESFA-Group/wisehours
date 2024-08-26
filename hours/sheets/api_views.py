@@ -684,11 +684,25 @@ class FoodCostManagementApiView(APIView):
                     food_data.statistics_and_cost_data[day - 1][
                         "num_users_Ordered"
                     ] += 1
-                    food_data.statistics_and_cost_data[day - 1][
-                        "calculated_amount"
-                    ] += self.get_order_price(food_price_map, food_data, food_ids, day)
+                    try:
+                        food_data.statistics_and_cost_data[day - 1][
+                            "calculated_amount"
+                        ] += self.get_order_price(
+                            food_price_map, food_data, food_ids, day
+                        )
+                    except KeyError as e:
+                        self.deselect_invalid_food(sh.food_data, e.args[0][1], month)
+                        sh.save()
+                        self.update_statistics_and_cost_data(food_data, year, month)
+                        return
 
         food_data.save()
+
+    def deselect_invalid_food(self, food_monthly_data, food_id, target_month):
+        for week_data in food_monthly_data:
+            for day_data in week_data:
+                if day_data["month"] == target_month and food_id in day_data["foods"]:
+                    day_data["foods"].remove(food_id)
 
     @classmethod
     def get_now_and_previous_month_sheets(self, year, month):
@@ -718,11 +732,11 @@ class FoodCostManagementApiView(APIView):
         total_price = 0
         for food_id in food_ids:
             food_price_key = (applicable_day, food_id)
-            if food_price_key in food_price_map:
-                total_price += food_price_map[food_price_key]
-            else:
-                raise KeyError("food key error in OrderFoodApi.calculateSjeetFoodData")
-                continue
+            # if food_price_key in food_price_map:
+            total_price += food_price_map[food_price_key]
+            # else:
+            #     raise KeyError("food key error in get_order_price")
+            #     continue
         return total_price
 
 
