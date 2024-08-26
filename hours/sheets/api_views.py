@@ -695,7 +695,7 @@ class FoodCostManagementApiView(APIView):
                         sh.save()
                         self.update_statistics_and_cost_data(food_data, year, month)
                         return
-
+        self.handleFakeDeliveryPrices(food_data.statistics_and_cost_data)
         food_data.save()
 
     def deselect_invalid_food(self, food_monthly_data, food_id, target_month):
@@ -703,6 +703,11 @@ class FoodCostManagementApiView(APIView):
             for day_data in week_data:
                 if day_data["month"] == target_month and food_id in day_data["foods"]:
                     day_data["foods"].remove(food_id)
+
+    def handleFakeDeliveryPrices(self, statistics_and_cost_data):
+        for item in statistics_and_cost_data:
+            if item["num_users_Ordered"] == 0:
+                item["calculated_amount"] = 0
 
     @classmethod
     def get_now_and_previous_month_sheets(self, year, month):
