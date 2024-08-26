@@ -488,6 +488,8 @@ class OrderFoodApiView(APIView):
     def get_delivery_price(self, cost_data, day):
         num_users_ordered = cost_data[day - 1]["num_users_Ordered"]
         whole_delivery_cost = cost_data[day - 1]["delivery_cost"]
+        if num_users_ordered == 0:
+            return whole_delivery_cost
         return whole_delivery_cost / num_users_ordered
 
 
