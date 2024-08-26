@@ -437,9 +437,18 @@ async function FillCostTable(year, month) {
 	$('#payment-table').bootstrapTable('removeAll');
 	const data = await getCostTableDataDBT(year, month);
 	for (const row of data) {
+		let rowClass = '';
+
+		if (row["amount_paid"] != 0 && row["amount_paid"] != row["calculated_amount"]) {
+			rowClass = 'error-row-bg';
+		}
+
 		$('#payment-table').bootstrapTable('insertRow', {
 			index: $('#payment-table').bootstrapTable('getOptions').totalRows,
-			row: row,
+			row: {
+				...row,
+				_class: rowClass, // Apply the class if the condition is met
+			},
 		});
 	}
 }

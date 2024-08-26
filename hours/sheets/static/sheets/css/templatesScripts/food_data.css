@@ -36,3 +36,6 @@
 .table th {
     border-bottom: 2px solid black !important;
 }
+.error-row-bg {
+    background-color: #ffa5a5; /* Replace with your desired color */
+}
