@@ -219,7 +219,8 @@ async function fillFoodTable() {
 
 	let activeWeek_food_data = food_data[ACTIVE_WEEK_INDEX]
 	const [header, ...rows] = $('#foodTable tr')
-
+	if (!Array.isArray(activeWeek_food_data)) 
+		return
 	activeWeek_food_data.forEach(dayfood => {
 		const matchingRow = rows.filter(r => r.cells[0].value == dayfood.day)[0];
 		if (matchingRow !== undefined) {
@@ -324,8 +325,9 @@ function getSelectedFoodsFromTable() {
 async function handleChangeModalWeekAsync() {
 	ACTIVE_WEEK_INDEX = $("#week").val();
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
-	await initializeFoodTable()
+	await initializeFoodTable();
 	await fillFoodTable();
+	return;
 }
 
 function desablePreviousDays(order_mode) {
