@@ -219,7 +219,8 @@ async function fillFoodTable() {
 
 	let activeWeek_food_data = food_data[ACTIVE_WEEK_INDEX]
 	const [header, ...rows] = $('#foodTable tr')
-
+	if (!Array.isArray(activeWeek_food_data)) 
+		return
 	activeWeek_food_data.forEach(dayfood => {
 		const matchingRow = rows.filter(r => r.cells[0].value == dayfood.day)[0];
 		if (matchingRow !== undefined) {
@@ -321,11 +322,12 @@ function getSelectedFoodsFromTable() {
 	return currentWeekSelectedFood;
 }
 
-async function handleChangeModalWeek() {
+async function handleChangeModalWeekAsync() {
 	ACTIVE_WEEK_INDEX = $("#week").val();
 	ACTIVE_WEEK = ACTIVE_MONTH_WEEKS[ACTIVE_WEEK_INDEX];
-	await initializeFoodTable()
+	await initializeFoodTable();
 	await fillFoodTable();
+	return;
 }
 
 function desablePreviousDays(order_mode) {
@@ -377,7 +379,7 @@ $("document").ready(async function () {
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
 	$("#week").val(CURRENT_WEEK_INDEX);
-	handleChangeModalWeek()
+	handleChangeModalWeekAsync()
 
 	$("#current-sheet-date").text(`${ACTIVE_YEAR}/${ACTIVE_MONTH}`);
 
@@ -386,11 +388,13 @@ $("document").ready(async function () {
 		ACTIVE_MONTH = $("#month").val()
 		ACTIVE_MONTH_WEEKS = getWeeksOfMonth()
 		fillWeeks();
-		handleChangeModalWeek()
+		handleChangeModalWeekAsync()
 	});
 
-	$("#week").change(function () {
-		handleChangeModalWeek();
+	$("#week").change(async function () {
+		$("#week").prop("disabled", true);
+		await handleChangeModalWeekAsync();
+		$("#week").prop("disabled", false);
 	});
 
 	$("#foodTable tbody").on("click", "td", function (e) {
