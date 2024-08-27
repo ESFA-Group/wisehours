@@ -626,7 +626,6 @@ $("document").ready(async function () {
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
 	UpdateTablesStatus()
-	console.log("log")
 
 	$("#year, #month").change(async function () {
 		ACTIVE_YEAR = $("#year").val()
