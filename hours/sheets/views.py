@@ -174,7 +174,6 @@ class DetailedReportView(View):
         for sheet in sheets:
             df = pd.DataFrame(sheet.data)
             df.to_excel(writer, sheet_name=sheet.user.get_full_name())
-        writer.save()
         writer.close()
 
         response = HttpResponse(
@@ -208,7 +207,6 @@ class MainReportView(View):
         writer = pd.ExcelWriter(buffer, engine="xlsxwriter")
         hours_df.to_excel(writer, sheet_name="hours")
         payments_df.to_excel(writer, sheet_name="payments")
-        writer.save()
         writer.close()
 
         response = HttpResponse(
@@ -243,7 +241,6 @@ class UsersMonthlyReportView(View):
         buffer = io.BytesIO()
         writer = pd.ExcelWriter(buffer, engine="xlsxwriter")
         df.to_excel(writer, sheet_name="hours")
-        writer.save()
         writer.close()
 
         response = HttpResponse(
@@ -279,7 +276,6 @@ class ProjectsYearlyReportView(View):
         buffer = io.BytesIO()
         writer = pd.ExcelWriter(buffer, engine="xlsxwriter")
         df.to_excel(writer, sheet_name="hours")
-        writer.save()
         writer.close()
 
         response = HttpResponse(
