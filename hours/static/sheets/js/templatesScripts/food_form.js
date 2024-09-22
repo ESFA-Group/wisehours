@@ -70,8 +70,10 @@ function fillWeeks() {
 function getWeeksOfMonth() {
 	let year = ACTIVE_YEAR
 	let month = ACTIVE_MONTH
-	const totalDaysInMonth = JDate.daysInMonth(year, month);
-
+	let totalDaysInMonth = JDate.daysInMonth(year, month);
+	if(year == 1403 && month == 6)
+		totalDaysInMonth = 31
+	
 	let weeksDate = []
 	let shouldbreak = false;
 	for (let i = 1; i <= totalDaysInMonth; i++) {
