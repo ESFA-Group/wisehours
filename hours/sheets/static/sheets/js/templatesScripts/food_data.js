@@ -39,7 +39,9 @@ function fillWeeks(weekId) {
 function getWeeksOfMonth() {
 	let year = ACTIVE_YEAR
 	let month = ACTIVE_MONTH
-	const totalDaysInMonth = JDate.daysInMonth(year, month);
+	let totalDaysInMonth = JDate.daysInMonth(year, month);
+	if (year == 1403 && month == 6)
+		totalDaysInMonth = 31
 
 	let weeksDate = []
 	let shouldbreak = false;
@@ -86,7 +88,6 @@ function getCurrentWeek(current_week) {
 	// try searching the previous month
 	ACTIVE_MONTH = CURRENT_MONTH - 1
 	ACTIVE_MONTH_WEEKS = getWeeksOfMonth()
-	var bbbbbb = ACTIVE_MONTH_WEEKS[0][0]
 	return getCurrentWeek(ACTIVE_MONTH_WEEKS)
 }
 

@@ -106,8 +106,7 @@ class SheetApiView(APIView):
             entry["Day"]: entry["WeekDay"] for entry in correct_weekdays
         }
         
-            # Sync the length of sheet.data with correct_weekdays
-        sheet.data = sheet.data[:5]  # Truncate excess entries
+        # Sync the length of sheet.data with correct_weekdays
         if len(sheet.data) > len(correct_weekdays):
             sheet.data = sheet.data[:len(correct_weekdays)]  # Truncate excess entries
         elif len(sheet.data) < len(correct_weekdays):
