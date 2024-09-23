@@ -149,7 +149,7 @@ class Sheet(models.Model):
     year = models.PositiveIntegerField("year", default=current_year)
     month = models.PositiveIntegerField("month", default=current_month)
     data = models.JSONField(default=list)
-    food_data = models.JSONField(default=list)
+    food_data = models.JSONField(default=list, blank=True)
     mean = models.PositiveIntegerField("mean", default=0)  # in minutes
     total = models.PositiveIntegerField("total", default=0)  # in minutes
     submitted = models.BooleanField("submitted", default=False)
