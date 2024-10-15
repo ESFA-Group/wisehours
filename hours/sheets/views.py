@@ -437,6 +437,7 @@ class PaymentExcelImportView(View):
             wage = row["wage"]
             base = row["basePayment"]
             r1 = row["reduction1"]
+            r2 = row["reduction2"]
             add1 = row["addition1"]
             row = row.to_dict()
             try:
@@ -451,7 +452,7 @@ class PaymentExcelImportView(View):
             current_sheet.wage = wage
             current_sheet.base_payment = base
             current_sheet.reduction1 = r1
-            current_sheet.reduction2 = row["reduction2"]
+            current_sheet.reduction2 = r2
             current_sheet.reduction3 = row["reduction3"]
             current_sheet.food_reduction = row["food_reduction"]
             current_sheet.addition1 = add1
@@ -463,6 +464,7 @@ class PaymentExcelImportView(View):
             user.wage = wage
             user.base_payment = base
             user.reduction1 = r1
+            user.reduction2 = r2
             user.addition1 = add1
             user.save()
 
@@ -471,6 +473,7 @@ class PaymentExcelImportView(View):
                 sheet.wage = wage
                 sheet.base_payment = base
                 sheet.reduction1 = r1
+                sheet.reduction2 = r2
                 sheet.addition1 = add1
                 sheet.save()
 

@@ -387,12 +387,14 @@ class AlterPaymentApiView(APIView):
         wage = editted_row["wage"]
         base = editted_row["basePayment"]
         r1 = int(editted_row["reduction1"])
+        r2 = int(editted_row["reduction2"])
         add1 = int(editted_row["addition1"])
 
         user = User.objects.get(pk=id)
         user.wage = wage
         user.base_payment = base
         user.reduction1 = r1
+        user.reduction2 = r2
         user.addition1 = add1
         user.save()
         user_sheets = Sheet.objects.filter(user=id, year=1403)
@@ -401,11 +403,11 @@ class AlterPaymentApiView(APIView):
                 sheet.wage = wage
                 sheet.base_payment = base
                 sheet.reduction1 = r1
+                sheet.reduction2 = r2
                 sheet.addition1 = add1
                 sheet.save()
 
         currentSheet = Sheet.objects.get(user=id, year=1403, month=month)
-        currentSheet.reduction2 = int(editted_row["reduction2"])
         currentSheet.reduction3 = int(editted_row["reduction3"])
         currentSheet.food_reduction = int(editted_row["food_reduction"])
         currentSheet.addition2 = int(editted_row["addition2"])
