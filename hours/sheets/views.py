@@ -12,6 +12,8 @@ import numpy as np
 import io
 import json
 import jdatetime as jdt
+import openpyxl
+from io import BytesIO
 
 from sheets.models import Sheet, User
 from sheets.api_views import AlterPaymentApiView, MonthlyReportApiView
@@ -350,6 +352,28 @@ class PaymentExportView(View):
                         month,
                         year,
                     )
+        if export_type == "sepah":
+            file_name = f"{export_type}_{year}_{month}.xlsx"
+            wb = openpyxl.Workbook()
+            ws = wb.active
+
+            for _, line in enumerate(string.splitlines(), start=1):
+                columns = line.split(",")
+                columns = columns[:2] + columns[-2:]
+                ws.append(columns)
+
+            # Save the workbook to an in-memory buffer
+            buffer = BytesIO()
+            wb.save(buffer)
+            buffer.seek(0)
+
+            # Prepare the response
+            response = HttpResponse(
+                buffer,
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+            response["Content-Disposition"] = f"attachment; filename={file_name}"
+            return response
 
         file_name = f"{export_type}_{year}_{month}.txt"
         buffer = io.StringIO(string)
