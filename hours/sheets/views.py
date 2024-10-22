@@ -357,6 +357,14 @@ class PaymentExportView(View):
             wb = openpyxl.Workbook()
             ws = wb.active
 
+            header = [
+                "شماره شبای مقصد",
+                "مبلغ واریز(ریال)",
+                "شرح مقصد",
+                "شناسه واریز/شماره قبض",
+            ]
+            ws.append(header)
+
             for _, line in enumerate(string.splitlines(), start=1):
                 columns = line.split(",")
                 columns = columns[:2] + columns[-2:]
