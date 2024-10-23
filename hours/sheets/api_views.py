@@ -105,10 +105,10 @@ class SheetApiView(APIView):
         correct_weekdays_dict = {
             entry["Day"]: entry["WeekDay"] for entry in correct_weekdays
         }
-        
+
         # Sync the length of sheet.data with correct_weekdays
         if len(sheet.data) > len(correct_weekdays):
-            sheet.data = sheet.data[:len(correct_weekdays)]  # Truncate excess entries
+            sheet.data = sheet.data[: len(correct_weekdays)]  # Truncate excess entries
         elif len(sheet.data) < len(correct_weekdays):
             # Duplicate the last entry and increment the day value to fill in the missing data
             for _ in range(len(sheet.data), len(correct_weekdays)):
@@ -117,7 +117,7 @@ class SheetApiView(APIView):
                 new_entry["Day"] += 1
                 new_entry["WeekDay"] = None  # We'll update WeekDay after this
                 sheet.data.append(new_entry)
-        
+
         for entry in sheet.data:
             entry["WeekDay"] = correct_weekdays_dict[entry["Day"]]
         sheet.save()
@@ -448,6 +448,28 @@ class OrderFoodApiView(APIView):
             for item in flat_list
             if item["month"] == month and len(item["foods"]) > 0
         ]
+
+        next_month = f"{(int(month)+1)%12}"
+        next_year = year
+        if next_month == "1":
+            next_year = f"{int(year)+1}"
+
+        next_month_order_data = [
+            item
+            for item in flat_list
+            if item["month"] == next_month and len(item["foods"]) > 0
+        ]
+        if next_month_order_data != []:
+            next_food_data, _ = Food_data.objects.get_or_create(
+                year=next_year, month=next_month
+            )
+            next_sheet, _ = Sheet.objects.get_or_create(
+                user_id=sheet.user_id, year=next_year, month=next_month
+            )
+            next_sheet.food_reduction = self.calculateSheetFoodPrice(
+                next_month_order_data, next_food_data
+            )
+            next_sheet.save()
 
         sheet.food_reduction = self.calculateSheetFoodPrice(order_data, food_data)
         sheet.save()
