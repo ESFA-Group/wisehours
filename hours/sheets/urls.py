@@ -14,6 +14,7 @@ urlpatterns = [
     path("hours", views.HoursView.as_view(), name="hours"),
     path("hours_info", views.HoursInfoView.as_view(), name="hours_info"),
     path("personal_info", views.PersonalInfoView.as_view(), name="personal_info"),
+    path("daily_report", views.DailyReport.as_view(), name="daily_report"),
     path("payment", views.PaymentHandleView.as_view(), name="payment"),
     path("alter_payment", views.AlterPaymentHandleView.as_view(), name="alter_payment"),
     path("order_food_form", views.FoodFormView.as_view(), name="food_form"),
