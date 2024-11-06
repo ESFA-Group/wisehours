@@ -85,6 +85,11 @@
                                    href="{% url 'sheets:food_form' %}">Foods</a>
                             </li>
                             <li class="nav-item">
+                                {% url 'sheets:daily_report' as temp_url %}
+                                <a class="nav-link {% if request.path == temp_url %}active{% endif %}"
+                                   href="{% url 'sheets:daily_report' %}">Daily Report</a>
+                            </li>
+                            <li class="nav-item">
                                 {% url 'sheets:hours_info' as temp_url %}
                                 <a class="nav-link {% if request.path == temp_url %}active{% endif %}"
                                    href="{% url 'sheets:hours_info' %}">Hours Info</a>

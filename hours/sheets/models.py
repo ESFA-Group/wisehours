@@ -119,6 +119,10 @@ def current_month() -> int:
     return jdt.date.today().month
 
 
+def current_day() -> int:
+    return jdt.date.today().day
+
+
 def current_mont_days(month: int, isleap: bool) -> int:
     """gets a month and returns that date's month days number with leap year consideration
     (for jalali months)"""
@@ -342,10 +346,12 @@ class Report(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
-    report_date = models.DateField()
-    content = models.TextField()
-    sub_comment = models.TextField()
-    main_comment = models.TextField()  # vahid comment
+    year = models.PositiveIntegerField("year", default=current_year)
+    month = models.PositiveIntegerField("month", default=current_month)
+    day = models.PositiveIntegerField("day", default=current_day)
+    content = models.TextField(default="")
+    sub_comment = models.TextField(default="", blank=True)
+    main_comment = models.TextField(default="", blank=True)  # vahid comment
 
     def __str__(self):
-        return f"Report by {self.user.username} on {self.report_date}"
+        return f"Report by {self.user.username} on {self.year}/{self.month}/{self.day}"

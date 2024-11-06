@@ -7,6 +7,7 @@ from sheets import customPermissions
 from django.http import HttpResponse
 from collections import OrderedDict
 from django.db.models import Q
+from datetime import date
 
 
 import jdatetime as jdt
@@ -14,7 +15,7 @@ import pandas as pd
 import io
 import re
 
-from sheets.models import Project, Sheet, User, Food_data
+from sheets.models import Project, Sheet, User, Food_data, Report
 from sheets.serializers import ProjectSerializer, SheetSerializer
 
 
@@ -888,3 +889,56 @@ class DailyFoodsOrder(APIView):
             if item["id"] in ids:
                 item["count"] += 1
                 item["users"].append(user)
+
+
+class DailyReportUser(APIView):
+    def get(self, request, year: str, month: str, day: str):
+        user = request.user
+
+        report = Report.objects.filter(
+            user=user, year=year, month=month, day=day
+        ).first()
+
+        if report:
+            res = {
+                "content": report.content,
+                "sub_comment": report.sub_comment,
+                "main_comment": report.main_comment,
+            }
+        else:
+            res = {
+                "content": "",
+                "sub_comment": "",
+                "main_comment": "",
+            }
+
+        return Response(res, status=status.HTTP_200_OK)
+
+    def post(self, request, year: str, month: str, day: str):
+        user = request.user
+        data = request.data
+        content = data.get("content")
+
+        _, created = Report.objects.update_or_create(
+            user=user,
+            year=year,
+            month=month,
+            day=day,
+            defaults={"content": content},
+        )
+
+        return Response(
+            {
+                "message": (
+                    "Report created successfully"
+                    if created
+                    else "Report updated successfully"
+                )
+            },
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+
+class DailyReportManager(APIView):
+    def get(self, request, year: str, month: str, day: str):
+        return

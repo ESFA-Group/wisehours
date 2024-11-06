@@ -100,4 +100,9 @@ urlpatterns = [
         api_views.DailyFoodsOrder.as_view(),
         name="api_daily_foods_order",
     ),
+    path(
+        "api/daily_report_user/<str:year>/<str:month>/<str:day>",
+        api_views.DailyReportUser.as_view(),
+        name="api_daily_report_user",
+    ),
 ]
