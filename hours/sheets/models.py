@@ -25,6 +25,8 @@ class User(AbstractUser):
     # personal info
     is_active = models.BooleanField("is_active", default=True)
     is_FoodManager = models.BooleanField("is_FoodManager", default=False)
+    is_SubReportManager = models.BooleanField("is_SubReportManager", default=False)
+    is_MainReportManager = models.BooleanField("is_MainReportManager", default=False)
     national_ID = models.CharField("national_ID", max_length=10, blank=True, default="")
     mobile1 = models.CharField("mobile1", max_length=11, blank=True, default="")
     mobile2 = models.CharField("mobile2", max_length=11, blank=True, default="")

@@ -133,7 +133,7 @@
                                 </li>
                             {% endif %}
                             
-                            {% if request.user.is_FoodManager %}
+                            {% if request.user.is_MainReportManager %}
                                 <li class="nav-item">
                                     {% url 'sheets:daily_report_management' as temp_url %}
                                     <a class="nav-link {% if request.path == temp_url %}active{% endif %}"

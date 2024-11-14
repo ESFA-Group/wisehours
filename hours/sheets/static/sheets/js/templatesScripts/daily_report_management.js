@@ -2,7 +2,7 @@
 //CONSTANTS************************************************
 const TODAY = new JDate();
 TODAY._d.setHours(0, 0, 0, 0)
-
+let is_main_commenter = false;
 
 const CURRENT_YEAR = TODAY.getFullYear();
 var ACTIVE_YEAR = CURRENT_YEAR;
@@ -96,8 +96,10 @@ function updateTitle() {
 }
 
 async function get_all_daily_reports() {
-
-	let reports_by_users = await get_reports_by_users();
+	let res = await get_reports_by_users();
+	let reports_by_users = res['data']
+	is_main_commenter = res['user']['is_MainReportManager']
+	pre_load_user_reports();
 
 	const $userList = $('#userList');
 	$.each(reports_by_users, function (userName, reports) {
@@ -133,36 +135,65 @@ function pre_load_user_reports() {
 	const $reportsContainer = $('#reports_container');
 	$reportsContainer.empty()
 	for (let day = TODAY.getDate(); day >= 1; day--) {
-		const reportHtml = `
-            <div class="report" id="report_${day}">
-                <div class="card shadow mb-4 missed-report">
-                    <div class="card-body">
-                        <h4 class="card-title fw-bold">Report #${day}</h4>
-                        <div class="mb-3">
-                            <p id="report_content_${day}" name="content" class="form-control"></p>
-                        </div>
-                    </div>
-                </div>
+		var userRole = "{{ user_role }}";  // User's role passed from Django view
+		
+		let reportHtml = `
+			<div class="report" id="report_${day}">
+				<div class="card shadow mb-4 missed-report">
+					<div class="card-body">
+						<h4 class="card-title fw-bold">Report #${day}</h4>
+						<div class="mb-3">
+							<p id="report_content_${day}" name="content" class="form-control"></p>
+						</div>
+					</div>
+				</div>
+		`;
 
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Vahid's Comment:</h5>
-                        <p id="main_comment_${day}">No comment yet.</p>
-                    </div>
-                </div>
+		if (is_main_commenter) {
+			reportHtml += `
+				<div class="card shadow mb-4">
+					<div class="card-body">
+						<h5 class="card-title fw-semibold">Vahid's Comment:</h5>
+						<div class="mb-3">
+							<textarea id="main_comment_${day}" name="content" class="form-control" placeholder="Enter your comment here" rows="4" required></textarea>
+						</div>
+					</div>
+				</div>
 
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Koolaji's Comment:</h5>
-                        <p id="sub_comment_${day}">No comment yet.</p>
-                    </div>
-                </div>
+				<div class="card shadow mb-4">
+					<div class="card-body">
+						<h5 class="card-title fw-semibold">Koolaji's Comment:</h5>
+						<p id="sub_comment_${day}">No comment yet.</p>
+					</div>
+				</div>
+			`;
+		} else {
+			reportHtml += `
+				<div class="card shadow mb-4">
+					<div class="card-body">
+						<h5 class="card-title fw-semibold">Vahid's Comment:</h5>
+						<p id="main_comment_${day}">No comment yet.</p>
+					</div>
+				</div>
 
-                <br/>
-                <hr>
-                <br/>
-            </div>
-        `;
+				<div class="card shadow mb-4">
+					<div class="card-body">
+						<h5 class="card-title fw-semibold">Koolaji's Comment:</h5>
+						<div class="mb-3">
+							<textarea id="sub_comment_${day}" name="content" class="form-control" placeholder="Enter your comment here" rows="4" required></textarea>
+						</div>
+					</div>
+				</div>
+			`;
+		}
+
+		reportHtml += `
+				<br/>
+				<hr>
+				<br/>
+			</div>
+		`;
+		
 
 		$reportsContainer.append(reportHtml);
 	}
@@ -195,7 +226,6 @@ function load_user_reports(userName, reports) {
 $("document").ready(async function () {
 	fillYears("#year");
 	initialize_date_dropdowns();
-	pre_load_user_reports();
 	get_all_daily_reports();
 
 	$("#year, #month").change(async function () {
