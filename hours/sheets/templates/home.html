@@ -151,6 +151,12 @@
                     href="{% url 'sheets:food_data' %}"
                     style="width: 200px">Food Data</a>
                 {% endif %}
+                {% comment %} {% if request.user.is_DailyReportManager %} {% endcomment %}
+                {% if request.user.is_FoodManager %}
+                    <a class="btn btn-info mx-1"
+                    href="{% url 'sheets:daily_report_management' %}"
+                    style="width: 200px">Daily report management</a>
+                {% endif %}
             </div>
         {% endif %}
 

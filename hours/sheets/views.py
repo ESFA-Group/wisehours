@@ -144,6 +144,16 @@ class DailyReport(BaseView):
             context = {"submitted": True}
             return super(TemplateView, self).render_to_response(context)
 
+class DailyReportManagement(BaseView):
+    template_name = "daily_report_management.html"
+
+    def post(self, request):
+        context = {}
+        if request.POST.get("saveUserData"):
+            self.save_user_data(request)
+            context = {"submitted": True}
+            return super(TemplateView, self).render_to_response(context)
+
 
 class HoursInfoView(BaseView):
     template_name = "hours_info.html"

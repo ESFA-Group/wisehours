@@ -939,6 +939,6 @@ class DailyReportUser(APIView):
         )
 
 
-class DailyReportManager(APIView):
+class DailyReportManagement(APIView):
     def get(self, request, year: str, month: str, day: str):
         return

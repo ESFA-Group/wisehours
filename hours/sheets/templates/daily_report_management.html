@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+{% load connector_template_filters %}
+
+{% comment %} {% block extra_css %}
+    <style>
+        .blurred {
+            filter: blur(10px);
+            position: relative;
+            display: inline-block;
+        }
+    </style>
+{% endblock extra_css %} {% endcomment %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row mt-2">
+            <div class="col col-6 col-md-4 col-lg-2">
+                <strong>Year</strong>
+                <div class="mt-1">
+                    <select name="year" id="year" style="min-width: 180px;
+                                    border-radius: 5px;
+                                    height: 35px">
+                    </select>
+                </div>
+            </div>
+            <div class="col col-6 col-md-4 col-lg-2">
+                <strong>Month</strong>
+                <div class="mt-1">
+                    <select name="month" id="month" style="min-width: 180px;
+                                    border-radius: 5px;
+                                    height: 35px">
+                        {{ 1|render_month_options }}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <hr>
+
+    <div class="container mt-5">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h4 id="reportTitle" class="card-title fw-bold">Submit a Report manager</h4>
+                <form id="report_from" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea id="report_content" name="content" class="form-control" placeholder="Enter your report here" rows="4" required></textarea>
+                    </div>
+
+                    <button id="submitReportBtn" class="btn btn-primary d-flex justify-content-center align-items-center position-relative" type="submit">
+                        <span id="submit-report-spinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                        <span>Submit Report manager</span>
+                        <div id="submit-report-check" class="bg-primary d-none" desabled>
+                            ✅
+                        </div>
+                    </button>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold">Vahid's Comment:</h5>
+                <p id='main_coment'></p>
+            </div>
+        </div>
+        <br>
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold">Koolaji's Comment:</h5>
+                <p id='sub_comment'></p>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="{% static 'sheets/js/templatesScripts/daily_report.js' %}"></script>
+{% endblock body %}
