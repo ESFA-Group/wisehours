@@ -104,10 +104,21 @@ async function get_all_daily_reports() {
 	$("#sub_comment").text(report['sub_comment'] ? report['sub_comment'] : 'No comment yet.');
 }
 
+function handle_submit_button_activation(){
+	const currentHour = new Date().getHours(); // Get the current hour (0-23)
+
+    if (currentHour >= 17 && currentHour <= 22) {
+        $('#submitReportBtn').prop('disabled', false);
+    } else {
+        $('#submitReportBtn').prop('disabled', true);
+    }
+}
+
 $("document").ready(async function () {
 	fillYears("#year");
 	initialize_date_dropdowns();
 	get_all_daily_reports();
+	handle_submit_button_activation()
 
 	$("#year, #month").change(async function () {
 		ACTIVE_YEAR = $("#year").val()
