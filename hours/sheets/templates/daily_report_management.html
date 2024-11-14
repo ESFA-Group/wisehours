@@ -2,15 +2,9 @@
 {% load static %}
 {% load connector_template_filters %}
 
-{% comment %} {% block extra_css %}
-    <style>
-        .blurred {
-            filter: blur(10px);
-            position: relative;
-            display: inline-block;
-        }
-    </style>
-{% endblock extra_css %} {% endcomment %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'sheets/css/templatesScripts/daily_report_management.css' %}">
+{% endblock extra_css %}
 
 {% block body %}
     <div class="container-fluid">

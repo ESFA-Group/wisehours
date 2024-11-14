@@ -98,41 +98,48 @@ function updateTitle() {
 async function get_all_daily_reports() {
 
 	let reports_by_users = await get_reports_by_users();
-	
+
 	const $userList = $('#userList');
 	$.each(reports_by_users, function (userName, reports) {
 		const listItem = $('<li></li>')
 			.addClass('list-group-item user-item')
 			.text(`${userName} (${reports.length} reports)`)
-			.attr('data-user-id', userName); // Use userName or an ID from your data
+			.attr('data-user-id', userName);
 
 		// Append the list item to the user list
 		$userList.append(listItem);
 
 		// Add a click event to each list item
 		listItem.on('click', function () {
-			console.log(`User ${userName} clicked`);
+			$('.user-item').removeClass('active');
+			$(this).addClass('active');
+			pre_load_user_reports()
 			load_user_reports(userName, reports);
 		});
+
+		if (Object.keys(reports_by_users).indexOf(userName) === 0) {
+			listItem.addClass('active');
+		}
 	});
-	if (Object .keys(reports_by_users).length > 0) {
-		let userName = Object.keys(reports_by_users)[0]
-		let reports = Object.values(reports_by_users)[0]
-		load_user_reports(userName, reports);
+
+	if (Object.keys(reports_by_users).length > 0) {
+		const firstUser = Object.keys(reports_by_users)[0];
+		const firstReports = reports_by_users[firstUser];
+		load_user_reports(firstUser, firstReports);
 	}
 }
 
 function pre_load_user_reports() {
 	const $reportsContainer = $('#reports_container');
-
+	$reportsContainer.empty()
 	for (let day = TODAY.getDate(); day >= 1; day--) {
 		const reportHtml = `
             <div class="report" id="report_${day}">
-                <div class="card shadow mb-4">
+                <div class="card shadow mb-4 missed-report">
                     <div class="card-body">
                         <h4 class="card-title fw-bold">Report #${day}</h4>
                         <div class="mb-3">
-                            <p id="report_content_${day}" name="content" class="form-control" style="min-height: 120px;"></p>
+                            <p id="report_content_${day}" name="content" class="form-control"></p>
                         </div>
                     </div>
                 </div>
@@ -167,6 +174,7 @@ function load_user_reports(userName, reports) {
 
 	reports.forEach(r => {
 		let day = r.day
+		$('#report_' + day + ' .card.shadow.mb-4.missed-report').removeClass("missed-report")
 		let html_report_content = $(`#report_content_${day}`)
 		html_report_content.text(r.content);
 	});
