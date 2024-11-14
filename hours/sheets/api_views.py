@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from collections import OrderedDict
 from django.db.models import Q
 from datetime import date
+from itertools import groupby
 
 
 import jdatetime as jdt
@@ -940,5 +941,20 @@ class DailyReportUser(APIView):
 
 
 class DailyReportManagement(APIView):
-    def get(self, request, year: str, month: str, day: str):
-        return
+    def get(self, request, year: str, month: str):
+        reports = Report.objects.filter(year=year, month=month).order_by('user', 'day')
+
+        # Group reports by user
+        grouped_reports = {}
+        for username, items in groupby(reports, key=lambda report: report.user.username):
+            grouped_reports[username] = [
+                {
+                    'day': report.day,
+                    'main_comment': report.main_comment,
+                    'sub_comment': report.sub_comment,
+                    'content': report.content
+                }
+                for report in items
+            ]
+        
+        return Response(grouped_reports, status=status.HTTP_200_OK)

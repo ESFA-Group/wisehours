@@ -86,8 +86,8 @@ async function putRequest(url, data) {
 }
 //#endregion
 
-async function get_report() {
-	const url = `/hours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
+async function get_reports_by_users() {
+	const url = `/hours/api/daily_report_management/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
 	return await getRequest(url);
 }
 
@@ -96,17 +96,98 @@ function updateTitle() {
 }
 
 async function get_all_daily_reports() {
-	updateTitle();
 
-	let report = await get_report();
-	$("#report_content").text(report['content']);
-	$("#main_coment").text(report['main_comment'] ? report['main_comment'] : 'No comment yet.');
-	$("#sub_comment").text(report['sub_comment'] ? report['sub_comment'] : 'No comment yet.');
+	let reports_by_users = await get_reports_by_users();
+	
+	const $userList = $('#userList');
+	$.each(reports_by_users, function (userName, reports) {
+		const listItem = $('<li></li>')
+			.addClass('list-group-item user-item')
+			.text(`${userName} (${reports.length} reports)`)
+			.attr('data-user-id', userName); // Use userName or an ID from your data
+
+		// Append the list item to the user list
+		$userList.append(listItem);
+
+		// Add a click event to each list item
+		listItem.on('click', function () {
+			console.log(`User ${userName} clicked`);
+			load_user_reports(userName, reports);
+		});
+	});
+	if (Object .keys(reports_by_users).length > 0) {
+		let userName = Object.keys(reports_by_users)[0]
+		let reports = Object.values(reports_by_users)[0]
+		load_user_reports(userName, reports);
+	}
+}
+
+function pre_load_user_reports() {
+	const $reportsContainer = $('#reports_container');
+
+	for (let day = TODAY.getDate(); day >= 1; day--) {
+		const reportHtml = `
+            <div class="report" id="report_${day}">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title fw-bold">Report #${day}</h4>
+                        <div class="mb-3">
+                            <p id="report_content_${day}" name="content" class="form-control" style="min-height: 120px;"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Vahid's Comment:</h5>
+                        <p id="main_comment_${day}">No comment yet.</p>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Koolaji's Comment:</h5>
+                        <p id="sub_comment_${day}">No comment yet.</p>
+                    </div>
+                </div>
+
+                <br/>
+                <hr>
+                <br/>
+            </div>
+        `;
+
+		$reportsContainer.append(reportHtml);
+	}
+}
+
+function load_user_reports(userName, reports) {
+	// Update the report title
+	$('#reportTitle').text(`${userName}'s Reports`);
+
+	reports.forEach(r => {
+		let day = r.day
+		let html_report_content = $(`#report_content_${day}`)
+		html_report_content.text(r.content);
+	});
+
+	// Clear existing report content
+	$('#main_comment').text('');
+	$('#sub_comment').text('');
+
+	// Display the reports (example with the first two reports if available)
+	if (reports.length > 0) {
+		$('#main_comment').text(reports[0]?.content || 'No comment yet.');
+	}
+	if (reports.length > 1) {
+		$('#sub_comment').text(reports[1]?.content || 'No comment yet.');
+	}
 }
 
 $("document").ready(async function () {
 	fillYears("#year");
 	initialize_date_dropdowns();
+	pre_load_user_reports();
 	get_all_daily_reports();
 
 	$("#year, #month").change(async function () {
