@@ -104,14 +104,19 @@ async function get_all_daily_reports() {
 	$("#sub_comment").text(report['sub_comment'] ? report['sub_comment'] : 'No comment yet.');
 }
 
-function handle_submit_button_activation(){
+function handle_submit_button_activation() {
 	const currentHour = new Date().getHours(); // Get the current hour (0-23)
 
-    if (currentHour >= 17 && currentHour <= 22) {
-        $('#submitReportBtn').prop('disabled', false);
-    } else {
-        $('#submitReportBtn').prop('disabled', true);
-    }
+	if (currentHour >= 17 && currentHour <= 22) {
+		$('#submitReportBtn').prop('disabled', false);
+	} else {
+		$('#submitReportBtn').prop('disabled', true);
+	}
+	// if (currentHour >= 17 && currentHour <= 22) {
+	//     $('#submitReportBtn').removeClass("invisible");
+	// } else {
+	//     $('#submitReportBtn').addClass("invisible");
+	// }
 }
 
 $("document").ready(async function () {
