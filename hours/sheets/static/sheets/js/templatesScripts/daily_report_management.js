@@ -3,6 +3,7 @@
 const TODAY = new JDate();
 TODAY._d.setHours(0, 0, 0, 0)
 let is_main_commenter = false;
+let ActiveUser = "";
 
 const CURRENT_YEAR = TODAY.getFullYear();
 var ACTIVE_YEAR = CURRENT_YEAR;
@@ -116,10 +117,12 @@ async function get_all_daily_reports() {
 			$('.user-item').removeClass('active');
 			$(this).addClass('active');
 			pre_load_user_reports()
+			ActiveUser = userName;
 			load_user_reports(userName, reports);
 		});
 
 		if (Object.keys(reports_by_users).indexOf(userName) === 0) {
+			ActiveUser = userName;
 			listItem.addClass('active');
 		}
 	});
@@ -135,11 +138,9 @@ function pre_load_user_reports() {
 	const $reportsContainer = $('#reports_container');
 	$reportsContainer.empty()
 	for (let day = TODAY.getDate(); day >= 1; day--) {
-		var userRole = "{{ user_role }}";  // User's role passed from Django view
-		
 		let reportHtml = `
-			<div class="report" id="report_${day}">
-				<div class="card shadow mb-4 missed-report">
+			<div id="report_${day}" class="border p-2 mb-1 missed-report" style="border-radius: 8px;">
+				<div class="card shadow mb-4">
 					<div class="card-body">
 						<h4 class="card-title fw-bold">Report #${day}</h4>
 						<div class="mb-3">
@@ -188,16 +189,68 @@ function pre_load_user_reports() {
 		}
 
 		reportHtml += `
-				<br/>
-				<hr>
-				<br/>
 			</div>
+			<button id="submitReportBtn_${day}" class="submit_comment_btn btn btn-primary d-flex mb-3 justify-content-center align-items-center position-relative" type="submit" onclick="handleReportSubmit(${day})">
+				<span id="submit-report-spinner_${day}" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+				<span>Submit Report</span>
+				<div id="submit-report-check_${day}" class="bg-primary d-none" desabled>
+					✅
+				</div>
+			</button>
+			
+			<br/>
 		`;
-		
 
 		$reportsContainer.append(reportHtml);
 	}
 }
+
+async function handleReportSubmit(day) {
+
+	disable_btns(day)
+
+	let main_comment = "";
+	let sub_comment = "";
+
+	if (is_main_commenter) {
+		main_comment = $(`#main_comment_${day}`).val();
+	}
+	else {
+		sub_comment = $(`#sub_comment_${day}`).val();
+	}
+
+	const url = `/hours/api/daily_report_management/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+
+	const data = {
+		userName: ActiveUser,
+		day: day,
+		main_comment: main_comment,
+		sub_comment: sub_comment
+	}
+
+	await postRequest(url, data)
+	enable_btns(day)
+}
+
+function disable_btns(day) {
+	$('.submit_comment_btn').prop('disabled', true);
+
+	$(`#submit-report-spinner_${day}`).removeClass('d-none');
+}
+
+function enable_btns(day) {
+	$('.submit_comment_btn').prop('disabled', false);
+	$(`#submit-report-spinner_${day}`).addClass('d-none');
+	$(`#submit-report-check_${day}`).removeClass('d-none').fadeIn(500, function () {
+		// After fade in, fade out afttn_${daer a delay
+		setTimeout(() => {
+			$(`#submit-report-check_${day}`).fadeOut(500, function () {
+				$(this).addClass('d-none').css('display', '');
+			});
+		}, 1000); // Delay before fading out
+	});
+}
+
 
 function load_user_reports(userName, reports) {
 	// Update the report title
@@ -205,9 +258,13 @@ function load_user_reports(userName, reports) {
 
 	reports.forEach(r => {
 		let day = r.day
-		$('#report_' + day + ' .card.shadow.mb-4.missed-report').removeClass("missed-report")
-		let html_report_content = $(`#report_content_${day}`)
-		html_report_content.text(r.content);
+		if (r.content !== null && r.content.trim() !== "") {
+			$('#report_' + day).removeClass("missed-report")
+			$('#report_' + day).addClass("submitted-report")
+			$(`#report_content_${day}`).text(r.content);
+		}
+		$(`#main_comment_${day}`).text(r.main_comment);
+		$(`#sub_comment_${day}`).text(r.sub_comment);
 	});
 
 	// Clear existing report content
@@ -237,28 +294,5 @@ $("document").ready(async function () {
 	$("#day").change(async function () {
 		ACTIVE_DAY = $("#day").val();
 		get_all_daily_reports();
-	});
-
-	$('#report_from').on('submit', async function (e) {
-		e.preventDefault();
-
-		$("#submit-report-spinner").removeClass('d-none');
-		$("#submitReportBtn").prop('disabled', true)
-
-		const content = $('#report_content').val();
-		const url = `/hours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
-
-		let res = await postRequest(url, { content })
-
-		$("#submitReportBtn").prop('disabled', false)
-		$("#submit-report-spinner").addClass('d-none');
-		$("#submit-report-check").removeClass('d-none').fadeIn(500, function () {
-			// After fade in, fade out after a delay
-			setTimeout(() => {
-				$("#submit-report-check").fadeOut(500, function () {
-					$(this).addClass('d-none').css('display', '');
-				});
-			}, 1000); // Delay before fading out
-		});
 	});
 });

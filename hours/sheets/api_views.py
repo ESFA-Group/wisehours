@@ -966,5 +966,31 @@ class DailyReportManagement(APIView):
                     "is_MainReportManager": request.user.is_MainReportManager,
                 },
                 "data": grouped_reports,
-            }, status=status.HTTP_200_OK
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request, year: str, month: str):
+        data = request.data
+        user = data["userName"]
+        day = str(data["day"])
+        main_comment = data["main_comment"]
+        sub_comment = data["sub_comment"]
+
+        # update corresponding report object
+        report, created= Report.objects.get_or_create(
+            user__username=user, year=year, month=month, day=day
+        )
+        if created:
+            userObj = User.objects.get(username=user)
+            report.user = userObj
+
+        if main_comment:
+            report.main_comment = main_comment
+        if sub_comment:
+            report.sub_comment = sub_comment
+        
+        report.save()
+        return Response(
+            {"message": "Report updated successfully"}, status=status.HTTP_200_OK
         )
