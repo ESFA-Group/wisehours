@@ -108,15 +108,31 @@ function handle_submit_button_activation() {
 	const currentHour = new Date().getHours(); // Get the current hour (0-23)
 
 	if (currentHour >= 17 && currentHour <= 22) {
-		$('#submitReportBtn').prop('disabled', false);
+		toggle_submmit_button(true)
 	} else {
-		$('#submitReportBtn').prop('disabled', true);
+		toggle_submmit_button(false)
 	}
-	// if (currentHour >= 17 && currentHour <= 22) {
-	//     $('#submitReportBtn').removeClass("invisible");
-	// } else {
-	//     $('#submitReportBtn').addClass("invisible");
-	// }
+}
+
+function toggle_submmit_button(shouldShow) {
+	if (shouldShow) {
+		// Check if the button already exists to avoid duplicates
+		if ($("#submitReportBtn").length === 0) {
+			$("#report_from").append(
+				`
+                <button id="submitReportBtn" class="btn btn-primary d-flex justify-content-center align-items-center position-relative" type="submit">
+                    <span id="submit-report-spinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    <span>Submit Report</span>
+                    <div id="submit-report-check" class="bg-primary d-none">
+                        ✅
+                    </div>
+                </button>
+                `
+			);
+		}
+	} else {
+		$("#submitReportBtn").remove();
+	}
 }
 
 $("document").ready(async function () {
