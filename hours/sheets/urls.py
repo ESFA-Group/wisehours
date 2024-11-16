@@ -111,4 +111,9 @@ urlpatterns = [
         api_views.DailyReportManagement.as_view(),
         name="api_daily_report_management",
     ),
+    path(
+        "api/daily_report_setting_management",
+        api_views.DailyReportSettingManager.as_view(),
+        name="daily_report_setting_management",
+    ),
 ]

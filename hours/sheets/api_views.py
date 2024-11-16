@@ -16,7 +16,7 @@ import pandas as pd
 import io
 import re
 
-from sheets.models import Project, Sheet, User, Food_data, Report
+from sheets.models import Project, Sheet, User, Food_data, Report, DailyReportSetting
 from sheets.serializers import ProjectSerializer, SheetSerializer
 
 
@@ -896,22 +896,26 @@ class DailyReportUser(APIView):
     def get(self, request, year: str, month: str, day: str):
         user = request.user
 
+        reportSetting, _ = DailyReportSetting.objects.get_or_create()
+        
         report = Report.objects.filter(
             user=user, year=year, month=month, day=day
         ).first()
 
-        if report:
-            res = {
-                "content": report.content,
-                "sub_comment": report.sub_comment,
-                "main_comment": report.main_comment,
-            }
-        else:
-            res = {
-                "content": "",
-                "sub_comment": "",
-                "main_comment": "",
-            }
+        res = {
+            "content": report.content if report else "",
+            "main_comment": (
+                report.main_comment
+                if report and not report.manager_comment_hide_for_user
+                else ""
+            ),
+            "sub_comment": (
+                report.sub_comment
+                if report and not report.supervisor_comment_hide_for_user
+                else ""
+            ),
+            "no_limit_submit_btn": reportSetting.no_limit_submission 
+        }
 
         return Response(res, status=status.HTTP_200_OK)
 
@@ -952,9 +956,12 @@ class DailyReportManagement(APIView):
             grouped_reports[username] = [
                 {
                     "day": report.day,
-                    "main_comment": report.main_comment,
-                    "sub_comment": report.sub_comment,
                     "content": report.content,
+                    "manager_comment": report.main_comment,
+                    "manager_comment_hide_for_user": report.manager_comment_hide_for_user,
+                    "manager_comment_hide_for_supervisor": report.manager_comment_hide_for_supervisor,
+                    "supervisor_comment": report.sub_comment,
+                    "supervisor_comment_hide_for_user": report.supervisor_comment_hide_for_user,
                 }
                 for report in items
             ]
@@ -974,23 +981,50 @@ class DailyReportManagement(APIView):
         data = request.data
         user = data["userName"]
         day = str(data["day"])
-        main_comment = data["main_comment"]
-        sub_comment = data["sub_comment"]
+        is_manager_submitted = data["is_manager_submitted"]
 
         # update corresponding report object
-        report, created= Report.objects.get_or_create(
+        report, created = Report.objects.get_or_create(
             user__username=user, year=year, month=month, day=day
         )
         if created:
             userObj = User.objects.get(username=user)
             report.user = userObj
 
-        if main_comment:
-            report.main_comment = main_comment
-        if sub_comment:
-            report.sub_comment = sub_comment
-        
+        if is_manager_submitted:
+            report.main_comment = data["manager_comment"]
+            report.manager_comment_hide_for_user = data["manager_comment_hide_for_user"]
+            report.manager_comment_hide_for_supervisor = data[
+                "manager_comment_hide_for_supervisor"
+            ]
+        else:
+            report.sub_comment = data["supervisor_comment"]
+            report.supervisor_comment_hide_for_user = data[
+                "supervisor_comment_hide_for_user"
+            ]
+
         report.save()
         return Response(
             {"message": "Report updated successfully"}, status=status.HTTP_200_OK
+        )
+
+
+class DailyReportSettingManager(APIView):
+    def get(self, request):
+        settign, _ = DailyReportSetting.objects.get_or_create()
+        return Response(
+            {"no_limit_submission": settign.no_limit_submission},
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request):
+        data = request.data
+        limitation = data["no_limit_submission"]
+        settign, _ = DailyReportSetting.objects.get_or_create()
+
+        settign.no_limit_submission = limitation
+        settign.save()
+        return Response(
+            {"message": "Report setting updated successfully"},
+            status=status.HTTP_200_OK,
         )

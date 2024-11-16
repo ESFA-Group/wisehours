@@ -95,31 +95,36 @@ function updateTitle() {
 	$("#reportTitle").text("Submit Report " + $("#month").val() + "/" + $("#day").val());
 }
 
-async function get_all_daily_reports() {
+async function get_active_day_report() {
 	updateTitle();
 
 	let report = await get_report();
 	$("#report_content").text(report['content']);
-	$("#main_coment").text(report['main_comment'] ? report['main_comment'] : 'No comment yet.');
-	$("#sub_comment").text(report['sub_comment'] ? report['sub_comment'] : 'No comment yet.');
+	$("#main_comment").val(report['main_comment'] ? report['main_comment'] : 'No comment yet.');
+	$("#sub_comment").val(report['sub_comment'] ? report['sub_comment'] : 'No comment yet.');
 }
 
-function handle_submit_button_activation() {
+async function handle_submit_button_activation() {
 	const currentHour = new Date().getHours(); // Get the current hour (0-23)
+	let report = await get_report();
+	
+	if (report.no_limit_submit_btn) {
+		toggle_submmit_button(true)
+		return
+	}
 
-	if (currentHour >= 17 && currentHour <= 22) {
+	if (currentHour >= 18 && currentHour <= 22) {
 		toggle_submmit_button(true)
 	} else {
 		toggle_submmit_button(false)
 	}
-}
 
-function toggle_submmit_button(shouldShow) {
-	if (shouldShow) {
-		// Check if the button already exists to avoid duplicates
-		if ($("#submitReportBtn").length === 0) {
-			$("#report_from").append(
-				`
+	function toggle_submmit_button(shouldShow) {
+		if (shouldShow) {
+			// Check if the button already exists to avoid duplicates
+			if ($("#submitReportBtn").length === 0) {
+				$("#report_from").append(
+					`
                 <button id="submitReportBtn" class="btn btn-primary d-flex justify-content-center align-items-center position-relative" type="submit">
                     <span id="submit-report-spinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
                     <span>Submit Report</span>
@@ -128,28 +133,30 @@ function toggle_submmit_button(shouldShow) {
                     </div>
                 </button>
                 `
-			);
+				);
+			}
+		} else {
+			$("#submitReportBtn").remove();
 		}
-	} else {
-		$("#submitReportBtn").remove();
 	}
 }
+
 
 $("document").ready(async function () {
 	fillYears("#year");
 	initialize_date_dropdowns();
-	get_all_daily_reports();
+	get_active_day_report();
 	handle_submit_button_activation()
 
 	$("#year, #month").change(async function () {
 		ACTIVE_YEAR = $("#year").val()
 		ACTIVE_MONTH = $("#month").val()
-		get_all_daily_reports();
+		get_active_day_report();
 	});
 
 	$("#day").change(async function () {
 		ACTIVE_DAY = $("#day").val();
-		get_all_daily_reports();
+		get_active_day_report();
 	});
 
 	$('#report_from').on('submit', async function (e) {

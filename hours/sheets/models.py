@@ -353,7 +353,13 @@ class Report(models.Model):
     day = models.PositiveIntegerField("day", default=current_day)
     content = models.TextField(default="")
     sub_comment = models.TextField(default="", blank=True)
-    main_comment = models.TextField(default="", blank=True)  # vahid comment
-
+    main_comment = models.TextField(default="", blank=True)
+    manager_comment_hide_for_user = models.BooleanField(default=True)
+    manager_comment_hide_for_supervisor = models.BooleanField(default=True)
+    supervisor_comment_hide_for_user = models.BooleanField(default=True)
+    
     def __str__(self):
         return f"Report by {self.user.username} on {self.year}/{self.month}/{self.day}"
+
+class DailyReportSetting(models.Model):
+    no_limit_submission = models.BooleanField(default=False)

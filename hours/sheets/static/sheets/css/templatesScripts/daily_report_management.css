@@ -6,7 +6,7 @@
     --jexcel_content_color: #000;
     --jexcel_content_color_highlighted: #000;
     --jexcel_content_background: #fff;
-    --jexcel_content_background_highlighted: rgba(0,0,0,0.05);
+    --jexcel_content_background_highlighted: rgba(0, 0, 0, 0.05);
     --jexcel_menu_background: #fff;
     --jexcel_menu_background_highlighted: #ebebeb;
     --jexcel_menu_color: #555;
@@ -18,10 +18,10 @@
     --active_color: #007aff;
 }
 
-.form-control{
-    background: transparent;
-    min-height: 120px;
+.form-control {
+    min-height: 50px;
 }
+
 .user-item {
     cursor: pointer;
     transition: background-color 0.3s;
@@ -36,10 +36,10 @@
     color: white;
 }
 
-.missed-report{
+.missed-report {
     background: #ff4040;
 }
 
-.submitted-report{
+.submitted-report {
     background: #7fe656;
 }
