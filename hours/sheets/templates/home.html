@@ -151,7 +151,7 @@
                     href="{% url 'sheets:food_data' %}"
                     style="width: 200px">Food Data</a>
                 {% endif %}
-                {% if request.user.is_MainReportManager %}
+                {% if request.user.is_MainReportManager or request.user.is_SubReportManager %}
                     <a class="btn btn-info mx-1"
                     href="{% url 'sheets:daily_report_management' %}"
                     style="width: 200px">Daily report management</a>

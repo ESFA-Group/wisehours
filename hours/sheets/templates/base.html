@@ -113,16 +113,6 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
                                 </li>
-                                {% comment %} <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Dropdown link
-                                    </a>
-                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                    <li><a class="dropdown-item" href="#">Action</a></li>
-                                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                    </ul>
-                                </li> {% endcomment %}
                             {% endif %}
 
                             {% if request.user.is_FoodManager %}
@@ -133,7 +123,7 @@
                                 </li>
                             {% endif %}
                             
-                            {% if request.user.is_MainReportManager %}
+                            {% if request.user.is_MainReportManager or request.user.is_SubReportManager %}
                                 <li class="nav-item">
                                     {% url 'sheets:daily_report_management' as temp_url %}
                                     <a class="nav-link {% if request.path == temp_url %}active{% endif %}"
