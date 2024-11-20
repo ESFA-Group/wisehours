@@ -14,6 +14,8 @@ urlpatterns = [
     path("hours", views.HoursView.as_view(), name="hours"),
     path("hours_info", views.HoursInfoView.as_view(), name="hours_info"),
     path("personal_info", views.PersonalInfoView.as_view(), name="personal_info"),
+    path("daily_report", views.DailyReport.as_view(), name="daily_report"),
+    path("daily_report_management", views.DailyReportManagement.as_view(), name="daily_report_management"),
     path("payment", views.PaymentHandleView.as_view(), name="payment"),
     path("alter_payment", views.AlterPaymentHandleView.as_view(), name="alter_payment"),
     path("order_food_form", views.FoodFormView.as_view(), name="food_form"),
@@ -98,5 +100,20 @@ urlpatterns = [
         "api/daily_foods_order/<str:year>/<str:month>/<str:weekIndex>/<str:day>",
         api_views.DailyFoodsOrder.as_view(),
         name="api_daily_foods_order",
+    ),
+    path(
+        "api/daily_report_user/<str:year>/<str:month>/<str:day>",
+        api_views.DailyReportUser.as_view(),
+        name="api_daily_report_user",
+    ),
+    path(
+        "api/daily_report_management/<str:year>/<str:month>",
+        api_views.DailyReportManagement.as_view(),
+        name="api_daily_report_management",
+    ),
+    path(
+        "api/daily_report_setting_management",
+        api_views.DailyReportSettingManager.as_view(),
+        name="daily_report_setting_management",
     ),
 ]

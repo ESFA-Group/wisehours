@@ -23,8 +23,10 @@ class User(AbstractUser):
     comment = models.TextField("comment", default="", blank=True)
 
     # personal info
-    is_active = models.BooleanField("is_active",  default=True)
-    is_FoodManager = models.BooleanField("is_FoodManager",  default=False)
+    is_active = models.BooleanField("is_active", default=True)
+    is_FoodManager = models.BooleanField("is_FoodManager", default=False)
+    is_SubReportManager = models.BooleanField("is_SubReportManager", default=False)
+    is_MainReportManager = models.BooleanField("is_MainReportManager", default=False)
     national_ID = models.CharField("national_ID", max_length=10, blank=True, default="")
     mobile1 = models.CharField("mobile1", max_length=11, blank=True, default="")
     mobile2 = models.CharField("mobile2", max_length=11, blank=True, default="")
@@ -119,6 +121,10 @@ def current_month() -> int:
     return jdt.date.today().month
 
 
+def current_day() -> int:
+    return jdt.date.today().day
+
+
 def current_mont_days(month: int, isleap: bool) -> int:
     """gets a month and returns that date's month days number with leap year consideration
     (for jalali months)"""
@@ -128,15 +134,15 @@ def current_mont_days(month: int, isleap: bool) -> int:
         days_num += 1
     return days_num
 
-    
+
 class Sheet(models.Model):
     payment_status_choices = [
-        (0, 'Not Paid'),
-        (1, 'Only Base Paid'),
-        (2, 'Only Complementary Paid'),
-        (3, 'Base+Complementary Paid'),
-        (4, 'Refund Needed'),
-        (5, 'Refund Paid'),
+        (0, "Not Paid"),
+        (1, "Only Base Paid"),
+        (2, "Only Complementary Paid"),
+        (3, "Base+Complementary Paid"),
+        (4, "Refund Needed"),
+        (5, "Refund Paid"),
     ]
     user = models.ForeignKey(
         User,
@@ -153,8 +159,10 @@ class Sheet(models.Model):
     mean = models.PositiveIntegerField("mean", default=0)  # in minutes
     total = models.PositiveIntegerField("total", default=0)  # in minutes
     submitted = models.BooleanField("submitted", default=False)
-    payment_status = models.IntegerField("payment_status", choices=payment_status_choices, default=0)
-    
+    payment_status = models.IntegerField(
+        "payment_status", choices=payment_status_choices, default=0
+    )
+
     # payment info: data comes from user
     wage = models.IntegerField("wage", default=0)
     base_payment = models.IntegerField("base_payment", default=0)
@@ -254,7 +262,12 @@ class Sheet(models.Model):
         total_payment = self.get_total_payment()
         final_payment = (
             total_payment
-            - (self.reduction1 + self.reduction2 + self.reduction3 + self.food_reduction)
+            - (
+                self.reduction1
+                + self.reduction2
+                + self.reduction3
+                + self.food_reduction
+            )
             + (self.addition1 + self.addition2)
         )
         return final_payment
@@ -305,7 +318,7 @@ class Project(models.Model):
         ProjectFamily,
         verbose_name="family",
         related_name="projects",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
     )
     name = models.CharField("name", max_length=150)
@@ -316,12 +329,40 @@ class Project(models.Model):
 
 class Food_data(models.Model):
     food_order_mode = [
-        (0, 'disablePastDays'),
-        (1, 'free'),
-        (2, 'disableWholeWeek'),
+        (0, "disablePastDays"),
+        (1, "free"),
+        (2, "disableWholeWeek"),
     ]
     year = models.PositiveIntegerField("year", default=current_year)
     month = models.PositiveIntegerField("month", default=current_month)
     order_mode = models.IntegerField("order_mode", choices=food_order_mode, default=0)
     data = models.JSONField(default=list)
     statistics_and_cost_data = models.JSONField(default=list)
+
+
+class Report(models.Model):
+    user = models.ForeignKey(
+        User,
+        verbose_name="user",
+        related_name="report",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    year = models.PositiveIntegerField("year", default=current_year)
+    month = models.PositiveIntegerField("month", default=current_month)
+    day = models.PositiveIntegerField("day", default=current_day)
+    content = models.TextField(default="")
+    sub_comment = models.TextField(default="", blank=True)
+    main_comment = models.TextField(default="", blank=True)
+    manager_comment_hide_for_user = models.BooleanField(default=True)
+    manager_comment_hide_for_supervisor = models.BooleanField(default=True)
+    supervisor_comment_hide_for_user = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Report by {self.user.username} on {self.year}/{self.month}/{self.day}"
+
+
+class DailyReportSetting(models.Model):
+    no_limit_submission = models.BooleanField(default=False)
+    start_report_hour = models.PositiveIntegerField("start_report_hour", default=17)
+    end_report_hour = models.PositiveIntegerField("end_report_hour", default=22)

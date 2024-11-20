@@ -3,37 +3,37 @@
 
 {% block extra_css %}
     <style>
-    body {
-        /* background-color: #5b6467;
-    background-image: linear-gradient(315deg, #5b6467 0%, #8b939a 59%); */
-        height: 100vh;
-        background-color: #c2b6b6;
-        background-image: linear-gradient(315deg, #c2b6b6 0%, #576574 74%);
-    }
+        body {
+            /* background-color: #5b6467;
+        background-image: linear-gradient(315deg, #5b6467 0%, #8b939a 59%); */
+            height: 100vh;
+            background-color: #c2b6b6;
+            background-image: linear-gradient(315deg, #c2b6b6 0%, #576574 74%);
+        }
 
-    .card-container {
-        display: flex;
-        justify-content: center;
-    }
+        .card-container {
+            display: flex;
+            justify-content: center;
+        }
 
-    .card-link {
-        color: black;
-        text-decoration: none;
-    }
+        .card-link {
+            color: black;
+            text-decoration: none;
+        }
 
-    .card-link:hover {
-        color: black;
-        transition: all 0.01s ease-in;
-    }
+        .card-link:hover {
+            color: black;
+            transition: all 0.01s ease-in;
+        }
 
-    .card {
-        background-color: #e0e4ee;
-    }
+        .card {
+            background-color: #e0e4ee;
+        }
 
-    .card:hover {
-        background-color: #bcc5db;
-        transition: all 0.1s ease-in;
-    }
+        .card:hover {
+            background-color: #bcc5db;
+            transition: all 0.1s ease-in;
+        }    
     </style>
 {% endblock extra_css %}
 
@@ -52,7 +52,7 @@
 
             <div class="row">   
 
-                <div class="col col-12 col-md-6 col-lg-3 mb-2 card-container">
+                <div class="col-lg-4 col-md-6 mb-2 card-container">
                     <a href="{% url 'sheets:hours' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -67,7 +67,7 @@
                     </a>
                 </div>
 
-                <div class="col col-12 col-md-6 col-lg-3 mb-2 card-container">
+                <div class="col-lg-4 col-md-6 mb-2 card-container">
                     <a href="{% url 'sheets:food_form' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -82,7 +82,24 @@
                     </a>
                 </div>
 
-                <div class="col col-12 col-md-6 col-lg-3 mb-2 card-container">
+                <div class="col-lg-4 col-md-6 mb-2 card-container">
+                    <a href="{% url 'sheets:daily_report' %}" class="card-link">
+                        <div class="card mx-3" style="width: 19rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    Report
+                                </h5>
+                                <p class="card-text">
+                                    daily report
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row">       
+                <div class="col-md-3 mb-2 mx-auto card-container">
                     <a href="{% url 'sheets:hours_info' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -97,7 +114,7 @@
                     </a>
                 </div>
 
-                <div class="col col-12 col-md-6 col-lg-3 mb-2 card-container">
+                <div class="col-md-3 mb-2 mx-auto card-container">
                     <a href="{% url 'sheets:personal_info' %}" class="card-link">
                         <div class="card mx-3" style="width: 19rem;">
                             <div class="card-body">
@@ -110,7 +127,7 @@
                             </div>
                         </div>
                     </a>
-                </div>
+                </div>                
             </div>
 
             <!-- <div class="mt-5">
@@ -133,6 +150,11 @@
                     <a class="btn btn-info mx-1"
                     href="{% url 'sheets:food_data' %}"
                     style="width: 200px">Food Data</a>
+                {% endif %}
+                {% if request.user.is_MainReportManager or request.user.is_SubReportManager %}
+                    <a class="btn btn-warning mx-1"
+                    href="{% url 'sheets:daily_report_management' %}"
+                    style="width: 250px">Daily report management</a>
                 {% endif %}
             </div>
         {% endif %}

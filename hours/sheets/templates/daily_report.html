@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+{% load connector_template_filters %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'sheets/css/templatesScripts/daily_report.css' %}">
+{% endblock extra_css %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mt-2">
+        <div class="col col-6 col-md-4 col-lg-2">
+            <strong>سال</strong>
+            <div class="mt-1">
+                <select name="year" id="year" style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                </select>
+            </div>
+        </div>
+        <div class="col col-6 col-md-4 col-lg-2">
+            <strong>ماه</strong>
+            <div class="mt-1">
+                <select name="month" id="month" style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                    {{ 1|render_persian_month_options }}
+                </select>
+            </div>
+        </div>
+            <div class="col-md-6 col-xxl-5">
+                <strong>روز</strong>
+                <div class="mt-1">
+                    <select name="day" id="day" style="min-width: 220px;
+                                       border-radius: 5px;
+                                       height: 35px">
+                        {{ 1|render_day_options }}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <hr>
+
+    <div class="container mt-5">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h4 id="reportTitle" class="card-title fw-bold"></h4>
+                <form id="report_from" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea id="report_content" name="content" class="form-control" placeholder="گزارش خود را بنویسید" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold">نظر مدیر :</h5>
+                <input id='main_comment' class="form-control" disabled></input>
+            </div>
+        </div>
+        <br>
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold">نظر سرپرست :</h5>
+                <input id='sub_comment' class="form-control" disabled></input>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'sheets/js/templatesScripts/daily_report.js' %}"></script>
+{% endblock body %}

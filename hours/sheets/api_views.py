@@ -7,6 +7,8 @@ from sheets import customPermissions
 from django.http import HttpResponse
 from collections import OrderedDict
 from django.db.models import Q
+from datetime import date
+from itertools import groupby
 
 
 import jdatetime as jdt
@@ -14,7 +16,7 @@ import pandas as pd
 import io
 import re
 
-from sheets.models import Project, Sheet, User, Food_data
+from sheets.models import Project, Sheet, User, Food_data, Report, DailyReportSetting
 from sheets.serializers import ProjectSerializer, SheetSerializer
 
 
@@ -888,3 +890,147 @@ class DailyFoodsOrder(APIView):
             if item["id"] in ids:
                 item["count"] += 1
                 item["users"].append(user)
+
+
+class DailyReportUser(APIView):
+    def get(self, request, year: str, month: str, day: str):
+        user = request.user
+
+        reportSetting, _ = DailyReportSetting.objects.get_or_create()
+
+        report = Report.objects.filter(
+            user=user, year=year, month=month, day=day
+        ).first()
+
+        res = {
+            "content": report.content if report else "",
+            "main_comment": (
+                report.main_comment
+                if report and not report.manager_comment_hide_for_user
+                else ""
+            ),
+            "sub_comment": (
+                report.sub_comment
+                if report and not report.supervisor_comment_hide_for_user
+                else ""
+            ),
+            "no_limit_submit_btn": reportSetting.no_limit_submission,
+            "start_report_hour": reportSetting.start_report_hour,
+            "end_report_hour": reportSetting.end_report_hour,
+        }
+
+        return Response(res, status=status.HTTP_200_OK)
+
+    def post(self, request, year: str, month: str, day: str):
+        user = request.user
+        data = request.data
+        content = data.get("content")
+
+        _, created = Report.objects.update_or_create(
+            user=user,
+            year=year,
+            month=month,
+            day=day,
+            defaults={"content": content},
+        )
+
+        return Response(
+            {
+                "message": (
+                    "Report created successfully"
+                    if created
+                    else "Report updated successfully"
+                )
+            },
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+
+class DailyReportManagement(APIView):
+    permission_classes = [customPermissions.IsReportManager]
+
+    def get(self, request, year: str, month: str):
+        reports = Report.objects.filter(year=year, month=month).order_by("user", "day")
+
+        # Group reports by user
+        grouped_reports = {}
+        for username, items in groupby(
+            reports, key=lambda report: report.user.username
+        ):
+            grouped_reports[username] = [
+                {
+                    "day": report.day,
+                    "content": report.content,
+                    "manager_comment": report.main_comment,
+                    "manager_comment_hide_for_user": report.manager_comment_hide_for_user,
+                    "manager_comment_hide_for_supervisor": report.manager_comment_hide_for_supervisor,
+                    "supervisor_comment": report.sub_comment,
+                    "supervisor_comment_hide_for_user": report.supervisor_comment_hide_for_user,
+                }
+                for report in items
+            ]
+
+        return Response(
+            {
+                "user": {
+                    "id": request.user.id,
+                    "is_MainReportManager": request.user.is_MainReportManager,
+                },
+                "data": grouped_reports,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request, year: str, month: str):
+        data = request.data
+        user = data["userName"]
+        day = str(data["day"])
+        is_manager_submitted = data["is_manager_submitted"]
+
+        # update corresponding report object
+        report, created = Report.objects.get_or_create(
+            user__username=user, year=year, month=month, day=day
+        )
+        if created:
+            userObj = User.objects.get(username=user)
+            report.user = userObj
+
+        if is_manager_submitted:
+            report.main_comment = data["manager_comment"]
+            report.manager_comment_hide_for_user = data["manager_comment_hide_for_user"]
+            report.manager_comment_hide_for_supervisor = data[
+                "manager_comment_hide_for_supervisor"
+            ]
+        else:
+            report.sub_comment = data["supervisor_comment"]
+            report.supervisor_comment_hide_for_user = data[
+                "supervisor_comment_hide_for_user"
+            ]
+
+        report.save()
+        return Response(
+            {"message": "Report updated successfully"}, status=status.HTTP_200_OK
+        )
+
+
+class DailyReportSettingManager(APIView):
+    permission_classes = [customPermissions.IsReportManager]
+
+    def get(self, request):
+        settign, _ = DailyReportSetting.objects.get_or_create()
+        return Response(
+            {"no_limit_submission": settign.no_limit_submission},
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request):
+        data = request.data
+        limitation = data["no_limit_submission"]
+        settign, _ = DailyReportSetting.objects.get_or_create()
+
+        settign.no_limit_submission = limitation
+        settign.save()
+        return Response(
+            {"message": "Report setting updated successfully"},
+            status=status.HTTP_200_OK,
+        )

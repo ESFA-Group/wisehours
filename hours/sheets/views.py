@@ -134,6 +134,44 @@ class PersonalInfoView(BaseView):
         request.user.save()
 
 
+class DailyReport(BaseView):
+    template_name = "daily_report.html"
+
+    def post(self, request):
+        context = {}
+        if request.POST.get("saveUserData"):
+            self.save_user_data(request)
+            context = {"submitted": True}
+            return super(TemplateView, self).render_to_response(context)
+
+class DailyReportManagement(BaseView):
+    template_name = "daily_report_management.html"
+
+    # def get_context_data(self, **kwargs):
+    #     """
+    #     Override this method to add context to the template.
+    #     """
+    #     context = super().get_context_data(**kwargs)
+        
+    #     if self.request.user.is_staff:
+    #         user_role = 'admin'
+    #     elif self.request.user.groups.filter(name='Manager').exists():
+    #         user_role = 'manager'
+    #     else:
+    #         user_role = 'user'
+        
+    #     context['user_role'] = user_role
+        
+    #     return context    
+        
+    def post(self, request):
+        context = {}
+        if request.POST.get("saveUserData"):
+            self.save_user_data(request)
+            context = {"submitted": True}
+            return super(TemplateView, self).render_to_response(context)
+
+
 class HoursInfoView(BaseView):
     template_name = "hours_info.html"
 
