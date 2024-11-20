@@ -19,7 +19,7 @@
 }
 
 .form-control {
-    min-height: 50px;
+    min-height: 120px !important;
 }
 
 .user-item {

@@ -172,7 +172,7 @@ function pre_load_user_reports() {
 				<div class="card shadow mb-4">
 					<div class="card-body">
 						<h4 class="card-title fw-bold">Report #${day}</h4>
-						<input id="report_content_${day}" class="form-control" name="content" disabled placeholder="Not submitted"></input>
+						<textarea id="report_content_${day}" class="form-control" name="content" disabled placeholder="Not submitted"></textarea>
 					</div>
 				</div>
 		`;
@@ -205,7 +205,7 @@ function pre_load_user_reports() {
 				<div class="card shadow mb-4">
 					<div class="card-body">
 						<h5 class="card-title fw-semibold">Supervisor's Comment:</h5>
-						<input id="supervisor_comment_${day}" class="form-control" placeholder="No comment yet." disabled></input>
+						<textarea id="supervisor_comment_${day}" class="form-control" placeholder="No comment yet." disabled></textarea>
 					</div>
 				</div>
 			`;
@@ -214,7 +214,7 @@ function pre_load_user_reports() {
 				<div class="card shadow mb-4">
 					<div class="card-body">
 						<h5 class="card-title fw-semibold">Manager's Comment:</h5>
-						<input id="manager_comment_${day}" class="form-control" placeholder="No comment yet." disabled></input>
+						<textarea id="manager_comment_${day}" class="form-control" placeholder="No comment yet." disabled></textarea>
 					</div>
 				</div>
 
@@ -307,7 +307,7 @@ function load_user_reports(userName, reports) {
 		if (r.content !== null && r.content.trim() !== "") {
 			$(`#report_${day}`).removeClass("missed-report")
 			$(`#report_${day}`).addClass("submitted-report")
-			$(`#report_content_${day}`).val(r.content.replace(/\n/g, "<br>"));
+			$(`#report_content_${day}`).val(r.content);
 		}
 
 		if (is_manager_commenter) {
