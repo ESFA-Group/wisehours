@@ -10,7 +10,7 @@
 <div class="container-fluid">
     <div class="row mt-2">
         <div class="col col-6 col-md-4 col-lg-2">
-            <strong>Year</strong>
+            <strong>سال</strong>
             <div class="mt-1">
                 <select name="year" id="year" style="min-width: 180px;
                                    border-radius: 5px;
@@ -19,17 +19,17 @@
             </div>
         </div>
         <div class="col col-6 col-md-4 col-lg-2">
-            <strong>Month</strong>
+            <strong>ماه</strong>
             <div class="mt-1">
                 <select name="month" id="month" style="min-width: 180px;
                                    border-radius: 5px;
                                    height: 35px">
-                    {{ 1|render_month_options }}
+                    {{ 1|render_persian_month_options }}
                 </select>
             </div>
         </div>
             <div class="col-md-6 col-xxl-5">
-                <strong>Day</strong>
+                <strong>روز</strong>
                 <div class="mt-1">
                     <select name="day" id="day" style="min-width: 220px;
                                        border-radius: 5px;
@@ -46,11 +46,11 @@
     <div class="container mt-5">
         <div class="card shadow mb-4">
             <div class="card-body">
-                <h4 id="reportTitle" class="card-title fw-bold">Submit a Report</h4>
+                <h4 id="reportTitle" class="card-title fw-bold"></h4>
                 <form id="report_from" method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <textarea id="report_content" name="content" class="form-control" placeholder="Enter your report here" rows="4" required></textarea>
+                        <textarea id="report_content" name="content" class="form-control" placeholder="گزارش خود را بنویسید" rows="4" required></textarea>
                     </div>
                 </form>
             </div>
@@ -58,14 +58,14 @@
 
         <div class="card shadow">
             <div class="card-body">
-                <h5 class="card-title fw-semibold">Vahid's Comment:</h5>
+                <h5 class="card-title fw-semibold">نظر مدیر :</h5>
                 <input id='main_comment' class="form-control" disabled></input>
             </div>
         </div>
         <br>
         <div class="card shadow">
             <div class="card-body">
-                <h5 class="card-title fw-semibold">Koolaji's Comment:</h5>
+                <h5 class="card-title fw-semibold">نظر سرپرست :</h5>
                 <input id='sub_comment' class="form-control" disabled></input>
             </div>
         </div>

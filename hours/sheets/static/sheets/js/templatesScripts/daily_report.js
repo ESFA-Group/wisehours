@@ -92,7 +92,7 @@ async function get_report() {
 }
 
 function updateTitle() {
-	$("#reportTitle").text("Submit Report " + $("#month").val() + "/" + $("#day").val());
+	$("#reportTitle").text("ثبت گزارش تاریخ " + $("#month").val() + "/" + $("#day").val());
 }
 
 async function get_active_day_report() {
@@ -100,8 +100,8 @@ async function get_active_day_report() {
 
 	let report = await get_report();
 	$("#report_content").text(report['content']);
-	$("#main_comment").val(report['main_comment'] ? report['main_comment'] : 'No comment yet.');
-	$("#sub_comment").val(report['sub_comment'] ? report['sub_comment'] : 'No comment yet.');
+	$("#main_comment").val(report['main_comment'] ? report['main_comment'] : 'هنوز نظری ثبت نشده');
+	$("#sub_comment").val(report['sub_comment'] ? report['sub_comment'] : 'هنوز نظری ثبت نشده');
 }
 
 async function handle_submit_button_activation() {
@@ -127,7 +127,7 @@ async function handle_submit_button_activation() {
 					`
                 <button id="submitReportBtn" class="btn btn-primary d-flex justify-content-center align-items-center position-relative" type="submit">
                     <span id="submit-report-spinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
-                    <span>Submit Report</span>
+                    <span>ثبت گزارش</span>
                     <div id="submit-report-check" class="bg-primary d-none">
                         ✅
                     </div>

@@ -59,3 +59,28 @@ def render_month_options(selected_month=None):
         options_html += f'<option value="{value}"{selected_attr}>{name}</option>'
 
     return mark_safe(options_html)
+
+
+@register.filter(name="render_persian_month_options")
+def render_persian_month_options(selected_month=None):
+    months = [
+        (1, "فروردین"),
+        (2, "اردیبهشت"),
+        (3, "خرداد"),
+        (4, "تیر"),
+        (5, "مرداد"),
+        (6, "شهریور"),
+        (7, "مهر"),
+        (8, "ابان"),
+        (9, "اذر"),
+        (10, "دی"),
+        (11, "بهمن"),
+        (12, "اسفند"),
+    ]
+
+    options_html = ""
+    for value, name in months:
+        selected_attr = " selected" if value == selected_month else ""
+        options_html += f'<option value="{value}"{selected_attr}>{name}</option>'
+
+    return mark_safe(options_html)
