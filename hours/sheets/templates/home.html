@@ -152,9 +152,9 @@
                     style="width: 200px">Food Data</a>
                 {% endif %}
                 {% if request.user.is_MainReportManager or request.user.is_SubReportManager %}
-                    <a class="btn btn-info mx-1"
+                    <a class="btn btn-warning mx-1"
                     href="{% url 'sheets:daily_report_management' %}"
-                    style="width: 200px">Daily report management</a>
+                    style="width: 250px">Daily report management</a>
                 {% endif %}
             </div>
         {% endif %}

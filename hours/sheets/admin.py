@@ -26,3 +26,7 @@ class Food_dataAdmin(admin.ModelAdmin):
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
     ordering = ["year", "month", "day"]
+
+@admin.register(DailyReportSetting)
+class ReportSettingAdmin(admin.ModelAdmin):
+    ordering = []

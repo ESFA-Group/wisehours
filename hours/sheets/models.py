@@ -357,9 +357,12 @@ class Report(models.Model):
     manager_comment_hide_for_user = models.BooleanField(default=True)
     manager_comment_hide_for_supervisor = models.BooleanField(default=True)
     supervisor_comment_hide_for_user = models.BooleanField(default=True)
-    
+
     def __str__(self):
         return f"Report by {self.user.username} on {self.year}/{self.month}/{self.day}"
 
+
 class DailyReportSetting(models.Model):
     no_limit_submission = models.BooleanField(default=False)
+    start_report_hour = models.PositiveIntegerField("start_report_hour", default=17)
+    end_report_hour = models.PositiveIntegerField("end_report_hour", default=22)

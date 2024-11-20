@@ -107,13 +107,13 @@ async function get_active_day_report() {
 async function handle_submit_button_activation() {
 	const currentHour = new Date().getHours(); // Get the current hour (0-23)
 	let report = await get_report();
-	
+
 	if (report.no_limit_submit_btn) {
 		toggle_submmit_button(true)
 		return
 	}
 
-	if (currentHour >= 18 && currentHour <= 22) {
+	if (currentHour >= report.start_report_hour && currentHour <= report.end_report_hour) {
 		toggle_submmit_button(true)
 	} else {
 		toggle_submmit_button(false)

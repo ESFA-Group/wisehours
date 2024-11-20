@@ -897,7 +897,7 @@ class DailyReportUser(APIView):
         user = request.user
 
         reportSetting, _ = DailyReportSetting.objects.get_or_create()
-        
+
         report = Report.objects.filter(
             user=user, year=year, month=month, day=day
         ).first()
@@ -914,7 +914,9 @@ class DailyReportUser(APIView):
                 if report and not report.supervisor_comment_hide_for_user
                 else ""
             ),
-            "no_limit_submit_btn": reportSetting.no_limit_submission 
+            "no_limit_submit_btn": reportSetting.no_limit_submission,
+            "start_report_hour": reportSetting.start_report_hour,
+            "end_report_hour": reportSetting.end_report_hour,
         }
 
         return Response(res, status=status.HTTP_200_OK)
@@ -945,6 +947,8 @@ class DailyReportUser(APIView):
 
 
 class DailyReportManagement(APIView):
+    permission_classes = [customPermissions.IsReportManager]
+
     def get(self, request, year: str, month: str):
         reports = Report.objects.filter(year=year, month=month).order_by("user", "day")
 
@@ -1010,6 +1014,8 @@ class DailyReportManagement(APIView):
 
 
 class DailyReportSettingManager(APIView):
+    permission_classes = [customPermissions.IsReportManager]
+
     def get(self, request):
         settign, _ = DailyReportSetting.objects.get_or_create()
         return Response(
