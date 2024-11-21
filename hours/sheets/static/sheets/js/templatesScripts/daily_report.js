@@ -11,6 +11,13 @@ const CURRENT_MONTH = TODAY.getMonth();
 var ACTIVE_MONTH = CURRENT_MONTH
 
 var ACTIVE_DAY = TODAY.getDate();
+
+let _REPORT;
+
+let submitTimer;
+let inactivityTimer;
+let isSubmitting = false;
+
 // ********************************************************
 
 function fillYears(yearId, year = CURRENT_YEAR) {
@@ -92,28 +99,27 @@ async function get_report() {
 }
 
 function updateTitle() {
-	$("#reportTitle").text("ثبت گزارش تاریخ " + $("#month").val() + "/" + $("#day").val());
+	$("#reportTitle").text("ثبت گزارش تاریخ " + $("#year").val() + "/" + $("#month").val() + "/" + $("#day").val());
 }
 
 async function get_active_day_report() {
 	updateTitle();
 
-	let report = await get_report();
-	$("#report_content").text(report['content']);
-	$("#main_comment").val(report['main_comment'] ? report['main_comment'] : 'هنوز نظری ثبت نشده');
-	$("#sub_comment").val(report['sub_comment'] ? report['sub_comment'] : 'هنوز نظری ثبت نشده');
+	if (!_REPORT) {
+		_REPORT = await get_report();
+	}
+
+	$("#report_content").text(_REPORT['content']);
+	$("#main_comment").val(_REPORT['main_comment'] ? _REPORT['main_comment'] : 'هنوز نظری ثبت نشده');
+	$("#sub_comment").val(_REPORT['sub_comment'] ? _REPORT['sub_comment'] : 'هنوز نظری ثبت نشده');
 }
 
 async function handle_submit_button_activation() {
-	const currentHour = new Date().getHours(); // Get the current hour (0-23)
-	let report = await get_report();
-
-	if (report.no_limit_submit_btn) {
-		toggle_submmit_button(true)
-		return
+	if (!_REPORT) {
+		_REPORT = await get_report();
 	}
 
-	if (currentHour >= report.start_report_hour && currentHour <= report.end_report_hour) {
+	if (is_submit_valid()) {
 		toggle_submmit_button(true)
 	} else {
 		toggle_submmit_button(false)
@@ -141,8 +147,35 @@ async function handle_submit_button_activation() {
 	}
 }
 
+function startSubmitting() {
+	if (!isSubmitting) {
+		isSubmitting = true;
+		submitTimer = setInterval(submitForm, 5000);
+	}
+}
+
+function stopSubmitting() {
+	clearInterval(submitTimer);
+	isSubmitting = false;
+}
+
+async function submitForm() {
+	if (!is_submit_valid()) {
+		return
+	}
+	const content = $('#report_content').val();
+	const url = `/hours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
+
+	return await postRequest(url, { content });
+}
+
+function is_submit_valid() {
+	const currentHour = new Date().getHours(); // Get the current hour (0-23)
+	return _REPORT.no_limit_submit_btn || (currentHour >= _REPORT.start_report_hour && currentHour <= _REPORT.end_report_hour)
+}
 
 $("document").ready(async function () {
+	_REPORT = await get_report();
 	fillYears("#year");
 	initialize_date_dropdowns();
 	get_active_day_report();
@@ -159,16 +192,25 @@ $("document").ready(async function () {
 		get_active_day_report();
 	});
 
+	$("#report_content").on("input", async function () {
+		if (!_REPORT) {
+			_REPORT = await get_report();
+		}
+
+		if (is_submit_valid()) {
+			startSubmitting(); // Start submitting on input
+			clearTimeout(inactivityTimer);
+			inactivityTimer = setTimeout(stopSubmitting, 5000);
+		}
+	});
+
 	$('#report_from').on('submit', async function (e) {
 		e.preventDefault();
 
 		$("#submit-report-spinner").removeClass('d-none');
 		$("#submitReportBtn").prop('disabled', true)
 
-		const content = $('#report_content').val();
-		const url = `/hours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
-
-		let res = await postRequest(url, { content })
+		await submitForm();
 
 		$("#submitReportBtn").prop('disabled', false)
 		$("#submit-report-spinner").addClass('d-none');
@@ -180,5 +222,6 @@ $("document").ready(async function () {
 				});
 			}, 1000); // Delay before fading out
 		});
+		stopSubmitting();
 	});
 });
