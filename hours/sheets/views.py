@@ -448,10 +448,11 @@ class PaymentExportView(View):
         return string
 
     def fill_melli_export(self, payment_method, user, amount, count):
+        name_p = f"{user.first_name_p} {user.last_name_p}"
         if payment_method == "AN":
-            return f"{count},{amount},{user.account_number},{user.first_name} {user.last_name},حقوق,,{user.national_ID}\n"
+            return f"{count},{amount},{user.account_number},{name_p},حقوق,,{user.national_ID}\n"
         elif payment_method == "SN":
-            return f"{count},{amount},IR{user.SHEBA_number},{user.first_name} {user.last_name},حقوق,,{user.national_ID}\n"
+            return f"{count},{amount},IR{user.SHEBA_number},{name_p},حقوق,,{user.national_ID}\n"
         return ""
 
     def fill_sepah_export(
