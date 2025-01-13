@@ -88,6 +88,8 @@ class PersonalInfoView(BaseView):
     def save_user_data(self, request):
         request.user.first_name = request.POST.get("firstName", "")
         request.user.last_name = request.POST.get("lastName", "")
+        request.user.first_name_p = request.POST.get("firstNameP", "")
+        request.user.last_name_p = request.POST.get("lastNameP", "")
         request.user.national_ID = request.POST.get("nationalID", "")
         request.user.dob = request.POST.get("dob", "")
         request.user.email = request.POST.get("email", "")

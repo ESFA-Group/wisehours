@@ -11,6 +11,9 @@ def user_directory_path(instance, filename) -> str:
 
 
 class User(AbstractUser):
+    first_name_p = models.CharField("first name persian", max_length=150, blank=True)
+    last_name_p = models.CharField("last name persian", max_length=150, blank=True)
+    
     # payment info
     wage = models.IntegerField("wage", default=0)
     base_payment = models.IntegerField("base_payment", default=0)

@@ -58,6 +58,36 @@
                            pattern="([A-z\s]){1,}"
                            required>
                     <div class="invalid-feedback">
+                        This field is required and should be in Persian.
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4 col-xl-3">
+                    <label for="firstNameP" class="form-label">
+                        نام فارسی <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="firstNameP"
+                           name="firstNameP"
+                           value="{{ request.user.first_name_p }}"
+                           required>
+                    <div class="invalid-feedback">
+                        This field is required and should be in Persian.
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4 col-xl-3">
+                    <label for="lastNameP" class="form-label">
+                        نام خانوادگی فارسی <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="lastNameP"
+                           name="lastNameP"
+                           value="{{ request.user.last_name_p }}"
+                           required>
+                    <div class="invalid-feedback">
                         This field is required and should be in Latin.
                     </div>
                 </div>
