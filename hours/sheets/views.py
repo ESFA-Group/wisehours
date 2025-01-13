@@ -353,6 +353,7 @@ class PaymentExportView(View):
         month = int(request.POST.get("month"))
         export_type = request.POST.get("exportType")
         string = str()
+        melli_count = 0
         for i in ids:
             user = User.objects.get(pk=i)
             sheet = Sheet.objects.get(user=user, month=month, year=year)
@@ -374,11 +375,12 @@ class PaymentExportView(View):
                         year,
                     )
                 case "melli":
-                    string = self.fill_melli_export(
-                        string,
+                    melli_count += 1
+                    string += self.fill_melli_export(
                         payment_method,
                         user,
                         amount,
+                        melli_count
                     )
                 case "sepah":
                     string = self.fill_sepah_export(
@@ -390,11 +392,24 @@ class PaymentExportView(View):
                         month,
                         year,
                     )
-        if export_type == "sepah":
-            file_name = f"{export_type}_{year}_{month}.xlsx"
-            wb = openpyxl.Workbook()
-            ws = wb.active
-
+                    
+        file_name = f"{export_type}_{year}_{month}.xlsx"
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        
+        if export_type == "melli":
+            header = [
+                "ردیف",
+                "مبلغ (ریال)",
+                "شماره حساب ملی / شبا مقصد",
+                "نام گیرنده",
+                "بابت",
+                "شناسه واریز (اختیاری - حداکثر 35 کاراکتر)",
+                "کد ملی (اختیاری)",
+            ]
+            ws.append(header)
+            
+        elif export_type == "sepah":
             header = [
                 "شماره شبای مقصد",
                 "مبلغ واریز(ریال)",
@@ -403,27 +418,21 @@ class PaymentExportView(View):
             ]
             ws.append(header)
 
-            for _, line in enumerate(string.splitlines(), start=1):
-                columns = line.split(",")
-                columns = columns[:2] + columns[-2:]
-                ws.append(columns)
+        for _, line in enumerate(string.splitlines(), start=1):
+            columns = line.split(",")
+            ws.append(columns)
 
-            # Save the workbook to an in-memory buffer
-            buffer = BytesIO()
-            wb.save(buffer)
-            buffer.seek(0)
+        # Save the workbook to an in-memory buffer
+        buffer = BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
 
-            # Prepare the response
-            response = HttpResponse(
-                buffer,
-                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            )
-            response["Content-Disposition"] = f"attachment; filename={file_name}"
-            return response
+        # Prepare the response
+        response = HttpResponse(
+            buffer,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
 
-        file_name = f"{export_type}_{year}_{month}.txt"
-        buffer = io.StringIO(string)
-        response = HttpResponse(buffer.getvalue(), content_type="text/plain")
         response["Content-Disposition"] = f"attachment; filename={file_name}"
         return response
 
@@ -436,22 +445,20 @@ class PaymentExportView(View):
             string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},salary {month_names[month - 1]} {year},\n"
         return string
 
-    def fill_melli_export(self, string, payment_method, user, amount):
+    def fill_melli_export(self, payment_method, user, amount, count):
         if payment_method == "AN":
-            string += f"{amount} , {user.account_number} , 1 , {user.first_name} {user.last_name}\n"
+            return f"{count},{amount},{user.account_number},{user.first_name} {user.last_name},حقوق,,{user.national_ID}\n"
         elif payment_method == "SN":
-            string += (
-                f"{amount},IR{user.SHEBA_number},1,{user.first_name} {user.last_name}\n"
-            )
-        return string
+            return f"{count},{amount},IR{user.SHEBA_number},{user.first_name} {user.last_name},حقوق,,{user.national_ID}\n"
+        return ""
 
     def fill_sepah_export(
         self, string, payment_method, month_names, user, amount, month, year
     ):
         if payment_method == "AN":
-            string += f"{user.account_number},{amount},{user.first_name},{user.last_name},بابت حقوق {month_names[month - 1]} ماه {year},\n"
+            string += f"{user.account_number},{amount},بابت حقوق {month_names[month - 1]} ماه {year},\n"
         elif payment_method == "SN":
-            string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},بابت حقوق {month_names[month - 1]} ماه {year},\n"
+            string += f"{user.SHEBA_number},{amount},بابت حقوق {month_names[month - 1]} ماه {year},\n"
         return string
 
 
