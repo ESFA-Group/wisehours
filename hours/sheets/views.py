@@ -376,13 +376,20 @@ class PaymentExportView(View):
                         month,
                         year,
                     )
-                case "melli":
+                case "melli2":
                     melli_count += 1
-                    string += self.fill_melli_export(
+                    string += self.fill_melli_new_export(
                         payment_method,
                         user,
                         amount,
                         melli_count
+                )
+                case "melli":
+                    string = self.fill_melli_export(
+                        string,
+                        payment_method,
+                        user,
+                        amount,
                     )
                 case "sepah":
                     string = self.fill_sepah_export(
@@ -395,11 +402,18 @@ class PaymentExportView(View):
                         year,
                     )
                     
+        if export_type == "melli":
+            file_name = f"{export_type}_{year}_{month}.txt"
+            buffer = io.StringIO(string)
+            response = HttpResponse(buffer.getvalue(), content_type="text/plain")
+            response["Content-Disposition"] = f"attachment; filename={file_name}"
+            return response
+        
         file_name = f"{export_type}_{year}_{month}.xlsx"
         wb = openpyxl.Workbook()
         ws = wb.active
         
-        if export_type == "melli":
+        if export_type == "melli2":
             header = [
                 "ردیف",
                 "مبلغ (ریال)",
@@ -447,7 +461,16 @@ class PaymentExportView(View):
             string += f"{user.SHEBA_number},{amount},{user.first_name},{user.last_name},salary {month_names[month - 1]} {year},\n"
         return string
 
-    def fill_melli_export(self, payment_method, user, amount, count):
+    def fill_melli_export(self, string, payment_method, user, amount):
+        if payment_method == "AN":
+            string += f"{amount} , {user.account_number} , 1 , {user.first_name} {user.last_name}\n"
+        elif payment_method == "SN":
+            string += (
+                f"{amount},IR{user.SHEBA_number},1,{user.first_name} {user.last_name}\n"
+            )
+        return string
+
+    def fill_melli_new_export(self, payment_method, user, amount, count):
         name_p = f"{user.first_name_p} {user.last_name_p}"
         if payment_method == "AN":
             return f"{count},{amount},{user.account_number},{name_p},حقوق,,{user.national_ID}\n"

@@ -236,7 +236,7 @@ class Sheet(models.Model):
         df["Hours"] = df["Hours"].apply(self.hhmm2minutes)
         df[projects] = (
             df[projects]
-            .applymap(self.parse_project_porp)
+            .map(self.parse_project_porp)
             .apply(lambda col: col * df["Hours"])
         )
         return df
