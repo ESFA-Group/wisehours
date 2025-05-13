@@ -160,7 +160,7 @@ async function saveReportingLimitModeDBT(valueNumber) {
 	}
 
 	const url = `/hours/api/daily_report_setting_management`;
-	await postRequest(url, {"no_limit_submission": limitation});
+	await postRequest(url, { "no_limit_submission": limitation });
 }
 
 function pre_load_user_reports() {
@@ -172,7 +172,7 @@ function pre_load_user_reports() {
 				<div class="card shadow mb-4">
 					<div class="card-body">
 						<h4 class="card-title fw-bold">Report #${day}</h4>
-						<textarea id="report_content_${day}" class="form-control" name="content" disabled placeholder="Not submitted"></textarea>
+						<textarea id="report_content_${day}" class="form-control" name="content" disabled placeholder="گزارشی ارسال نشده" dir="rtl"></textarea>
 					</div>
 				</div>
 		`;
@@ -183,7 +183,7 @@ function pre_load_user_reports() {
 					<div class="card-body">
 						<h5 class="card-title fw-semibold">Manager's Comment:</h5>
 						<div class="mb-3">
-							<textarea id="manager_comment_${day}" name="content" class="form-control" placeholder="Enter your comment here" rows="4" required></textarea>
+							<textarea id="manager_comment_${day}" name="content" class="form-control" placeholder="کامنت خود را وارد کنید" rows="4" required dir="rtl"></textarea>
 						</div>
 						
 						<div class="form-check mb-2">
@@ -205,7 +205,7 @@ function pre_load_user_reports() {
 				<div class="card shadow mb-4">
 					<div class="card-body">
 						<h5 class="card-title fw-semibold">Supervisor's Comment:</h5>
-						<textarea id="supervisor_comment_${day}" class="form-control" placeholder="No comment yet." disabled></textarea>
+						<textarea id="supervisor_comment_${day}" class="form-control" placeholder="کامنتی داده نشده" disabled dir="rtl"></textarea>
 					</div>
 				</div>
 			`;
@@ -214,7 +214,7 @@ function pre_load_user_reports() {
 				<div class="card shadow mb-4">
 					<div class="card-body">
 						<h5 class="card-title fw-semibold">Manager's Comment:</h5>
-						<textarea id="manager_comment_${day}" class="form-control" placeholder="No comment yet." disabled></textarea>
+						<textarea id="manager_comment_${day}" class="form-control" placeholder="کامنتی داده نشده" disabled dir="rtl"></textarea>
 					</div>
 				</div>
 
@@ -222,7 +222,7 @@ function pre_load_user_reports() {
 					<div class="card-body">
 						<h5 class="card-title fw-semibold">Supervisor's Comment:</h5>
 						<div class="mb-3">
-							<textarea id="supervisor_comment_${day}" name="content" class="form-control" placeholder="Enter your comment here" rows="4" required></textarea>
+							<textarea id="supervisor_comment_${day}" name="content" class="form-control" placeholder="کامنت خود را وارد کنید" rows="4" required dir="rtl"></textarea>
 						</div>
 
 						<div class="form-check mb-2">
@@ -332,10 +332,10 @@ function load_user_reports(userName, reports) {
 
 	// // Display the reports (example with the first two reports if available)
 	// if (reports.length > 0) {
-	// 	$('#manager_comment').text(reports[0]?.content || 'No comment yet.');
+	// 	$('#manager_comment').text(reports[0]?.content || 'کامنتی داده نشده');
 	// }
 	// if (reports.length > 1) {
-	// 	$('#supervisor_comment').text(reports[1]?.content || 'No comment yet.');
+	// 	$('#supervisor_comment').text(reports[1]?.content || 'کامنتی داده نشده');
 	// }
 }
 
