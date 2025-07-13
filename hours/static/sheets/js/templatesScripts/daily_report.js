@@ -1,6 +1,8 @@
 "use strict";
 //CONSTANTS************************************************
 const TODAY = new JDate();
+console.log(TODAY.getDate());
+
 TODAY._d.setHours(0, 0, 0, 0)
 
 
@@ -31,10 +33,12 @@ function initialize_date_dropdowns() {
 	$("#year").val(ACTIVE_YEAR);
 	$("#month").val(ACTIVE_MONTH);
 	$("#day").val(ACTIVE_DAY);
+	// Trigger change to ensure event fires on page load
+	$("#year").trigger('change');
+	$("#month").trigger('change');
+	$("#day").trigger('change');
 }
 
-
-//#region API-Request 
 async function getRequest(url) {
 	try {
 		let response = await fetch(url);
@@ -91,27 +95,34 @@ async function putRequest(url, data) {
 		});
 	}
 }
-//#endregion
 
 async function get_report() {
 	const url = `/hours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
-	return await getRequest(url);
+	let report = await getRequest(url);
+	_REPORT = report;
+	return report;
 }
 
-function updateTitle() {
+async function updateReportDisplay(report) {
+	// Always clear and set the textarea and comments
+	$("#report_content").val(report && report.content ? report.content : '');
+	$("#main_comment").val(report && report.main_comment ? report.main_comment : 'هنوز نظری ثبت نشده');
+	$("#sub_comment").val(report && report.sub_comment ? report.sub_comment : 'هنوز نظری ثبت نشده');
 	$("#reportTitle").text("ثبت گزارش تاریخ " + $("#year").val() + "/" + $("#month").val() + "/" + $("#day").val());
+	await handle_submit_button_activation();
 }
 
 async function get_active_day_report() {
-	updateTitle();
-
-	if (!_REPORT) {
-		_REPORT = await get_report();
+	_REPORT = null;
+	try {
+		const report = await get_report();
+		await updateReportDisplay(report);
+	} catch (error) {
+		console.error('Error loading report:', error);
+		$("#report_content").val('');
+		$("#main_comment").val('هنوز نظری ثبت نشده');
+		$("#sub_comment").val('هنوز نظری ثبت نشده');
 	}
-
-	$("#report_content").text(_REPORT['content']);
-	$("#main_comment").val(_REPORT['main_comment'] ? _REPORT['main_comment'] : 'هنوز نظری ثبت نشده');
-	$("#sub_comment").val(_REPORT['sub_comment'] ? _REPORT['sub_comment'] : 'هنوز نظری ثبت نشده');
 }
 
 async function handle_submit_button_activation() {
@@ -175,21 +186,16 @@ function is_submit_valid() {
 }
 
 $("document").ready(async function () {
-	_REPORT = await get_report();
 	fillYears("#year");
 	initialize_date_dropdowns();
-	get_active_day_report();
-	handle_submit_button_activation()
+	await get_active_day_report();
+	await handle_submit_button_activation();
 
-	$("#year, #month").change(async function () {
-		ACTIVE_YEAR = $("#year").val()
-		ACTIVE_MONTH = $("#month").val()
-		get_active_day_report();
-	});
-
-	$("#day").change(async function () {
-		ACTIVE_DAY = $("#day").val();
-		get_active_day_report();
+	$("#year, #month, #day").on('change', async function () {
+		ACTIVE_YEAR = parseInt($("#year").val());
+		ACTIVE_MONTH = parseInt($("#month").val());
+		ACTIVE_DAY = parseInt($("#day").val());
+		await get_active_day_report();
 	});
 
 	$("#report_content").on("input", async function () {
