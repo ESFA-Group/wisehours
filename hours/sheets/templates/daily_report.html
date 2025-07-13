@@ -50,7 +50,7 @@
                 <form id="report_from" method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <textarea id="report_content" name="content" class="form-control" placeholder="گزارش خود را بنویسید" rows="4" required></textarea>
+                        <textarea id="report_content" name="content" class="form-control" placeholder="گزارش خود را بنویسید" dir="rtl" rows="4" required></textarea>
                     </div>
                 </form>
             </div>
@@ -59,14 +59,14 @@
         <div class="card shadow">
             <div class="card-body">
                 <h5 class="card-title fw-semibold">نظر مدیر :</h5>
-                <input id='main_comment' class="form-control" disabled></input>
+                <input id='main_comment' class="form-control" dir="rtl" disabled></input>
             </div>
         </div>
         <br>
         <div class="card shadow">
             <div class="card-body">
                 <h5 class="card-title fw-semibold">نظر سرپرست :</h5>
-                <input id='sub_comment' class="form-control" disabled></input>
+                <input id='sub_comment' class="form-control" dir="rtl" disabled></input>
             </div>
         </div>
     </div>
