@@ -559,8 +559,8 @@
         let valid = true;
 
         tableData.forEach((row, idx) => {
-            if(idx === today -2 && month == $("#month").val())
-                $(`.jexcel tbody tr`).eq(idx).find("td").css({"background-color": "rgba(20, 150, 255, 0.2)"});
+            if(idx === today - 1 && month == $("#month").val())
+                $(`.jexcel tbody tr`).eq(idx).find("td").css({"background-color": "rgba(20, 150, 255, 0.1)"});
 
             if(!row.Hours)
                 return
