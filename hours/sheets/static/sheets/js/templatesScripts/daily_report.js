@@ -96,7 +96,7 @@ async function putRequest(url, data) {
 }
 
 async function get_report() {
-	const url = `/hours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
+	const url = `/wisehours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
 	let report = await getRequest(url);
 	_REPORT = report;
 	return report;
@@ -174,7 +174,7 @@ async function submitForm() {
 		return
 	}
 	const content = $('#report_content').val();
-	const url = `/hours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
+	const url = `/wisehours/api/daily_report_user/${ACTIVE_YEAR}/${ACTIVE_MONTH}/${ACTIVE_DAY}`;
 
 	return await postRequest(url, { content });
 }

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from sheets.models import *
 
-admin.site.site_url = "/hours"
+admin.site.site_url = "/wisehours"
 
 admin.site.unregister(Group)
 

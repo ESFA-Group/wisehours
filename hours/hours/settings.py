@@ -135,7 +135,7 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesSto
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR.joinpath("static/")
 
-MEDIA_URL = "hours/media/"
+MEDIA_URL = "wisehours/media/"
 MEDIA_ROOT = BASE_DIR.joinpath("media/")
 
 # Default primary key field type

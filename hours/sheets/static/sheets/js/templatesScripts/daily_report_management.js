@@ -88,12 +88,12 @@ async function putRequest(url, data) {
 //#endregion
 
 async function get_reports_by_users() {
-	const url = `/hours/api/daily_report_management/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+	const url = `/wisehours/api/daily_report_management/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
 	return await getRequest(url);
 }
 
 async function get_reporting_limit() {
-	const url = `/hours/api/daily_report_setting_management`;
+	const url = `/wisehours/api/daily_report_setting_management`;
 	let res = await getRequest(url);
 	return res;
 }
@@ -159,7 +159,7 @@ async function saveReportingLimitModeDBT(valueNumber) {
 		limitation = true
 	}
 
-	const url = `/hours/api/daily_report_setting_management`;
+	const url = `/wisehours/api/daily_report_setting_management`;
 	await postRequest(url, { "no_limit_submission": limitation });
 }
 
@@ -272,7 +272,7 @@ async function handleReportSubmit(day) {
 		data.supervisor_comment_hide_for_user = $(`#supervisor_hide_user_checkbox_${day}`).prop('checked');
 	}
 
-	const url = `/hours/api/daily_report_management/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+	const url = `/wisehours/api/daily_report_management/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
 
 	await postRequest(url, data)
 	enable_btns(day)

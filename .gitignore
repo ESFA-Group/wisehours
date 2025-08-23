@@ -16,3 +16,4 @@ error.log
 *.zip
 *.hex
 hours/*.sqlite3
+hours/static/sheets/js/templatesScripts/*.*.js

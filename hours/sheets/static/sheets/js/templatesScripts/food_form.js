@@ -46,7 +46,7 @@ async function getRequest(url) {
 }
 
 async function getFoodDataDBT(year = ACTIVE_YEAR, month = ACTIVE_MONTH) {
-	const url = `/hours/api/FoodData/${year}/${month}`;
+	const url = `/wisehours/api/FoodData/${year}/${month}`;
 	return await getRequest(url)
 }
 
@@ -71,9 +71,9 @@ function getWeeksOfMonth() {
 	let year = ACTIVE_YEAR
 	let month = ACTIVE_MONTH
 	let totalDaysInMonth = JDate.daysInMonth(year, month);
-	if(year == 1403 && month == 6)
+	if (year == 1403 && month == 6)
 		totalDaysInMonth = 31
-	
+
 	let weeksDate = []
 	let shouldbreak = false;
 	for (let i = 1; i <= totalDaysInMonth; i++) {
@@ -221,7 +221,7 @@ async function fillFoodTable() {
 
 	let activeWeek_food_data = food_data[ACTIVE_WEEK_INDEX]
 	const [header, ...rows] = $('#foodTable tr')
-	if (!Array.isArray(activeWeek_food_data)) 
+	if (!Array.isArray(activeWeek_food_data))
 		return
 	activeWeek_food_data.forEach(dayfood => {
 		const matchingRow = rows.filter(r => r.cells[0].value == dayfood.day)[0];
@@ -237,7 +237,7 @@ async function fillFoodTable() {
 }
 
 async function getFoodData() {
-	const url = `/hours/api/order_food/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+	const url = `/wisehours/api/order_food/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
 	try {
 		let res = await fetch(url);
 		return await res.json();
@@ -263,7 +263,7 @@ async function submitSelectedFoods() {
 
 
 function saveFoodData(data) {
-	const url = `/hours/api/order_food/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
+	const url = `/wisehours/api/order_food/${ACTIVE_YEAR}/${ACTIVE_MONTH}`;
 
 	fetch(url, {
 		method: 'post',
