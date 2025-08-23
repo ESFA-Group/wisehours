@@ -2,163 +2,154 @@
 {% load static %}
 
 {% block extra_css %}
-    <style>
-        body {
-            /* background-color: #5b6467;
+<style>
+    body {
+        /* background-color: #5b6467;
         background-image: linear-gradient(315deg, #5b6467 0%, #8b939a 59%); */
-            height: 100vh;
-            background-color: #c2b6b6;
-            background-image: linear-gradient(315deg, #c2b6b6 0%, #576574 74%);
-        }
+        height: 100vh;
+        background-color: #c2b6b6;
+        background-image: linear-gradient(315deg, #c2b6b6 0%, #576574 74%);
+    }
 
-        .card-container {
-            display: flex;
-            justify-content: center;
-        }
+    .card-container {
+        display: flex;
+        justify-content: center;
+    }
 
-        .card-link {
-            color: black;
-            text-decoration: none;
-        }
+    .card-link {
+        color: black;
+        text-decoration: none;
+    }
 
-        .card-link:hover {
-            color: black;
-            transition: all 0.01s ease-in;
-        }
+    .card-link:hover {
+        color: black;
+        transition: all 0.01s ease-in;
+    }
 
-        .card {
-            background-color: #e0e4ee;
-        }
+    .card {
+        background-color: #e0e4ee;
+    }
 
-        .card:hover {
-            background-color: #bcc5db;
-            transition: all 0.1s ease-in;
-        }    
-    </style>
+    .card:hover {
+        background-color: #bcc5db;
+        transition: all 0.1s ease-in;
+    }
+</style>
 {% endblock extra_css %}
 
 {% block navbar %}
 {% endblock navbar %}
 
 {% block body %}
-    <div class="container p-5">
-        <div class="d-flex flex-column justify-content-center align-items-center">
-            <h1 class="my-5 py-5"
-                style="font-weight: bold;
+<div class="container p-5">
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <h1 class="my-5 py-5" style="font-weight: bold;
                        font-size: 5em;
                        text-align: center">
-                E<span style="color: red">S</span>FA Hours
-            </h1>
+            <span style="color: blue">W<span style="color: yellow">i</span>se</span> Hours
+        </h1>
 
-            <div class="row">   
+        <div class="row">
 
-                <div class="col-lg-4 col-md-6 mb-2 card-container">
-                    <a href="{% url 'sheets:hours' %}" class="card-link">
-                        <div class="card mx-3" style="width: 19rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    My Hours
-                                </h5>
-                                <p class="card-text">
-                                    Edit your hours
-                                </p>
-                            </div>
+            <div class="col-lg-4 col-md-6 mb-2 card-container">
+                <a href="{% url 'sheets:hours' %}" class="card-link">
+                    <div class="card mx-3" style="width: 19rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                My Hours
+                            </h5>
+                            <p class="card-text">
+                                Edit your hours
+                            </p>
                         </div>
-                    </a>
-                </div>
-
-                <div class="col-lg-4 col-md-6 mb-2 card-container">
-                    <a href="{% url 'sheets:food_form' %}" class="card-link">
-                        <div class="card mx-3" style="width: 19rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Food
-                                </h5>
-                                <p class="card-text">
-                                    Get food delivered
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-lg-4 col-md-6 mb-2 card-container">
-                    <a href="{% url 'sheets:daily_report' %}" class="card-link">
-                        <div class="card mx-3" style="width: 19rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Report
-                                </h5>
-                                <p class="card-text">
-                                    daily report
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="row">       
-                <div class="col-md-3 mb-2 mx-auto card-container">
-                    <a href="{% url 'sheets:hours_info' %}" class="card-link">
-                        <div class="card mx-3" style="width: 19rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Info
-                                </h5>
-                                <p class="card-text">
-                                    Information about hours in E<span style="color: red;">S</span>FA
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-3 mb-2 mx-auto card-container">
-                    <a href="{% url 'sheets:personal_info' %}" class="card-link">
-                        <div class="card mx-3" style="width: 19rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Personal Info
-                                </h5>
-                                <p class="card-text">
-                                    Your personal information
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                </div>                
+                    </div>
+                </a>
             </div>
 
-            <!-- <div class="mt-5">
+            <div class="col-lg-4 col-md-6 mb-2 card-container">
+                <a href="{% url 'sheets:food_form' %}" class="card-link">
+                    <div class="card mx-3" style="width: 19rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Food
+                            </h5>
+                            <p class="card-text">
+                                Get food delivered
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-2 card-container">
+                <a href="{% url 'sheets:daily_report' %}" class="card-link">
+                    <div class="card mx-3" style="width: 19rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Report
+                            </h5>
+                            <p class="card-text">
+                                daily report
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 mb-2 mx-auto card-container">
+                <a href="{% url 'sheets:hours_info' %}" class="card-link">
+                    <div class="card mx-3" style="width: 19rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Info
+                            </h5>
+                            <p class="card-text">
+                                Information about hours in <span style="color: blue">Wise grid</span>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3 mb-2 mx-auto card-container">
+                <a href="{% url 'sheets:personal_info' %}" class="card-link">
+                    <div class="card mx-3" style="width: 19rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Personal Info
+                            </h5>
+                            <p class="card-text">
+                                Your personal information
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- <div class="mt-5">
             <a class="btn btn-danger" href="{% url 'sheets:logout' %}" style="width: 250px;">Logout</a>
         </div> -->
         {% if request.user.is_staff or request.user.is_FoodManager %}
-            <div class="mt-5 d-flex flex-wrap">
-                {% if request.user.is_staff %}
-                    <a class="btn btn-primary mx-1"
-                    href="{% url 'admin:index' %}"
-                    style="width: 200px">Admin Panel</a>
-                    <a class="btn btn-success mx-1"
-                    href="{% url 'sheets:reports' %}"
-                    style="width: 200px">Reports</a>
-                    <a class="btn btn-danger mx-1"
-                    href="{% url 'sheets:alter_payment' %}"
-                    style="width: 200px">Alter Payments</a>
-                {% endif %}
-                {% if request.user.is_FoodManager %}
-                    <a class="btn btn-info mx-1"
-                    href="{% url 'sheets:food_data' %}"
-                    style="width: 200px">Food Data</a>
-                {% endif %}
-                {% if request.user.is_MainReportManager or request.user.is_SubReportManager %}
-                    <a class="btn btn-warning mx-1"
-                    href="{% url 'sheets:daily_report_management' %}"
-                    style="width: 250px">Daily report management</a>
-                {% endif %}
-            </div>
+        <div class="mt-5 d-flex flex-wrap">
+            {% if request.user.is_staff %}
+            <a class="btn btn-primary mx-1" href="{% url 'admin:index' %}" style="width: 200px">Admin Panel</a>
+            <a class="btn btn-success mx-1" href="{% url 'sheets:reports' %}" style="width: 200px">Reports</a>
+            <a class="btn btn-danger mx-1" href="{% url 'sheets:alter_payment' %}" style="width: 200px">Alter
+                Payments</a>
+            {% endif %}
+            {% if request.user.is_FoodManager %}
+            <a class="btn btn-info mx-1" href="{% url 'sheets:food_data' %}" style="width: 200px">Food Data</a>
+            {% endif %}
+            {% if request.user.is_MainReportManager or request.user.is_SubReportManager %}
+            <a class="btn btn-warning mx-1" href="{% url 'sheets:daily_report_management' %}" style="width: 250px">Daily
+                report management</a>
+            {% endif %}
+        </div>
         {% endif %}
 
-        </div>
     </div>
+</div>
 {% endblock body %}
