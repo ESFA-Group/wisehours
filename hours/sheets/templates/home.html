@@ -66,38 +66,7 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-2 card-container">
-                <a href="{% url 'sheets:food_form' %}" class="card-link">
-                    <div class="card mx-3" style="width: 19rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                Food
-                            </h5>
-                            <p class="card-text">
-                                Get food delivered
-                            </p>
-                        </div>
-                    </div>
-                </a>
-            </div>
 
-            <div class="col-lg-4 col-md-6 mb-2 card-container">
-                <a href="{% url 'sheets:daily_report' %}" class="card-link">
-                    <div class="card mx-3" style="width: 19rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                Report
-                            </h5>
-                            <p class="card-text">
-                                daily report
-                            </p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <div class="row">
             <div class="col-md-3 mb-2 mx-auto card-container">
                 <a href="{% url 'sheets:hours_info' %}" class="card-link">
                     <div class="card mx-3" style="width: 19rem;">
@@ -140,13 +109,13 @@
             <a class="btn btn-danger mx-1" href="{% url 'sheets:alter_payment' %}" style="width: 200px">Alter
                 Payments</a>
             {% endif %}
-            {% if request.user.is_FoodManager %}
+            <!-- {% if request.user.is_FoodManager %}
             <a class="btn btn-info mx-1" href="{% url 'sheets:food_data' %}" style="width: 200px">Food Data</a>
             {% endif %}
             {% if request.user.is_MainReportManager or request.user.is_SubReportManager %}
             <a class="btn btn-warning mx-1" href="{% url 'sheets:daily_report_management' %}" style="width: 250px">Daily
                 report management</a>
-            {% endif %}
+            {% endif %} -->
         </div>
         {% endif %}
 
