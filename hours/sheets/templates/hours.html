@@ -651,17 +651,17 @@
         const year = $("#year").val();
         const month = $("#month").val();
 
-        EsfaPersianHolidays.getHolidays(year, month).then(holidays => {
-            window.spreadTable.rows.forEach(row => {
-                const dayColumn = 1;
-                const weekDayColumn = 2;
-                let day = Number(row.cells[dayColumn].textContent);
-
-                if (holidays.includes(day)) {
-                    row.cells[weekDayColumn].style.color = 'red';
-                }
-            });
-        });
+//        EsfaPersianHolidays.getHolidays(year, month).then(holidays => {
+//            window.spreadTable.rows.forEach(row => {
+//                const dayColumn = 1;
+//                const weekDayColumn = 2;
+//                let day = Number(row.cells[dayColumn].textContent);
+//
+//                if (holidays.includes(day)) {
+//                    row.cells[weekDayColumn].style.color = 'red';
+//                }
+//            });
+//        });
     }
 
     async function getProjects() {

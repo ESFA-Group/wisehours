@@ -183,11 +183,10 @@ async function GetHolidays(year, month1, month2) {
 
 async function fillFoodTablebody() {
 	let week_days = Object.entries(ACTIVE_WEEK)
-	let Holiday = await GetHolidays(ACTIVE_YEAR, week_days[0][1].date[1], week_days[6][1].date[1])
+	// let Holiday = await GetHolidays(ACTIVE_YEAR, week_days[0][1].date[1], week_days[6][1].date[1])
 
 	for (const [index, day] of week_days) {
 		var row = $("<tr>");
-		// let IsHoliday = await EsfaPersianHolidays.IsHoliday(ACTIVE_YEAR, day.date[1], day.date[2])
 		let isHoliday = Holiday[day.date[1]].includes(day.date[2])
 		// Add day cell
 		let cell = $(`<td>${day.format("dddd")}</td>`).val(day.date[2]).attr({
