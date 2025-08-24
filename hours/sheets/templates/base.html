@@ -148,7 +148,7 @@
         function getToday() {
             const today = new Date();
             const y = today.getFullYear();
-            const m = today.getMonth()+1;
+            const m = today.getMonth();
             const d = today.getDate();
             return [y, m, d]
         }
@@ -156,7 +156,7 @@
         function writeDate() {
             const [y, m, d] = getToday();
             const weekday = new Date().toLocaleString('en-us', { weekday: 'short' });
-            $("#nav-date").text(`${weekday}.\u00A0\u00A0|\u00A0\u00A0${y}/${m}/${d}`);
+            $("#nav-date").text(`${weekday}.\u00A0\u00A0|\u00A0\u00A0${y}/${m+1}/${d}`);
         }
         writeDate();
     </script>
