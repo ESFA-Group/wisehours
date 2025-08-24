@@ -39,18 +39,18 @@ def render_day_options(monthNumber: int, year: int = 1403):
 @register.filter(name="render_month_options")
 def render_month_options(selected_month=None):
     months = [
-        (1, "Farvardin"),
-        (2, "Ordibehesht"),
-        (3, "Khordad"),
-        (4, "Tir"),
-        (5, "Mordad"),
-        (6, "Shahrivar"),
-        (7, "Mehr"),
-        (8, "Aban"),
-        (9, "Azar"),
-        (10, "Dey"),
-        (11, "Bahman"),
-        (12, "Esfand"),
+        (0, "January"),
+        (1, "February"),
+        (2, "March"),
+        (3, "April"),
+        (4, "May"),
+        (5, "June"),
+        (6, "July"),
+        (7, "August"),
+        (8, "September"),
+        (9, "October"),
+        (10, "November"),
+        (11, "December"),
     ]
 
     options_html = ""
