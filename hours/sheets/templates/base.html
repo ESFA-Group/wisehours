@@ -36,25 +36,16 @@
             color: red;
         }
 
-            {
-            % comment %
-        }
-
-        /* Chrome, Safari, Edge, Opera */
+        {% comment %} /* Chrome, Safari, Edge, Opera */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-
         /* Firefox */
         input[type=number] {
             -moz-appearance: textfield;
-        }
-
-            {
-            % endcomment %
-        }
+} {% endcomment %}
     </style>
 
     <script src="{% static 'sheets/js/JQuery-3.6.0.min.js' %}"></script>
@@ -151,13 +142,13 @@
     {% endblock navbar %}
 
     <script>
-        window.START_YEAR = 1401;
+        window.START_YEAR = 2020;
         window.CSRF_TOKEN = "{{ csrf_token }}";
 
         function getToday() {
-            const today = new JDate();
+            const today = new Date();
             const y = today.getFullYear();
-            const m = today.getMonth();
+            const m = today.getMonth()+1;
             const d = today.getDate();
             return [y, m, d]
         }

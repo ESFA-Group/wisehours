@@ -1,6 +1,6 @@
 "use strict";
 //CONSTANTS************************************************
-const TODAY = new JDate();
+const TODAY = new Date();
 
 TODAY._d.setHours(0, 0, 0, 0)
 

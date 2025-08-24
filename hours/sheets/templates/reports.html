@@ -3,172 +3,156 @@
 {% load connector_template_filters %}
 
 {% block extra_css %}
-    <style>
-        #monthly-table tr td:last-of-type{
-            font-weight: bold;
-            background-color: rgba(100, 200, 100, 0.3);
-        }
-        #monthly-table tbody tr:first-of-type td, #monthly-table tbody tr:first-of-type th{
-            font-weight: bold;
-            background-color: rgba(100, 200, 100, 0.3);
-        }
-        thead tr th{
-            position: sticky;
-            top: 0;
-        }
-    </style>
+<style>
+    #monthly-table tr td:last-of-type {
+        font-weight: bold;
+        background-color: rgba(100, 200, 100, 0.3);
+    }
+
+    #monthly-table tbody tr:first-of-type td,
+    #monthly-table tbody tr:first-of-type th {
+        font-weight: bold;
+        background-color: rgba(100, 200, 100, 0.3);
+    }
+
+    thead tr th {
+        position: sticky;
+        top: 0;
+    }
+</style>
 {% endblock extra_css %}
 
 {% block body %}
 
-    <div class="container-fluid">
-        <form id="report-form" action="#">
-            <div class="row">
-                <div class="col col-6 col-md-4 col-lg-3">
-                    <strong>Year</strong>
-                    <div class="mt-1">
-                        <select name="year"
-                                id="year"
-                                style="min-width: 150px;
+<div class="container-fluid">
+    <form id="report-form" action="#">
+        <div class="row">
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Year</strong>
+                <div class="mt-1">
+                    <select name="year" id="year" style="min-width: 150px;
                                        border-radius: 5px;
                                        height: 35px">
-                        </select>
-                    </div>
+                    </select>
                 </div>
-                <div class="col col-6 col-md-4 col-lg-3">
-                    <strong>Month</strong>
-                    <div class="mt-1">
-                        <select name="month"
-                                id="month"
-                                style="min-width: 150px;
+            </div>
+            <div class="col col-6 col-md-4 col-lg-3">
+                <strong>Month</strong>
+                <div class="mt-1">
+                    <select name="month" id="month" style="min-width: 150px;
                                        border-radius: 5px;
                                        height: 35px">
-                            {{ 1|render_month_options }}
-                        </select>
-                    </div>
+                        {{ 1|render_month_options }}
+                    </select>
                 </div>
-                <div class="col col-12 col-lg-6">
-                    <div class="row mt-2">
-                        <div class="col col-6">
-                            <span id="get-main-report" style="cursor: pointer;" />
-                            <img src="{% static 'sheets/picture/excel_icon.png' %}"
-                                 alt=""
-                                 style="width: 30px">
-                            <span class="text-decoration-underline fw-bold">
-                                Main Excel Report
-                            </span>
-                        </div>
-                        <div class="col col-6">
-                            <span id="get-detailed-report" style="cursor: pointer;" />
-                            <img src="{% static 'sheets/picture/excel_icon.png' %}"
-                                 alt=""
-                                 style="width: 30px">
-                            <span class="text-decoration-underline fw-bold">
-                                Detailed Excel Report
-                            </span>
-                        </div>
-                        <div class="col col-6">
-                            <span id="get-users-monthly-report" style="cursor: pointer;" />
-                            <img src="{% static 'sheets/picture/excel_icon.png' %}"
-                                 alt=""
-                                 style="width: 30px">
-                            <span class="text-decoration-underline fw-bold">
-                                Users Montly Reprot
-                            </span>
-                        </div>
-                        <div class="col col-6">
-                            <span id="get-projects-yearly-report" style="cursor: pointer;" />
-                            <img src="{% static 'sheets/picture/excel_icon.png' %}"
-                                 alt=""
-                                 style="width: 30px">
-                            <span class="text-decoration-underline fw-bold">
-                                Projects Yearly Report
-                            </span>
-                        </div>
+            </div>
+            <div class="col col-12 col-lg-6">
+                <div class="row mt-2">
+                    <div class="col col-6">
+                        <span id="get-main-report" style="cursor: pointer;" />
+                        <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px">
+                        <span class="text-decoration-underline fw-bold">
+                            Main Excel Report
+                        </span>
+                    </div>
+                    <div class="col col-6">
+                        <span id="get-detailed-report" style="cursor: pointer;" />
+                        <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px">
+                        <span class="text-decoration-underline fw-bold">
+                            Detailed Excel Report
+                        </span>
+                    </div>
+                    <div class="col col-6">
+                        <span id="get-users-monthly-report" style="cursor: pointer;" />
+                        <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px">
+                        <span class="text-decoration-underline fw-bold">
+                            Users Montly Reprot
+                        </span>
+                    </div>
+                    <div class="col col-6">
+                        <span id="get-projects-yearly-report" style="cursor: pointer;" />
+                        <img src="{% static 'sheets/picture/excel_icon.png' %}" alt="" style="width: 30px">
+                        <span class="text-decoration-underline fw-bold">
+                            Projects Yearly Report
+                        </span>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
+    </form>
 
-        <hr class="mb-0">
+    <hr class="mb-0">
 
-        <div class="row mx-0 my-1"
-             style="min-height: 60px;
+    <div class="row mx-0 my-1" style="min-height: 60px;
                     line-height: 60px;
                     background-color: rgba(75, 152, 200, 0.25);
                     border-radius: 5px">
-            <div class="col col-12 col-md-4">
-                <span class="fw-bold">No. of total users: <span id="usersNum"></span></span>
-            </div>
-            <div class="col col-12 col-md-4">
-                <span class="fw-bold position-relative">
-                    No. of active users (in selected month):
-                    <span id="sheetsNum"></span>
-                    <span class="text-danger position-absolute fs-3"
-                          style="right: -37px;
-                                 cursor: pointer"
-                          data-bs-toggle="modal"
-                          data-bs-target="#sheetlessModal">ⓘ</span>
-                </span>
-            </div>
-            <div class="col col-12 col-md-4">
-                <span class="fw-bold">No. of submitted sheets: <span id="submittedSheetsNum"></span></span>
-            </div>
+        <div class="col col-12 col-md-4">
+            <span class="fw-bold">No. of total users: <span id="usersNum"></span></span>
         </div>
-
-        <hr class="mt-0">
-
-        <div class="table-responsive-lg">
-            <table id="monthly-table" class="table table-striped table-hover">
-                <thead class="table-dark">
-                </thead>
-                <tbody class="table-group-divider">
-                </tbody>
-            </table>
+        <div class="col col-12 col-md-4">
+            <span class="fw-bold position-relative">
+                No. of active users (in selected month):
+                <span id="sheetsNum"></span>
+                <span class="text-danger position-absolute fs-3" style="right: -37px;
+                                 cursor: pointer" data-bs-toggle="modal" data-bs-target="#sheetlessModal">ⓘ</span>
+            </span>
+        </div>
+        <div class="col col-12 col-md-4">
+            <span class="fw-bold">No. of submitted sheets: <span id="submittedSheetsNum"></span></span>
         </div>
     </div>
 
-    <!-- Sheetless Users Modal -->
-    <div class="modal fade" id="sheetlessModal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Sheetless Users
-                    </h5>
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close">
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <h5>
-                        Users without sheet in selected month:
-                    </h5>
-                    <ol id="sheetless-users">
-                    </ol>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Close
-                    </button>
-                </div>
+    <hr class="mt-0">
+
+    <div class="table-responsive-lg">
+        <table id="monthly-table" class="table table-striped table-hover">
+            <thead class="table-dark">
+            </thead>
+            <tbody class="table-group-divider">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Sheetless Users Modal -->
+<div class="modal fade" id="sheetlessModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Sheetless Users
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5>
+                    Users without sheet in selected month:
+                </h5>
+                <ol id="sheetless-users">
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
+<script>
 
-    async function getMonthlyData(year, month){
+    async function getMonthlyData(year, month) {
         const url = `{% url "sheets:api_monthly_report" year='yearHolder' month='monthHolder' %}`
             .replace("yearHolder", year)
             .replace("monthHolder", month);
-        try{
+        try {
             let res = await fetch(url);
             return await res.json();
         }
-        catch (err){
+        catch (err) {
             jSuites.notification({
                 error: 1,
                 name: 'Error',
@@ -179,13 +163,13 @@
         }
     }
 
-    function formatHour(num){
+    function formatHour(num) {
         return `${Math.floor(num / 60)}:${Math.round(num % 60)}`
     }
 
-    async function showReport(year, month){
+    async function showReport(year, month) {
         const data = await getMonthlyData(year, month);
-        
+
         $("#usersNum").text(data.usersNum);
         $("#sheetsNum").text(data.sheetsNum);
         $("#submittedSheetsNum").text(data.submittedSheetsNum);
@@ -206,64 +190,64 @@
             tr.append($("<th>").text(val));
         });
         table.find("thead").append(tr);
-        for(let [name, val] of Object.entries(data.hours)){
+        for (let [name, val] of Object.entries(data.hours)) {
             tr = $("<tr>");
-            $(tr).append($("<th>").text(`${name}${data.submittedUsers.includes(name)? ' ☑️': ''}`));
+            $(tr).append($("<th>").text(`${name}${data.submittedUsers.includes(name) ? ' ☑️' : ''}`));
             ths.forEach((prj, idx) => {
                 $(tr).append($("<td>").text(data.hours[name][prj]));
             });
-            if(name.toLocaleLowerCase() === 'total')
+            if (name.toLocaleLowerCase() === 'total')
                 table.find("tbody").prepend(tr);
             else
                 table.find("tbody").append(tr);
         }
     }
 
-    function fillYears(year){
-        for(let i=window.START_YEAR; i<=year; i++){
+    function fillYears(year) {
+        for (let i = window.START_YEAR; i <= year; i++) {
             $("#year").append($("<option>").text(i));
         }
     }
 
-    $("document").ready(async function() {
+    $("document").ready(async function () {
 
-        const today = new JDate();
+        const today = new Date();
         const currentYear = today.getFullYear();
         const currentMonth = today.getMonth();
-        fillYears(currentYear); 
+        fillYears(currentYear);
         $("#year").val(currentYear);
         $("#month").val(currentMonth);
 
         showReport(currentYear, currentMonth);
 
-        $("#year, #month").change(function(){
+        $("#year, #month").change(function () {
             const year = $("#year").val();
             const month = $("#month").val();
             showReport(year, month);
         });
 
-        $("#get-detailed-report").click(function(){
-            $("#report-form").prop({action: "{% url 'sheets:detailed_report' %}"});
+        $("#get-detailed-report").click(function () {
+            $("#report-form").prop({ action: "{% url 'sheets:detailed_report' %}" });
             $("#report-form").submit();
         });
 
-        $("#get-main-report").click(function(){
-            $("#report-form").prop({action: "{% url 'sheets:main_report' %}"});
+        $("#get-main-report").click(function () {
+            $("#report-form").prop({ action: "{% url 'sheets:main_report' %}" });
             $("#report-form").submit();
         });
 
-        $("#get-users-monthly-report").click(function(){
-            $("#report-form").prop({action: "{% url 'sheets:users_monthly_report' %}"});
+        $("#get-users-monthly-report").click(function () {
+            $("#report-form").prop({ action: "{% url 'sheets:users_monthly_report' %}" });
             $("#report-form").submit();
         });
 
-        $("#get-projects-yearly-report").click(function(){
-            $("#report-form").prop({action: "{% url 'sheets:projects_yearly_report' %}"});
+        $("#get-projects-yearly-report").click(function () {
+            $("#report-form").prop({ action: "{% url 'sheets:projects_yearly_report' %}" });
             $("#report-form").submit();
         });
 
     });
 
 
-    </script>
+</script>
 {% endblock body %}

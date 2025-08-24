@@ -1,6 +1,6 @@
 "use strict";
 //CONSTANTS************************************************
-const TODAY = new JDate();
+const TODAY = new Date();
 TODAY._d.setHours(0, 0, 0, 0)
 
 
@@ -49,7 +49,7 @@ function getWeeksOfMonth() {
 		if (shouldbreak) {
 			break;
 		}
-		let startDate = new JDate(year, month, i);
+		let startDate = new Date(year, month, i);
 		if (startDate.getDay() === 6) {
 			weeksDate.push({
 				0: startDate
@@ -63,13 +63,13 @@ function getWeeksOfMonth() {
 						month = 1
 					}
 					i = 1;
-					startDate = new JDate(year, month, i);
+					startDate = new Date(year, month, i);
 
 					weeksDate[weeksDate.length - 1][j] = startDate;
 					shouldbreak = true;
 					continue;
 				}
-				startDate = new JDate(year, month, i);
+				startDate = new Date(year, month, i);
 				weeksDate[weeksDate.length - 1][j] = startDate;
 			}
 		}

@@ -3,256 +3,192 @@
 {% load connector_template_filters %}
 
 {% block extra_css %}
-    <link rel="stylesheet"
-          href="{% static 'sheets/css/bootstrap-table.min.css' %}">
-    <link rel="stylesheet"
-          href="{% static 'sheets/css/bootstrap-editable.css' %}">
-    <style>
-    th, td{
+<link rel="stylesheet" href="{% static 'sheets/css/bootstrap-table.min.css' %}">
+<link rel="stylesheet" href="{% static 'sheets/css/bootstrap-editable.css' %}">
+<style>
+    th,
+    td {
         border: 2px solid black !important;
     }
-    </style>
+</style>
 {% endblock extra_css %}
 
 {% block body %}
-    <div class="container-fluid">
-        <div class="row mt-2">
-            <div class="col col-6 col-md-4 col-lg-3">
-                <strong>Year</strong>
-                <div class="mt-1">
-                    <select name="year"
-                            id="year"
-                            style="min-width: 180px;
+<div class="container-fluid">
+    <div class="row mt-2">
+        <div class="col col-6 col-md-4 col-lg-3">
+            <strong>Year</strong>
+            <div class="mt-1">
+                <select name="year" id="year" style="min-width: 180px;
                                    border-radius: 5px;
                                    height: 35px">
-                    </select>
-                </div>
-            </div>
-            <div class="col col-6 col-md-4 col-lg-3">
-                <strong>Month</strong>
-                <div class="mt-1">
-                    <select name="month"
-                            id="month"
-                            style="min-width: 180px;
-                                   border-radius: 5px;
-                                   height: 35px">
-                        {{ 1|render_month_options }}
-                    </select>
-                </div>
+                </select>
             </div>
         </div>
-        <hr>
-        <div class="row">
-            <div class="col col-6 col-md-4 col-lg-3">
-                <strong>Payment Method</strong>
-                <div class="mt-1">
-                    <select name="paymentMethod"
-                            id="paymentMethod"
-                            style="min-width: 180px;
+        <div class="col col-6 col-md-4 col-lg-3">
+            <strong>Month</strong>
+            <div class="mt-1">
+                <select name="month" id="month" style="min-width: 180px;
                                    border-radius: 5px;
                                    height: 35px">
-                        <option value="AN">
-                            Account number
-                        </option>
-                        <option value="SN">
-                            SHEBA number
-                        </option>
-                    </select>
-                </div>
-            </div>
-            <div class="col col-6 col-md-4 col-lg-3">
-                <strong>Payment Type</strong>
-                <div class="mt-1">
-                    <select name="paymentType"
-                            id="paymentType"
-                            style="min-width: 180px;
-                                   border-radius: 5px;
-                                   height: 35px">
-                        <option value="base">
-                            Base payment
-                        </option>
-                        <option value="complementary">
-                            Complementary payment
-                        </option>
-                    </select>
-                </div>
-            </div>
-            <div class="col col-6 col-md-2 col-lg-2">
-                <button id="export"
-                        class="btn btn-primary d-flex align-items-center justify-content-around"
-                        style="width: 120px;
-                               position: relative;
-                               top: 27px">
-                    <i class="fa fa-file-export"></i>
-                    <span>Export</span>
-                </button>
-            </div>
-            <div class="col col-6 col-md-2 col-lg-2">
-                <button id="export-sepah"
-                        class="btn btn-primary d-flex align-items-center justify-content-around"
-                        style="width: 160px;
-                               position: relative;
-                               top: 27px">
-                    <i class="fa fa-file-export"></i>
-                    <span>Export sepah</span>
-                </button>
-            </div>
-            <div class="col col-6 col-md-2 col-lg-2">
-                <button id="export-melli"
-                        class="btn btn-primary d-flex align-items-center justify-content-around"
-                        style="width: 160px;
-                               position: relative;
-                               top: 27px">
-                    <i class="fa fa-file-export"></i>
-                    <span>Export melli</span>
-                </button>
+                    {{ 1|render_month_options }}
+                </select>
             </div>
         </div>
-        <br>
-
-        <table id="payment-table"
-               data-show-export="true"
-               data-search="true"
-               data-click-to-select="true"
-               class="table table-sm table-hover"
-               style="table-layout: fixed;
-                      text-align: center;
-                      min-width: 1000px">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col"
-                        data-field="state"
-                        data-checkbox="true"
-                        data-width="2"
-                        data-width-unit="%">
-                        #
-                    </th>
-                    <th scope="col" data-field="userID" class="d-none">
-                        ID
-                    </th>
-                    <th scope="col"
-                        data-field="user"
-                        data-sortable="true"
-                        data-width="14"
-                        data-width-unit="%">
-                        User
-                    </th>
-                    <th scope="col"
-                        data-field="bankName"
-                        data-sortable="true"
-                        data-width="6"
-                        data-width-unit="%">
-                        Bank
-                    </th>
-                    <th scope="col"
-                        data-field="wage"
-                        data-sortable="true"
-                        data-width="6"
-                        data-width-unit="%"
-                        data-formatter="moneyFormatter"
-                        data-always-use-formatter="true">
-                        Wage (R)
-                    </th>
-                    <th scope="col"
-                        data-field="totalPayment"
-                        data-sortable="true"
-                        data-width="9"
-                        data-width-unit="%"
-                        data-formatter="moneyFormatter">
-                        Total (R)
-                    </th>
-                    <th scope="col"
-                        data-field="basePayment"
-                        data-width="9"
-                        data-width-unit="%"
-                        data-formatter="moneyFormatter">
-                        Base (R)
-                    </th>
-                    <th scope="col"
-                        data-field="reduction1"
-                        data-width="8"
-                        data-width-unit="%"
-                        data-formatter="moneyFormatter">
-                        Reduction1 (R)
-                    </th>
-                    <th scope="col"
-                        data-field="reduction2"
-                        data-width="8"
-                        data-width-unit="%"
-                        data-formatter="moneyFormatter">
-                        Reduction2 (R)
-                    </th>
-                    <th scope="col"
-                        data-field="reduction3"
-                        data-width="8"
-                        data-width-unit="%"
-                        data-formatter="moneyFormatter">
-                        Reduction3 (R)
-                    </th>
-                    <th scope="col"
-                        data-field="addition1"
-                        data-width="8"
-                        data-width-unit="%"
-                        data-formatter="moneyFormatter">
-                        Addition (R)
-                    </th>
-                    <th scope="col"
-                        data-field="addition2"
-                        data-width="8"
-                        data-width-unit="%"
-                        data-formatter="moneyFormatter">
-                        Addition2 (R)
-                    </th>
-                    <th scope="col"
-                        data-field="complementaryPayment"
-                        data-width="11"
-                        data-width-unit="%"
-                        data-formatter="colorMoneyFormatter">
-                        Complementary (R)
-                    </th>
-                    <th scope="col"
-                        data-field="finalPayment"
-                        data-width="9"
-                        data-width-unit="%"
-                        data-formatter="colorMoneyFormatter">
-                        Final (R)
-                    </th>
-                </tr>
-            </thead>
-        </table>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col col-6 col-md-4 col-lg-3">
+            <strong>Payment Method</strong>
+            <div class="mt-1">
+                <select name="paymentMethod" id="paymentMethod" style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                    <option value="AN">
+                        Account number
+                    </option>
+                    <option value="SN">
+                        SHEBA number
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="col col-6 col-md-4 col-lg-3">
+            <strong>Payment Type</strong>
+            <div class="mt-1">
+                <select name="paymentType" id="paymentType" style="min-width: 180px;
+                                   border-radius: 5px;
+                                   height: 35px">
+                    <option value="base">
+                        Base payment
+                    </option>
+                    <option value="complementary">
+                        Complementary payment
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="col col-6 col-md-2 col-lg-2">
+            <button id="export" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 120px;
+                               position: relative;
+                               top: 27px">
+                <i class="fa fa-file-export"></i>
+                <span>Export</span>
+            </button>
+        </div>
+        <div class="col col-6 col-md-2 col-lg-2">
+            <button id="export-sepah" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 160px;
+                               position: relative;
+                               top: 27px">
+                <i class="fa fa-file-export"></i>
+                <span>Export sepah</span>
+            </button>
+        </div>
+        <div class="col col-6 col-md-2 col-lg-2">
+            <button id="export-melli" class="btn btn-primary d-flex align-items-center justify-content-around" style="width: 160px;
+                               position: relative;
+                               top: 27px">
+                <i class="fa fa-file-export"></i>
+                <span>Export melli</span>
+            </button>
+        </div>
     </div>
     <br>
-    <br>
-    <script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
-    <script src="{% static 'sheets/js/tableExport.min.js' %}"></script>
-    <script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
-    <script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
-    <script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
-    <script>
 
-    function moneyFormat(value){
+    <table id="payment-table" data-show-export="true" data-search="true" data-click-to-select="true"
+        class="table table-sm table-hover" style="table-layout: fixed;
+                      text-align: center;
+                      min-width: 1000px">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" data-field="state" data-checkbox="true" data-width="2" data-width-unit="%">
+                    #
+                </th>
+                <th scope="col" data-field="userID" class="d-none">
+                    ID
+                </th>
+                <th scope="col" data-field="user" data-sortable="true" data-width="14" data-width-unit="%">
+                    User
+                </th>
+                <th scope="col" data-field="bankName" data-sortable="true" data-width="6" data-width-unit="%">
+                    Bank
+                </th>
+                <th scope="col" data-field="wage" data-sortable="true" data-width="6" data-width-unit="%"
+                    data-formatter="moneyFormatter" data-always-use-formatter="true">
+                    Wage (R)
+                </th>
+                <th scope="col" data-field="totalPayment" data-sortable="true" data-width="9" data-width-unit="%"
+                    data-formatter="moneyFormatter">
+                    Total (R)
+                </th>
+                <th scope="col" data-field="basePayment" data-width="9" data-width-unit="%"
+                    data-formatter="moneyFormatter">
+                    Base (R)
+                </th>
+                <th scope="col" data-field="reduction1" data-width="8" data-width-unit="%"
+                    data-formatter="moneyFormatter">
+                    Reduction1 (R)
+                </th>
+                <th scope="col" data-field="reduction2" data-width="8" data-width-unit="%"
+                    data-formatter="moneyFormatter">
+                    Reduction2 (R)
+                </th>
+                <th scope="col" data-field="reduction3" data-width="8" data-width-unit="%"
+                    data-formatter="moneyFormatter">
+                    Reduction3 (R)
+                </th>
+                <th scope="col" data-field="addition1" data-width="8" data-width-unit="%"
+                    data-formatter="moneyFormatter">
+                    Addition (R)
+                </th>
+                <th scope="col" data-field="addition2" data-width="8" data-width-unit="%"
+                    data-formatter="moneyFormatter">
+                    Addition2 (R)
+                </th>
+                <th scope="col" data-field="complementaryPayment" data-width="11" data-width-unit="%"
+                    data-formatter="colorMoneyFormatter">
+                    Complementary (R)
+                </th>
+                <th scope="col" data-field="finalPayment" data-width="9" data-width-unit="%"
+                    data-formatter="colorMoneyFormatter">
+                    Final (R)
+                </th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<br>
+<br>
+<script src="{% static 'sheets/js/bootstrap-editable.min.js' %}"></script>
+<script src="{% static 'sheets/js/tableExport.min.js' %}"></script>
+<script src="{% static 'sheets/js/bootstrap-table.min.js' %}"></script>
+<script src="{% static 'sheets/js/bootstrap-table-editable.min.js' %}"></script>
+<script src="{% static 'sheets/js/bootstrap-table-export.min.js' %}"></script>
+<script>
+
+    function moneyFormat(value) {
         //console.log(value)
         return value.toLocaleString()
     }
 
-    function colorMoneyFormatter(value){
-        const color = value < 0? 'red': 'black';
+    function colorMoneyFormatter(value) {
+        const color = value < 0 ? 'red' : 'black';
         return `<span style="color: ${color};">${moneyFormat(value)}</span>`
     }
 
-    function moneyFormatter(value){
+    function moneyFormatter(value) {
         return moneyFormat(value)
     }
 
-    async function getTableData(year, month){
+    async function getTableData(year, month) {
         const url = `{% url "sheets:api_payment" year='yearHolder' month='monthHolder' %}`
             .replace("yearHolder", year)
             .replace("monthHolder", month);
-        try{
+        try {
             let res = await fetch(url);
             return await res.json();
         }
-        catch(err){
+        catch (err) {
             jSuites.notification({
                 error: 1,
                 name: 'Error',
@@ -263,10 +199,10 @@
         }
     }
 
-    async function fillTable(year, month){
+    async function fillTable(year, month) {
         $('#payment-table').bootstrapTable('removeAll');
         const data = await getTableData(year, month);
-        for(row of data){
+        for (row of data) {
             $('#payment-table').bootstrapTable('insertRow', {
                 index: $('#payment-table').bootstrapTable('getOptions').totalRows,
                 row: row,
@@ -274,18 +210,18 @@
         }
     }
 
-    function fillYears(year){
-        for(let i=window.START_YEAR; i<=year; i++){
+    function fillYears(year) {
+        for (let i = window.START_YEAR; i <= year; i++) {
             $("#year").append($("<option>").text(i));
         }
     }
 
-    $("document").ready(async function(){
+    $("document").ready(async function () {
 
-        const today = new JDate();
+        const today = new Date();
         const currentYear = today.getFullYear();
         const currentMonth = today.getMonth();
-        fillYears(currentYear); 
+        fillYears(currentYear);
         $("#year").val(currentYear);
         $("#month").val(currentMonth);
         $("#current-sheet-date").text(`${currentYear}/${currentMonth}`);
@@ -297,19 +233,19 @@
 
         fillTable(currentYear, currentMonth);
 
-        $("#year, #month").change(function(){
+        $("#year, #month").change(function () {
             const year = $("#year").val();
             const month = $("#month").val();
             fillTable(year, month);
         });
 
-        $("#payment-table").on('editable-shown.bs.table', function(e, field, row){
+        $("#payment-table").on('editable-shown.bs.table', function (e, field, row) {
             let value = row[field];
             value = String(value).replaceAll(',', '');
             $("div.editable-input input").val(value);
         });
 
-        $("#payment-table").on('editable-save.bs.table', function(e, field, row, idx, oldValue){
+        $("#payment-table").on('editable-save.bs.table', function (e, field, row, idx, oldValue) {
             const year = $("#year").val();
             const month = $("#month").val();
             const url = `{% url "sheets:api_sheets" year='yearHolder' month='monthHolder' %}`
@@ -321,27 +257,27 @@
                     'Content-Type': 'application/json',
                     'X-CSRFToken': '{{csrf_token}}',
                 },
-                body: JSON.stringify({row: row, field: field, editSheet: true}),
+                body: JSON.stringify({ row: row, field: field, editSheet: true }),
             })
-            .then(res => res.json())
-            .then(res => {
-                Object.assign(row, res);
-                $("#payment-table").bootstrapTable('updateRow', {index: idx, row: row});
-            })
-            .catch(err => {
-                jSuites.notification({
-                    error: 1,
-                    name: 'Error',
-                    title: "Editing Row",
-                    message: "Error occured while changing data.",
+                .then(res => res.json())
+                .then(res => {
+                    Object.assign(row, res);
+                    $("#payment-table").bootstrapTable('updateRow', { index: idx, row: row });
+                })
+                .catch(err => {
+                    jSuites.notification({
+                        error: 1,
+                        name: 'Error',
+                        title: "Editing Row",
+                        message: "Error occured while changing data.",
+                    });
+                    $("#payment-table").bootstrapTable('updateCell', { index: idx, field: field, value: oldValue });
                 });
-                $("#payment-table").bootstrapTable('updateCell', {index: idx, field: field, value: oldValue});
-            });
         });
 
-        $("#export").click(function(){
+        $("#export").click(function () {
             const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);
-            const $form = $("<form>", {action: "{% url 'sheets:payment_export' %}", method: "POST"});
+            const $form = $("<form>", { action: "{% url 'sheets:payment_export' %}", method: "POST" });
             $form.append($("<input type='hidden' name='IDs'>").val(JSON.stringify(userIDs)));
             $form.append($("<input type='hidden' name='month'>").val($("#month").val()));
             $form.append($("<input type='hidden' name='year'>").val($("#year").val()));
@@ -352,10 +288,10 @@
             $("body").append($form);
             $form.submit();
         });
-        
-        $("#export-sepah").click(function(){
+
+        $("#export-sepah").click(function () {
             const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);
-            const $form = $("<form>", {action: "{% url 'sheets:payment_export' %}", method: "POST"});
+            const $form = $("<form>", { action: "{% url 'sheets:payment_export' %}", method: "POST" });
             $form.append($("<input type='hidden' name='IDs'>").val(JSON.stringify(userIDs)));
             $form.append($("<input type='hidden' name='month'>").val($("#month").val()));
             $form.append($("<input type='hidden' name='year'>").val($("#year").val()));
@@ -366,10 +302,10 @@
             $("body").append($form);
             $form.submit();
         });
-        
-        $("#export-melli").click(function(){
+
+        $("#export-melli").click(function () {
             const userIDs = $("#payment-table").bootstrapTable("getSelections").map(row => row.userID);
-            const $form = $("<form>", {action: "{% url 'sheets:payment_export' %}", method: "POST"});
+            const $form = $("<form>", { action: "{% url 'sheets:payment_export' %}", method: "POST" });
             $form.append($("<input type='hidden' name='IDs'>").val(JSON.stringify(userIDs)));
             $form.append($("<input type='hidden' name='month'>").val($("#month").val()));
             $form.append($("<input type='hidden' name='year'>").val($("#year").val()));
@@ -382,5 +318,5 @@
         });
 
     });
-    </script>
+</script>
 {% endblock body %}
