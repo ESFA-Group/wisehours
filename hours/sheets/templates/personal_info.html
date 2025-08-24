@@ -71,12 +71,12 @@
                            id="dob"
                            name="dob"
                            value="{{ request.user.dob }}"
-                           placeholder="e.g. 20-8-1990"
-                           pattern="^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-\d{4}$"
+                           placeholder="e.g. 8-20-1990"
+                           pattern="^(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])-\d{4}$"
                            maxlength="10"
                            required>
                     <div class="invalid-feedback">
-                        This field is required and should be in this format: 1375-12-29
+                        This field is required and should be in this format: 8-20-1990 (MM-DD-YYYY).
                     </div>
                 </div>
 
@@ -220,24 +220,6 @@
                 </div>
 
                 <div class="col-12 col-md-4 col-xl-3">
-                    <label for="cardNumber" class="form-label">
-                        Card Number <span class="text-danger">*</span>
-                    </label>
-                    <input type="text"
-                           class="form-control"
-                           id="cardNumber"
-                           name="cardNumber"
-                           value="{{ request.user.card_number }}"
-                           placeholder="e.g. 1111222233334444"
-                           pattern="^\d{16}$"
-                           maxlength="16"
-                           required>
-                    <div class="invalid-feedback">
-                        This field is required and should be exactly a 16 digit number.
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-4 col-xl-3">
                     <label for="accountNumber" class="form-label">
                         Account Number <span class="text-danger">*</span>
                     </label>
@@ -252,26 +234,6 @@
                            required>
                     <div class="invalid-feedback">
                         This field is required and should be exactly a 13 digit number.
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-4 col-xl-3">
-                    <label for="SHEBANumber" class="form-label">
-                        SHEBA Number <span class="text-danger">*</span>
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text">IR</span>
-                        <input type="text"
-                               class="form-control"
-                               id="SHEBANumber"
-                               name="SHEBANumber"
-                               value="{{ request.user.SHEBA_number }}"
-                               pattern="^\d{24}$"
-                               maxlength="24"
-                               required>
-                        <div class="invalid-feedback">
-                            This field is required and should be exactly a 24 digit number.
-                        </div>
                     </div>
                 </div>
             </div>
@@ -304,7 +266,7 @@
             </div>
             <div class="row mb-1">
                 <label class="col-sm-4 col-xl-2 col-form-label" for="nationalIDFrontImage">
-                    National ID Front <span class="text-danger">*</span>
+                    ID Card Front <span class="text-danger">*</span>
                 </label>
                 <div class="col-11 col-sm-6">
                     <input type="file"
@@ -325,7 +287,7 @@
             </div>
             <div class="row mb-1">
                 <label class="col-sm-4 col-xl-2 col-form-label" for="nationalIDBackImage">
-                    National ID Back <span class="text-danger">*</span>
+                    ID Card Back <span class="text-danger">*</span>
                 </label>
                 <div class="col-11 col-sm-6">
                     <input type="file"
@@ -345,48 +307,6 @@
                 {% endif %}
             </div>
             <div class="row mb-1">
-                <label class="col-sm-4 col-xl-2 col-form-label" for="birthCertFirstPage">
-                    Birth Certificate First Page <span class="text-danger">*</span>
-                </label>
-                <div class="col-11 col-sm-6">
-                    <input type="file"
-                           class="form-control"
-                           name="birthCertFirstPage"
-                           id="birthCertFirstPage"
-                           accept="image/*"
-                           {% if not request.user.birth_cert_first_page %}required{% endif %}>
-                    <div class="invalid-feedback">
-                        This file is requiered.
-                    </div>
-                </div>
-                {% if request.user.birth_cert_first_page %}
-                    <label class="col-1 col-form-label">
-                        <a href="{{ request.user.birth_cert_first_page.url }}" target="_blank">View</a>
-                    </label>
-                {% endif %}
-            </div>
-            <div class="row mb-1">
-                <label class="col-sm-4 col-xl-2 col-form-label" for="birthCertChangesPage">
-                    Birth Certificate Changes Page <span class="text-danger">*</span>
-                </label>
-                <div class="col-11 col-sm-6">
-                    <input type="file"
-                           class="form-control"
-                           name="birthCertChangesPage"
-                           id="birthCertChangesPage"
-                           accept="image/*"
-                           {% if not request.user.birth_cert_changes_page %}required{% endif %}>
-                    <div class="invalid-feedback">
-                        This file is requiered.
-                    </div>
-                </div>
-                {% if request.user.birth_cert_changes_page %}
-                    <label class="col-1 col-form-label">
-                        <a href="{{ request.user.birth_cert_changes_page.url }}" target="_blank">View</a>
-                    </label>
-                {% endif %}
-            </div>
-            <div class="row mb-1">
                 <label class="col-sm-4 col-xl-2 col-form-label" for="studentCard">
                     Student Card
                 </label>
@@ -400,23 +320,6 @@
                 {% if request.user.student_card %}
                     <label class="col-1 col-form-label">
                         <a href="{{ request.user.student_card.url }}" target="_blank">View</a>
-                    </label>
-                {% endif %}
-            </div>
-            <div class="row mb-1">
-                <label class="col-sm-4 col-xl-2 col-form-label" for="militaryServiceCard">
-                    Military Service Card
-                </label>
-                <div class="col-11 col-sm-6">
-                    <input type="file"
-                           class="form-control"
-                           name="militaryServiceCard"
-                           id="militaryServiceCard"
-                           accept="image/*">
-                </div>
-                {% if request.user.military_service_card %}
-                    <label class="col-1 col-form-label">
-                        <a href="{{ request.user.military_service_card.url }}" target="_blank">View</a>
                     </label>
                 {% endif %}
             </div>
